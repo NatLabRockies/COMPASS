@@ -43,7 +43,10 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nlr-elm>=0.0.52,<1",
+  # TEMPORARY: ELM branch with the search and response hooks
+  # (NatLabRockies/elm#96). Replace with a version pin once it is
+  # released; PyPI rejects packages with a direct URL dependency.
+  "nlr-elm @ git+https://github.com/NatLabRockies/elm.git@79182cd4781b18d4c34521fe21de0712e9a079aa",
   "numpy>=2.4.3,<3",
   "openai>=2.34.0",
   "pandas>=2.2.3,<3",

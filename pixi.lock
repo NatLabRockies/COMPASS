@@ -255,6 +255,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/wcwidth-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/07/30/b8bcfb01a2514cb7554a048ed52883de276e66d757c3cc535a3c29eb9e98/latex2mathml-3.81.1-py3-none-any.whl
@@ -319,7 +320,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f2/a2/83fc37e2a58090e3d2ff79175a95493c664bcd0b653dd75cb9134645a4e5/shapely-2.1.2-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aiohttp-3.13.5-py313ha60b548_0.conda
@@ -580,6 +580,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/wcwidth-0.7.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/07/575a68c754943058c78f30db02ee03a64b3c638586fba6a6dd56830b30a3/markupsafe-3.0.3-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
@@ -645,7 +646,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/ea/3e/47088ffc9c33eeaee3e013c838bb1be8e307619faed12e245e16d74cefef/rebrowser_playwright-1.49.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/ed/40/b1d0369048c79733a32c8abb0f2718532e6630641368e33a81384246e844/kiwisolver-1.5.1-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -859,6 +859,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py313hcb05632_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/04/d9/108cd989a4c0954e60b3cdc86fd2826407702b5375f6dfdab2802e5fed98/rtree-1.4.1-py3-none-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
@@ -916,7 +917,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e7/36/5ee6e05c9bd427237b11b3937ad82bb8ad2752d72c6969314590dd0c2f6e/psutil-7.2.2-cp36-abi3-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -1129,6 +1129,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py313h9734d34_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -1186,7 +1187,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e9/8a/d7c11c2d1beef99a4df4183b255ea2d8669f3bcf7d049bb17fe56bf7cd72/shapely-2.2.0-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/f3/cf/2710b6fd6b07ea0aef317b29f335790ba6adf06a28ac236078ed9bd8a91d/rtree-1.4.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -1390,6 +1390,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: https://conda.anaconda.org/microsoft/win-64/playwright-1.49.1-py313_0.tar.bz2
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/07/30/b8bcfb01a2514cb7554a048ed52883de276e66d757c3cc535a3c29eb9e98/latex2mathml-3.81.1-py3-none-any.whl
@@ -1454,7 +1455,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f5/22/deabbb3ad6d918d74b7831b2d8ae7151b09d21c87974e5ee8a456f58c94c/kiwisolver-1.5.1-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
   pbuild:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -1732,6 +1732,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -1779,7 +1780,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f0/d3/8ce11827c783affffd5bd4d6378b28eb6cc6d2ddf41474006b8d62e7448e/fastuuid-0.14.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aiohttp-3.13.5-py313ha60b548_0.conda
@@ -2088,6 +2088,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -2136,7 +2137,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/3e/47088ffc9c33eeaee3e013c838bb1be8e307619faed12e245e16d74cefef/rebrowser_playwright-1.49.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -2397,6 +2397,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py313hcb05632_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/04/d9/108cd989a4c0954e60b3cdc86fd2826407702b5375f6dfdab2802e5fed98/rtree-1.4.1-py3-none-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
@@ -2436,7 +2437,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e7/36/5ee6e05c9bd427237b11b3937ad82bb8ad2752d72c6969314590dd0c2f6e/psutil-7.2.2-cp36-abi3-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -2696,6 +2696,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py313h9734d34_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -2735,7 +2736,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f3/cf/2710b6fd6b07ea0aef317b29f335790ba6adf06a28ac236078ed9bd8a91d/rtree-1.4.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -2985,6 +2985,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: https://conda.anaconda.org/microsoft/win-64/playwright-1.49.1-py313_0.tar.bz2
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -3032,7 +3033,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
   pdev:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -3458,6 +3458,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/yarg-0.1.9-py_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -3507,7 +3508,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f0/d3/8ce11827c783affffd5bd4d6378b28eb6cc6d2ddf41474006b8d62e7448e/fastuuid-0.14.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aiohttp-3.13.5-py313ha60b548_0.conda
@@ -3965,6 +3965,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/yarg-0.1.9-py_1.tar.bz2
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -4015,7 +4016,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/3e/47088ffc9c33eeaee3e013c838bb1be8e307619faed12e245e16d74cefef/rebrowser_playwright-1.49.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -4426,6 +4426,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py313hcb05632_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/04/d9/108cd989a4c0954e60b3cdc86fd2826407702b5375f6dfdab2802e5fed98/rtree-1.4.1-py3-none-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
@@ -4467,7 +4468,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e7/36/5ee6e05c9bd427237b11b3937ad82bb8ad2752d72c6969314590dd0c2f6e/psutil-7.2.2-cp36-abi3-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -4876,6 +4876,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py313h9734d34_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -4917,7 +4918,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f3/cf/2710b6fd6b07ea0aef317b29f335790ba6adf06a28ac236078ed9bd8a91d/rtree-1.4.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -5317,6 +5317,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: https://conda.anaconda.org/microsoft/win-64/playwright-1.49.1-py313_0.tar.bz2
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/de/0c1357282f8bcbd91d8b2e61151525e8d58f385c82f4bdbb3083ece8460b/complexipy-8.0.1-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
@@ -5366,7 +5367,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
   pdoc:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -5642,6 +5642,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -5690,7 +5691,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f0/d3/8ce11827c783affffd5bd4d6378b28eb6cc6d2ddf41474006b8d62e7448e/fastuuid-0.14.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aiohttp-3.13.5-py313ha60b548_0.conda
@@ -5998,6 +5998,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -6047,7 +6048,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/3e/47088ffc9c33eeaee3e013c838bb1be8e307619faed12e245e16d74cefef/rebrowser_playwright-1.49.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -6309,6 +6309,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py313hcb05632_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/04/d9/108cd989a4c0954e60b3cdc86fd2826407702b5375f6dfdab2802e5fed98/rtree-1.4.1-py3-none-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
@@ -6349,7 +6350,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e7/36/5ee6e05c9bd427237b11b3937ad82bb8ad2752d72c6969314590dd0c2f6e/psutil-7.2.2-cp36-abi3-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -6610,6 +6610,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py313h9734d34_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -6650,7 +6651,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f3/cf/2710b6fd6b07ea0aef317b29f335790ba6adf06a28ac236078ed9bd8a91d/rtree-1.4.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/accessible-pygments-0.0.5-pyhd8ed1ab_1.conda
@@ -6900,6 +6900,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: https://conda.anaconda.org/microsoft/win-64/playwright-1.49.1-py313_0.tar.bz2
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -6948,7 +6949,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
   ptest:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -7236,6 +7236,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -7283,7 +7284,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f0/d3/8ce11827c783affffd5bd4d6378b28eb6cc6d2ddf41474006b8d62e7448e/fastuuid-0.14.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       linux-aarch64:
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/_openmp_mutex-4.5-20_gnu.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/aiohttp-3.13.5-py313ha60b548_0.conda
@@ -7602,6 +7602,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/webencodings-0.5.1-pyhd8ed1ab_3.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/zipp-4.1.0-pyhcf101f3_0.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -7650,7 +7651,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ea/3e/47088ffc9c33eeaee3e013c838bb1be8e307619faed12e245e16d74cefef/rebrowser_playwright-1.49.1-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -7924,6 +7924,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstandard-0.25.0-py313hcb05632_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/zstd-1.5.7-h3eecb57_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/04/d9/108cd989a4c0954e60b3cdc86fd2826407702b5375f6dfdab2802e5fed98/rtree-1.4.1-py3-none-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
@@ -7963,7 +7964,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e7/36/5ee6e05c9bd427237b11b3937ad82bb8ad2752d72c6969314590dd0c2f6e/psutil-7.2.2-cp36-abi3-macosx_10_9_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       osx-arm64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -8236,6 +8236,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstandard-0.25.0-py313h9734d34_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/zstd-1.5.7-hbf9d68e_6.conda
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -8275,7 +8276,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f3/cf/2710b6fd6b07ea0aef317b29f335790ba6adf06a28ac236078ed9bd8a91d/rtree-1.4.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
       win-64:
       - conda: https://conda.anaconda.org/conda-forge/noarch/_python_abi3_support-1.0-hd8ed1ab_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/aiohappyeyeballs-2.6.2-pyhd8ed1ab_0.conda
@@ -8537,6 +8537,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/zstd-1.5.7-h534d264_6.conda
       - conda: https://conda.anaconda.org/microsoft/win-64/playwright-1.49.1-py313_0.tar.bz2
       - pypi: ./
+      - pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
@@ -8584,7 +8585,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/e8/5f/32de4d99220eb559b7b1cd1c529a1856efa8097f7a3e10b6c207aa95e36c/ddgs-9.14.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e8/b1/c488b530994c4f68e46efa99a4d6ca6741aaf158e35779fe6c4d8a9a427d/latex2mathml-3.81.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fc/58/8402442bf6af5a3a8068fe5431c42ea4f73c1eb18f621f9bf7c5de80caf5/apify_fingerprint_datapoints-0.13.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
   rdev:
     channels:
     - url: https://conda.anaconda.org/conda-forge/
@@ -28226,7 +28226,7 @@ packages:
   - langchain-text-splitters>=1.0.0,<2
   - networkx>=3.4.2,<4
   - nltk>=3.9.1,<4
-  - nlr-elm>=0.0.52,<1
+  - nlr-elm @ git+https://github.com/NatLabRockies/elm.git@79182cd4781b18d4c34521fe21de0712e9a079aa
   - numpy>=2.4.3,<3
   - openai>=2.34.0
   - pandas>=2.2.3,<3
@@ -28270,6 +28270,77 @@ packages:
   - build>=1.2.2,<2 ; extra == 'build'
   - pkginfo>=1.12.1.2,<2 ; extra == 'build'
   requires_python: '>=3.12'
+- pypi: git+https://github.com/NatLabRockies/elm.git?rev=79182cd4781b18d4c34521fe21de0712e9a079aa#79182cd4781b18d4c34521fe21de0712e9a079aa
+  name: nlr-elm
+  version: 0.0.52
+  requires_dist:
+  - openai>=1.1.0
+  - aiohttp
+  - beautifulsoup4
+  - browserforge>=1.2.1,<2
+  - camoufox
+  - click
+  - crawl4ai>=0.8.6
+  - ddgs
+  - fake-useragent>=2.0.3
+  - google-api-python-client
+  - google-search-results
+  - html2text
+  - html5lib
+  - httpx
+  - langchain-text-splitters
+  - lxml
+  - matplotlib
+  - networkx
+  - nltk
+  - numpy
+  - pandas
+  - playwright-stealth
+  - pypdf2
+  - python-slugify
+  - rebrowser-playwright
+  - scipy
+  - scrapling<0.3
+  - tabulate
+  - tavily-python
+  - tiktoken
+  - openai>=1.1.0 ; extra == 'dev'
+  - aiohttp ; extra == 'dev'
+  - beautifulsoup4 ; extra == 'dev'
+  - browserforge>=1.2.1,<2 ; extra == 'dev'
+  - camoufox ; extra == 'dev'
+  - click ; extra == 'dev'
+  - crawl4ai>=0.8.6 ; extra == 'dev'
+  - ddgs ; extra == 'dev'
+  - fake-useragent>=2.0.3 ; extra == 'dev'
+  - google-api-python-client ; extra == 'dev'
+  - google-search-results ; extra == 'dev'
+  - html2text ; extra == 'dev'
+  - html5lib ; extra == 'dev'
+  - httpx ; extra == 'dev'
+  - langchain-text-splitters ; extra == 'dev'
+  - lxml ; extra == 'dev'
+  - matplotlib ; extra == 'dev'
+  - networkx ; extra == 'dev'
+  - nltk ; extra == 'dev'
+  - numpy ; extra == 'dev'
+  - pandas ; extra == 'dev'
+  - playwright-stealth ; extra == 'dev'
+  - pypdf2 ; extra == 'dev'
+  - python-slugify ; extra == 'dev'
+  - rebrowser-playwright ; extra == 'dev'
+  - scipy ; extra == 'dev'
+  - scrapling<0.3 ; extra == 'dev'
+  - tabulate ; extra == 'dev'
+  - tavily-python ; extra == 'dev'
+  - tiktoken ; extra == 'dev'
+  - nlr-rex>=0.5.0 ; extra == 'dev'
+  - pytest>=5.2 ; extra == 'dev'
+  - pytest-mock ; extra == 'dev'
+  - pytest-asyncio ; extra == 'dev'
+  - pytest-cov ; extra == 'dev'
+  - flaky>=3.8.1 ; extra == 'dev'
+  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/00/07/575a68c754943058c78f30db02ee03a64b3c638586fba6a6dd56830b30a3/markupsafe-3.0.3-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl
   name: markupsafe
   version: 3.0.3
@@ -30173,75 +30244,3 @@ packages:
   version: 0.13.0
   sha256: 0213d42297be19e8035202b41fb2e840a1e5d79874c99c882a5027a7d0b1a0eb
   requires_python: '>=3.8'
-- pypi: https://files.pythonhosted.org/packages/fd/46/83e8a9d6a4c368c953cbcb3375935f7515dba12d8d9ba5a365c1467b1e28/nlr_elm-0.0.52-py3-none-any.whl
-  name: nlr-elm
-  version: 0.0.52
-  sha256: 2b93b876b4e8e04d5f3e875d6f646cffcb13aee0723662d8f165f1be8a405db7
-  requires_dist:
-  - openai>=1.1.0
-  - aiohttp
-  - beautifulsoup4
-  - browserforge>=1.2.1,<2
-  - camoufox
-  - click
-  - crawl4ai>=0.8.6
-  - ddgs
-  - fake-useragent>=2.0.3
-  - google-api-python-client
-  - google-search-results
-  - html2text
-  - html5lib
-  - httpx
-  - langchain-text-splitters
-  - lxml
-  - matplotlib
-  - networkx
-  - nltk
-  - numpy
-  - pandas
-  - playwright-stealth
-  - pypdf2
-  - python-slugify
-  - rebrowser-playwright
-  - scipy
-  - scrapling<0.3
-  - tabulate
-  - tavily-python
-  - tiktoken
-  - openai>=1.1.0 ; extra == 'dev'
-  - aiohttp ; extra == 'dev'
-  - beautifulsoup4 ; extra == 'dev'
-  - browserforge>=1.2.1,<2 ; extra == 'dev'
-  - camoufox ; extra == 'dev'
-  - click ; extra == 'dev'
-  - crawl4ai>=0.8.6 ; extra == 'dev'
-  - ddgs ; extra == 'dev'
-  - fake-useragent>=2.0.3 ; extra == 'dev'
-  - google-api-python-client ; extra == 'dev'
-  - google-search-results ; extra == 'dev'
-  - html2text ; extra == 'dev'
-  - html5lib ; extra == 'dev'
-  - httpx ; extra == 'dev'
-  - langchain-text-splitters ; extra == 'dev'
-  - lxml ; extra == 'dev'
-  - matplotlib ; extra == 'dev'
-  - networkx ; extra == 'dev'
-  - nltk ; extra == 'dev'
-  - numpy ; extra == 'dev'
-  - pandas ; extra == 'dev'
-  - playwright-stealth ; extra == 'dev'
-  - pypdf2 ; extra == 'dev'
-  - python-slugify ; extra == 'dev'
-  - rebrowser-playwright ; extra == 'dev'
-  - scipy ; extra == 'dev'
-  - scrapling<0.3 ; extra == 'dev'
-  - tabulate ; extra == 'dev'
-  - tavily-python ; extra == 'dev'
-  - tiktoken ; extra == 'dev'
-  - nlr-rex>=0.5.0 ; extra == 'dev'
-  - pytest>=5.2 ; extra == 'dev'
-  - pytest-mock ; extra == 'dev'
-  - pytest-asyncio ; extra == 'dev'
-  - pytest-cov ; extra == 'dev'
-  - flaky>=3.8.1 ; extra == 'dev'
-  requires_python: '>=3.11'

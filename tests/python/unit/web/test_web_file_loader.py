@@ -1,23 +1,29 @@
 """COMPASS web file loader tests"""
 
+import json
 import asyncio
 import runpy
 from importlib.util import find_spec
 from pathlib import Path
+from functools import partial
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
+from aiohttp import web
 from elm.web.document import HTMLDocument, MDDocument
+from elm.web.file_loader import AsyncFetchWithRetry, AsyncWebFileLoader
 
 import compass.web.file_loader as file_loader_module
+from compass.utilities.event_log import EventLog, use_event_log
 from compass.web.file_loader import (
     AsyncDoclingWebFileLoader,
     AsyncLocalDoclingFileLoader,
+    COMPASSWebFileLoader,
 )
 
 
-pytestmark = pytest.mark.skipif(
+requires_docling = pytest.mark.skipif(
     find_spec("docling_rs") is None or find_spec("docling_core") is None,
     reason="Requires the docling extra",
 )
@@ -77,6 +83,7 @@ def document_cache(tmp_path):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("doc_type", ["pdf", "html", "docx"])
+@requires_docling
 async def test_docling_web_fetch_preserves_inputs_and_caches_content(
     monkeypatch, document_cache, doc_type
 ):
@@ -124,6 +131,7 @@ async def test_docling_web_fetch_preserves_inputs_and_caches_content(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("failure", ["download", "timeout", "empty", "error"])
+@requires_docling
 async def test_docling_web_fetch_failures_are_not_cached(
     monkeypatch, document_cache, failure
 ):
@@ -153,6 +161,7 @@ async def test_docling_web_fetch_failures_are_not_cached(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("doc_type", ["pdf", "html"])
+@requires_docling
 async def test_docling_local_fetch_preserves_metadata_and_options(
     monkeypatch, tmp_path, document_cache, doc_type
 ):
@@ -196,6 +205,7 @@ async def test_docling_local_fetch_preserves_metadata_and_options(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("failure", ["timeout", "empty", "missing"])
+@requires_docling
 async def test_docling_local_fetch_failures_are_not_cached(
     monkeypatch, tmp_path, document_cache, failure
 ):
@@ -220,6 +230,7 @@ async def test_docling_local_fetch_failures_are_not_cached(
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fallback_kind", ["cached", "uncached", "empty"])
 @pytest.mark.parametrize("status", ["partial_success", "failure", None])
+@requires_docling
 async def test_docling_partial_conversion_selects_valid_fallback(
     monkeypatch, fallback_kind, status
 ):
@@ -249,6 +260,7 @@ async def test_docling_partial_conversion_selects_valid_fallback(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_html_and_pdf_results_skip_unnecessary_fallback(
     monkeypatch, document_cache
 ):
@@ -282,6 +294,7 @@ async def test_docling_html_and_pdf_results_skip_unnecessary_fallback(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("browser_failure", ["empty", "error"])
+@requires_docling
 async def test_docling_browser_failure_does_not_block_partial_fallback(
     monkeypatch, browser_failure
 ):
@@ -309,6 +322,7 @@ async def test_docling_browser_failure_does_not_block_partial_fallback(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_empty_source_list_does_not_retry():
     """Return no documents or fallback requests for an empty input list"""
     loader = AsyncDoclingWebFileLoader(re_fetch_failed_with_elm=True)
@@ -319,10 +333,11 @@ async def test_docling_empty_source_list_does_not_retry():
 
 
 @pytest.mark.parametrize("backend", [None, "elm", "docling", "unknown"])
+@requires_docling
 def test_docling_backend_selection_isolated_from_other_tests(
     monkeypatch, backend
 ):
-    """Select both loader aliases from the import-time backend setting"""
+    """Select both loaders from the import-time backend setting"""
     if backend is None:
         monkeypatch.delenv("COMPASS_FILE_LOAD_BACKEND", raising=False)
     else:
@@ -330,8 +345,9 @@ def test_docling_backend_selection_isolated_from_other_tests(
     namespace = runpy.run_path(file_loader_module.__file__)
     prefix = "AsyncDoclingWeb" if backend == "docling" else "AsyncWeb"
     local = "AsyncLocalDocling" if backend == "docling" else "AsyncLocal"
-    assert (
-        namespace["COMPASSWebFileLoader"] is namespace[f"{prefix}FileLoader"]
+    # the web loader adds event recording on top of the chosen backend
+    assert issubclass(
+        namespace["COMPASSWebFileLoader"], namespace[f"{prefix}FileLoader"]
     )
     assert (
         namespace["COMPASSLocalFileLoader"] is namespace[f"{local}FileLoader"]
@@ -339,6 +355,7 @@ def test_docling_backend_selection_isolated_from_other_tests(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
     monkeypatch,
 ):
@@ -368,6 +385,7 @@ async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_web_file_loader_handles_sourceless_elm_failure(
     monkeypatch,
 ):
@@ -397,6 +415,7 @@ async def test_docling_web_file_loader_handles_sourceless_elm_failure(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_html_rendering_preserves_source(monkeypatch):
     """Keep the input source on both initial and rendered HTML docs"""
     loader = AsyncDoclingWebFileLoader()
@@ -427,6 +446,7 @@ async def test_docling_html_rendering_preserves_source(monkeypatch):
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
     """Configured Docling deadlines should reach the converter"""
     captured = {}
@@ -454,5 +474,152 @@ async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
     assert captured["pdf_pipeline_options"] == {"document_timeout": 120}
 
 
+@pytest.mark.parametrize("empty", [False, True])
+async def test_timing_preserves_backend_result(monkeypatch, caplog, empty):
+    """Timing retains the backend result and reports empty downloads."""
+    doc = _doc("https://city.gov/code", empty=empty)
+    fetch = AsyncMock(return_value=doc)
+    monkeypatch.setattr(COMPASSWebFileLoader.__bases__[1], "fetch", fetch)
+    with caplog.at_level("INFO"):
+        result = await COMPASSWebFileLoader().fetch(doc.attrs["source"])
+    assert result is doc
+    fetch.assert_awaited_once_with(doc.attrs["source"])
+    assert "Finished document retrieval" in caplog.text
+    assert f"empty={empty}" in caplog.text
+
+
+async def test_fetch_records_document_event(monkeypatch, tmp_path):
+    """Every COMPASS download is recorded in the event log."""
+    doc = _doc("https://city.gov/code")
+    monkeypatch.setattr(
+        COMPASSWebFileLoader.__bases__[1], "fetch", AsyncMock(return_value=doc)
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await COMPASSWebFileLoader().fetch(doc.attrs["source"])
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["type"] == "document_fetched"
+    assert event["requested"] == "https://city.gov/code"
+    assert event["empty"] is False
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
+
+
+@pytest.fixture
+async def challenge_server():
+    """Local server: a firewall-style 307 page, and a redirect to a PDF"""
+
+    async def challenge(_request):  # ruff:ignore[unused-async]
+        return web.Response(
+            status=307,
+            text="<html>You are being redirected...</html>",
+            content_type="text/html",
+            headers={"Server": "Sucuri/Cloudproxy"},
+        )
+
+    async def moved(_request):  # ruff:ignore[unused-async]
+        raise web.HTTPFound("/doc.pdf")
+
+    async def pdf(_request):  # ruff:ignore[unused-async]
+        return web.Response(
+            body=b"%PDF-1.7 data", content_type="application/pdf"
+        )
+
+    app = web.Application()
+    app.add_routes(
+        [
+            web.get("/challenge", challenge),
+            web.get("/moved", moved),
+            web.get("/doc.pdf", pdf),
+        ]
+    )
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "127.0.0.1", 0)
+    await site.start()
+    port = site._server.sockets[0].getsockname()[1]
+    yield f"http://127.0.0.1:{port}"
+    await runner.cleanup()
+
+
+def test_docling_fallback_loaders_are_recorded():
+    """The Docling backend's fallback loaders record their fetches too"""
+    assert COMPASSWebFileLoader.HTML_LOADER_CLASS.FETCH_STAGE == (
+        "browser render"
+    )
+    fallback = COMPASSWebFileLoader.FALLBACK_LOADER_CLASS()
+    assert fallback.FETCH_STAGE == "ELM fallback"
+    hook = fallback.content_fetcher.on_response_hook
+    assert hook == fallback._record_exchange
+
+
+@pytest.mark.asyncio
+async def test_fallback_fetch_is_labelled_in_the_log(monkeypatch, tmp_path):
+    """A document recovered by a fallback is recorded with its stage"""
+    doc = _doc("https://city.gov/code", empty=False)
+    monkeypatch.setattr(
+        AsyncWebFileLoader, "fetch", AsyncMock(return_value=doc)
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await COMPASSWebFileLoader.FALLBACK_LOADER_CLASS().fetch(
+            doc.attrs["source"]
+        )
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["type"] == "document_fetched"
+    assert event["stage"] == "ELM fallback"
+    assert event["empty"] is False
+
+
+def test_web_loader_listens_for_http_responses():
+    """The loader asks ELM's fetcher to report each response to it"""
+    loader = COMPASSWebFileLoader()
+    hook = loader.content_fetcher.on_response_hook
+    assert hook == loader._record_exchange
+    assert loader.content_fetcher.on_error_hook == loader._record_error
+
+
+@pytest.mark.asyncio
+async def test_downloads_record_why_no_response_came():
+    """A fetch that never got a response logs the connection error"""
+    loader = SimpleNamespace(_exchanges={})
+    url = "https://unreachable.example/doc.pdf"
+    await COMPASSWebFileLoader._record_error(
+        loader, url, ConnectionError("connection refused")
+    )
+    assert COMPASSWebFileLoader._http_exchange(loader, url) == {
+        "http": {"error": "ConnectionError: connection refused"}
+    }
+
+
+@pytest.mark.asyncio
+async def test_downloads_record_their_http_exchange(
+    challenge_server, tmp_path
+):
+    """Status, headers, redirects, and a body summary reach the log"""
+    loader = SimpleNamespace(_exchanges={})
+    fetcher = AsyncFetchWithRetry(
+        on_response_hook=partial(COMPASSWebFileLoader._record_exchange, loader)
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await fetcher.fetch(f"{challenge_server}/challenge")
+        await fetcher.fetch(f"{challenge_server}/moved")
+        blocked = COMPASSWebFileLoader._http_exchange(
+            loader, f"{challenge_server}/challenge"
+        )["http"]
+        moved = COMPASSWebFileLoader._http_exchange(
+            loader, f"{challenge_server}/moved"
+        )["http"]
+    assert blocked["response"]["status"] == 307
+    assert blocked["response"]["headers"]["server"] == "Sucuri/Cloudproxy"
+    assert "You are being redirected" in blocked["response"]["preview"]
+    assert blocked["response"]["bytes"] == 40
+    assert moved["response"]["status"] == 200
+    assert moved["response"]["history"][0]["status"] == 302
+    assert moved["response"]["history"][0]["location"] == "/doc.pdf"
+    # bodies are described in the log, never saved as files
+    assert not [p for p in tmp_path.iterdir() if p.name != "events.jsonl"]
+    assert loader._exchanges == {}

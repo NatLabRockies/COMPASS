@@ -17,6 +17,7 @@ from compass.pipeline.data_classes import OutputSettings
 from compass.pipeline.runtime import _setup_folders
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import GenericFuncRunner
+from compass.utilities.event_log import EventLog, emit_event, use_event_log
 from compass.utilities.enums import LLMTasks
 
 
@@ -164,7 +165,9 @@ async def test_docs_from_se_search_adds_search_engine_attrs(monkeypatch):
         search_semaphore=None,
         browser_semaphore=None,
         url_ignore_substrings=None,
-        jurisdiction=SimpleNamespace(full_name="Example County, Test"),
+        jurisdiction=SimpleNamespace(
+            full_name="Example County, Test", website_url=None
+        ),
         simple_se_result_sort=False,
         se_shard_out_dir=None,
     )
@@ -225,7 +228,7 @@ async def test_search_candidate_budget_and_failed_downloads(monkeypatch):
         None,
         None,
         None,
-        SimpleNamespace(full_name="Example"),
+        SimpleNamespace(full_name="Example", website_url=None),
         True,
         None,
     )
@@ -326,6 +329,108 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     assert [doc.text for doc in docs] == ["keep"]
     assert crawler_kwargs["url_ignore_substrings"] is url_ignore_substrings
     assert crawler_kwargs["url_keep_substrings"] is url_keep_substrings
+
+
+@pytest.mark.asyncio
+async def test_standard_search_records_search_and_download_phases(
+    monkeypatch, tmp_path
+):
+    """Every result and the selected URLs are logged, by phase"""
+    url = "https://example.com/ordinance.pdf"
+
+    async def fake_search(*_args, **_kwargs):  # ruff:ignore[unused-async]
+        return {
+            "queries": ["Example County ordinance"],
+            "results": [
+                {"url": url, "overall_rank": 1, "filtered_reason": None},
+                {"url": "https://x.com/a", "filtered_reason": "blacklist:x"},
+            ],
+        }
+
+    async def fake_docs_from_urls(urls, *_args, **_kwargs):  # ruff:ignore[unused-async]
+        emit_event("download_marker", urls=urls)
+        return [SimpleNamespace(attrs={"source": url})]
+
+    monkeypatch.setattr(
+        download_module, "search_single_jurisdiction", fake_search
+    )
+    monkeypatch.setattr(
+        download_module, "_docs_from_urls", fake_docs_from_urls
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await download_module._docs_from_se_search(
+            query_templates=["{jurisdiction} ordinance"],
+            num_urls=5,
+            search_semaphore=None,
+            browser_semaphore=None,
+            url_ignore_substrings=None,
+            jurisdiction=SimpleNamespace(
+                full_name="Example County, Test", website_url=None
+            ),
+            simple_se_result_sort=False,
+            se_shard_out_dir=None,
+        )
+    events = [json.loads(line) for line in log.path.read_text().splitlines()]
+    by_type = {e["type"]: e for e in events}
+    assert len(by_type["search_results"]["results"]) == 2
+    assert by_type["search_selected"]["urls"] == [url]
+    assert by_type["search_selected"]["phase"] == "search"
+    assert by_type["download_marker"]["phase"] == "download"
+
+
+@pytest.mark.asyncio
+async def test_filter_stages_are_separate_phases(monkeypatch, tmp_path):
+    """Each filtering stage's events and results sit in its own phase"""
+    keep = SimpleNamespace(
+        attrs={"source": "https://county.gov/ord.pdf"}, text="ordinance"
+    )
+    drop = SimpleNamespace(
+        attrs={"source": "https://other.gov/x.pdf"}, text="other"
+    )
+
+    async def jurisdiction_stage(docs, **_kwargs):  # ruff:ignore[unused-async]
+        emit_event("jurisdiction_marker")
+        return docs
+
+    async def relevance_stage(docs, **_kwargs):  # ruff:ignore[unused-async]
+        emit_event("relevance_marker")
+        return [keep]
+
+    monkeypatch.setattr(
+        download_module,
+        "_down_select_docs_correct_jurisdiction",
+        jurisdiction_stage,
+    )
+    monkeypatch.setattr(download_module, "filter_documents", relevance_stage)
+    monkeypatch.setattr(
+        download_module.COMPASS_PB,
+        "update_jurisdiction_task",
+        lambda *_args, **_kwargs: None,
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await download_module.filter_ordinance_docs(
+            [keep, drop],
+            SimpleNamespace(full_name="Example County"),
+            {LLMTasks.DEFAULT: SimpleNamespace()},
+            heuristic=None,
+            tech="data_centers",
+            text_collectors=[],
+            usage_tracker=None,
+        )
+    events = [json.loads(line) for line in log.path.read_text().splitlines()]
+    phases = {
+        e["type"] if e["type"] != "filter_stage" else e["stage"]: e["phase"]
+        for e in events
+        if not e["type"].startswith("phase_")
+    }
+    assert phases == {
+        "jurisdiction_marker": "jurisdiction check",
+        "jurisdiction": "jurisdiction check",
+        "relevance_marker": "relevance check",
+        "relevance": "relevance check",
+    }
 
 
 if __name__ == "__main__":

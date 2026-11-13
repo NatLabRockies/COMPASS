@@ -69,6 +69,7 @@ class PipelineRuntime:
             request.runtime_settings.log_level
         )
         self.keep_async_logs = request.runtime_settings.keep_async_logs
+        self.keep_event_logs = request.runtime_settings.keep_event_logs
         self.log_listener = LogListener(
             ["compass", "elm"], level=self.log_level
         )

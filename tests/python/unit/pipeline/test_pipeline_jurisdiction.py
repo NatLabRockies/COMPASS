@@ -1,6 +1,7 @@
 """Tests for compass.pipeline.jurisdiction"""
 
 import asyncio
+import json
 from contextlib import nullcontext
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,6 +11,8 @@ import pytest
 import compass.pipeline.jurisdiction as jurisdiction_module
 from compass.exceptions import COMPASSPluginConfigurationError
 from compass.pipeline.jurisdiction import SingleJurisdictionRun
+from compass.utilities.event_log import current_event_log, emit_event
+from compass.utilities.workflow import load_workflow
 
 
 class _NoOpLocationFileLog:
@@ -47,8 +50,10 @@ def jurisdiction_run(monkeypatch, tmp_path):
     runtime = SimpleNamespace(
         jurisdiction_semaphore=asyncio.Semaphore(1),
         log_listener=None,
-        dirs=SimpleNamespace(logs=tmp_path),
+        dirs=SimpleNamespace(logs=tmp_path / "logs", out=tmp_path),
         log_level="INFO",
+        keep_event_logs=True,
+        tech="data_centers",
         re_run_targets=None,
     )
     jurisdiction = SimpleNamespace(
@@ -138,6 +143,80 @@ async def test_load_existing_collection_shard_restores_website(
 
     assert out == collection_info
     assert jurisdiction_run.jurisdiction_website == "https://saved.example.com"
+
+
+@pytest.mark.asyncio
+async def test_run_writes_jurisdiction_event_log(
+    monkeypatch, jurisdiction_run, tmp_path
+):
+    """Each run records start and finish in its jurisdiction's log"""
+
+    async def process():  # ruff:ignore[unused-async]
+        return SimpleNamespace(ord_db_fp=None)
+
+    monkeypatch.setattr(jurisdiction_run, "process", process)
+    await jurisdiction_run.run_process_with_logging()
+    # flat, next to the jurisdiction's .log file
+    path = tmp_path / "logs" / "Test_County_Colorado_events.jsonl"
+    events = [json.loads(line) for line in path.read_text().splitlines()]
+    assert [e["type"] for e in events] == [
+        "jurisdiction_started",
+        "workflow_graph",
+        "jurisdiction_finished",
+    ]
+    assert events[0]["jurisdiction"] == "Test County, Colorado"
+    assert events[0]["action"] == "processing"
+    assert [e["tags"]["step"] for e in events] == ["start", "start", "finish"]
+    # The log carries the map of every path, for replaying it
+    assert events[1]["nodes"] == load_workflow()["nodes"]
+
+
+@pytest.mark.asyncio
+async def test_event_log_is_off_unless_requested(
+    monkeypatch, jurisdiction_run, tmp_path
+):
+    """Without keep_event_logs, a run writes no event log"""
+
+    async def process():  # ruff:ignore[unused-async]
+        return SimpleNamespace(ord_db_fp=None)
+
+    monkeypatch.setattr(jurisdiction_run, "process", process)
+    jurisdiction_run.runtime.keep_event_logs = False
+    await jurisdiction_run.run_process_with_logging()
+    assert not list(tmp_path.rglob("*events*"))
+
+
+@pytest.mark.asyncio
+async def test_split_workflow_steps_share_one_event_log(
+    monkeypatch, jurisdiction_run, tmp_path
+):
+    """Search, collect, and extract run separately add to one log"""
+
+    async def step(*_):  # ruff:ignore[unused-async]
+        emit_event("step_work")
+        emit_event("llm_request", call=current_event_log().next_call_id())
+        return SimpleNamespace(ord_db_fp=None)
+
+    for name in ("search", "collect", "extract_from_collection_info"):
+        monkeypatch.setattr(jurisdiction_run, name, step)
+    await jurisdiction_run.run_search_with_logging()
+    await jurisdiction_run.run_collection_with_logging()
+    await jurisdiction_run.run_extraction_with_logging({"docs": []})
+
+    path = tmp_path / "logs" / "Test_County_Colorado_events.jsonl"
+    events = [json.loads(line) for line in path.read_text().splitlines()]
+    started = [e for e in events if e["type"] == "jurisdiction_started"]
+    assert [e["action"] for e in started] == [
+        "searching",
+        "collecting",
+        "extracting",
+    ]
+    # one file, read as one run: numbering, time, and IDs carry on
+    assert [e["seq"] for e in events] == list(range(1, len(events) + 1))
+    assert [e["t"] for e in events] == sorted(e["t"] for e in events)
+    calls = [e["call"] for e in events if e["type"] == "llm_request"]
+    assert len(set(calls)) == len(calls) == 3
+    assert sum(e["type"] == "workflow_graph" for e in events) == 1
 
 
 if __name__ == "__main__":

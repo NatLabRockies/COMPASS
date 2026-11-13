@@ -10,6 +10,7 @@ from compass.validation import (
     LegalTextValidator,
     parse_by_chunks,
 )
+from compass.utilities.event_log import emit_branch, event_step
 from compass.utilities.url import normalize_domain
 from compass.utilities.ngrams import sentence_ngram_containment
 from compass.warn import COMPASSWarning
@@ -87,6 +88,7 @@ async def check_for_relevant_text(
     """
     chunks = model_config.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(chunks, num_to_recall=2)
+    skip_legal_check_reason = _skip_legal_check_reason(doc)
     legal_text_validator = (
         LegalTextValidator(
             tech=tech,
@@ -95,8 +97,7 @@ async def check_for_relevant_text(
             usage_tracker=usage_tracker,
             **model_config.llm_call_kwargs,
         )
-        if doc.attrs.get("check_if_legal_doc", True)
-        and not _url_matches_known_legal_databases(doc)
+        if skip_legal_check_reason is None
         else None
     )
 
@@ -115,12 +116,20 @@ async def check_for_relevant_text(
         callbacks.append(collector.check_chunk)
 
     if not collectors_to_run:
+        emit_branch("filter.relevance.collectors", "no")
         logger.debug(
             "No text collectors to run for document from %s",
             doc.attrs.get("source", "unknown source"),
         )
         return False
 
+    emit_branch("filter.relevance.collectors", "yes")
+    emit_branch(
+        "filter.relevance.legal_check",
+        "no" if skip_legal_check_reason else "yes",
+        reason=skip_legal_check_reason,
+        chunks=len(chunks),
+    )
     await parse_by_chunks(
         chunk_parser,
         heuristic,
@@ -463,7 +472,9 @@ async def extract_ordinance_values(
     When the cleaned text is missing or empty the function emits a
     :class:`compass.warn.COMPASSWarning` and leaves ``doc`` unchanged.
     """
+    parser_name = type(parser).__name__
     if not doc.attrs.get(text_key):
+        emit_branch("extract.doc.has_text", "no", parser=parser_name)
         msg = (
             f"Input document has no {text_key!r} key or string "
             "does not contain info. Please run "
@@ -472,9 +483,11 @@ async def extract_ordinance_values(
         warn(msg, COMPASSWarning)
         return doc
 
-    doc.attrs[out_key] = await parser.parse(
-        doc.attrs[text_key], jurisdiction=jurisdiction
-    )
+    emit_branch("extract.doc.has_text", "yes", parser=parser_name)
+    with event_step("extract.doc.parse"):
+        doc.attrs[out_key] = await parser.parse(
+            doc.attrs[text_key], jurisdiction=jurisdiction
+        )
     return doc
 
 
@@ -506,6 +519,15 @@ async def _parse_if_input_text_not_empty(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text
     )
     return extracted_text
+
+
+def _skip_legal_check_reason(doc):
+    """Why a document skips the legal-text check, or ``None``"""
+    if not doc.attrs.get("check_if_legal_doc", True):
+        return "marked check_if_legal_doc: false"
+    if _url_matches_known_legal_databases(doc):
+        return "from a known legal code library"
+    return None
 
 
 def _url_matches_known_legal_databases(doc):

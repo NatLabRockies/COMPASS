@@ -7,9 +7,22 @@ from urllib.parse import urlsplit, urlunsplit
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
 from compass.utilities.url import URLPartFilter
+from compass.utilities.timing import log_operation
+from compass.utilities.event_log import (
+    current_event_log,
+    error_details,
+    emit_event,
+    event_step,
+)
 
 
 logger = logging.getLogger(__name__)
+_SEARCH_PARAM_TYPES = (str, int, float, bool, type(None))
+"""Engine settings worth logging: plain values only
+
+Nested settings such as browser launch options are left out, since they
+can hold credentials (e.g. a proxy password).
+"""
 _JURISDICTION_WEBSITE_PLACEHOLDER = "{jurisdiction_website}"
 
 
@@ -85,6 +98,10 @@ async def search_single_jurisdiction(
     """
 
     queries = _format_queries(jurisdiction, query_templates)
+    for query in queries:
+        logger.info("Search query: %s", query)
+    with event_step("collect.search_engine.queries"):
+        emit_event("search_queries", queries=queries, num_urls=num_urls)
     base = {
         "full_name": jurisdiction.full_name,
         "state": jurisdiction.state,
@@ -106,15 +123,16 @@ async def search_single_jurisdiction(
     run_meth = _run_simple_sort_search if simple else _run_holistic_sort_search
 
     try:
-        out = await run_meth(
-            queries,
-            num_urls,
-            url_ignore_substrings,
-            url_keep_substrings,
-            browser_semaphore,
-            jurisdiction.full_name,
-            **se_kwargs,
-        )
+        async with log_operation(logger, "web search", jurisdiction.full_name):
+            out = await run_meth(
+                queries,
+                num_urls,
+                url_ignore_substrings,
+                url_keep_substrings,
+                browser_semaphore,
+                jurisdiction.full_name,
+                **se_kwargs,
+            )
 
     except Exception as exc:
         logger.exception("Search failed for %s", jurisdiction.full_name)
@@ -177,6 +195,7 @@ async def _run_simple_sort_search(
         url_keep_substrings=url_keep_substrings,
         browser_semaphore=search_semaphore,
         task_name=jurisdiction_full_name,
+        on_search_hook=record_search_attempt,
         **se_kwargs,
     )
 
@@ -198,6 +217,7 @@ async def _run_holistic_sort_search(
         url_keep_substrings=None,  # custom filters applied later
         browser_semaphore=browser_semaphore,
         task_name=jurisdiction_full_name,
+        on_search_hook=record_search_attempt,
         **se_kwargs,
     )
     return _apply_filters(out, url_blacklist, url_whitelist, num_urls)
@@ -321,4 +341,56 @@ def _overall_sort_key(result):
     return (
         result.get("overall_rank") or float("inf"),
         result.get("filtered_reason") or "",
+    )
+
+
+async def record_search_attempt(  # ruff:ignore[unused-async]
+    engine, query, num_results, results, error, seconds
+):
+    """Record one search engine's answer to one query in the event log
+
+    Passed to ELM as its ``on_search_hook``, which calls it after every
+    search attempt, including those that fail (e.g. on a timeout).
+    Nothing is recorded without an active event log.
+
+    Parameters
+    ----------
+    engine : elm.web.search.base.SearchEngineLinkSearch
+        Search engine instance that ran the query.
+    query : str
+        Query that was searched.
+    num_results : int
+        Number of results requested.
+    results : list or None
+        Results returned, or ``None`` if the search raised an error.
+    error : Exception or None
+        Error raised by the search, if any.
+    seconds : float
+        How long the attempt took.
+    """
+    log = current_event_log()
+    if log is None:
+        return
+    call_id = log.next_id("search")
+    log.emit(
+        "search_request",
+        call=call_id,
+        engine=getattr(engine, "_SE_NAME", type(engine).__name__),
+        query=query,
+        num_results=num_results,
+        parameters={
+            key: value
+            for key, value in vars(engine).items()
+            if not key.startswith("_")
+            and "key" not in key.casefold()
+            and isinstance(value, _SEARCH_PARAM_TYPES)
+        },
+    )
+    outcome = (
+        error_details(error)
+        if error is not None
+        else {"count": len(results or []), "results": results}
+    )
+    log.emit(
+        "search_response", call=call_id, seconds=round(seconds, 3), **outcome
     )

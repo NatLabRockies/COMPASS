@@ -1,11 +1,14 @@
 """Tests for compass.pipeline.search.persistence"""
 
+import json
 from pathlib import Path
 from unittest.mock import AsyncMock
 
+import httpx
 import pytest
 
 import compass.web.search as search_module
+from compass.utilities.event_log import EventLog, use_event_log
 from compass.utilities.jurisdictions import Jurisdiction
 
 
@@ -140,6 +143,25 @@ async def test_search_discards_website_query_without_known_website(
 
 
 @pytest.mark.asyncio
+async def test_search_records_the_queries_it_runs(monkeypatch, tmp_path):
+    """The formatted queries are logged before the search is made"""
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", AsyncMock(return_value=[])
+    )
+    jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await search_module.search_single_jurisdiction(
+            [_JURISDICTION_QUERY_TEMPLATE], jurisdiction, num_urls=7
+        )
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["type"] == "search_queries"
+    assert event["queries"] == ["Adams County, Colorado zoning ordinance"]
+    assert event["num_urls"] == 7
+    assert event["tags"]["step"] == "collect.search_engine.queries"
+
+
+@pytest.mark.asyncio
 async def test_search_skips_backend_when_no_queries_remain(monkeypatch):
     """Return an empty result when all query templates are discarded"""
     search_backend = AsyncMock()
@@ -214,6 +236,7 @@ async def test_run_simple_sort_search_preserves_search_engine_attributes(
             "url_keep_substrings": ["keep"],
             "browser_semaphore": "semaphore",
             "task_name": "Example, CO",
+            "on_search_hook": search_module.record_search_attempt,
         }
         return expected
 
@@ -546,6 +569,74 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
         assert "_order" not in row
         assert "se_order" not in row
         assert "query_index" not in row
+
+
+class _FakeEngine:
+    """Search engine stand-in with settings worth logging, and a secret"""
+
+    _SE_NAME = "Fake Engine"
+
+    def __init__(self):
+        self.api_key = "secret-key"
+        self.verify = False
+        self.launch_kwargs = {"proxy": {"password": "proxy-secret"}}
+
+
+@pytest.mark.asyncio
+async def test_search_attempts_are_recorded(tmp_path):
+    """Results and failures reported by ELM's hook reach the event log"""
+    engine = _FakeEngine()
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await search_module.record_search_attempt(
+            engine=engine,
+            query="zoning",
+            num_results=10,
+            results=["https://example.com/zoning"],
+            error=None,
+            seconds=0.25,
+        )
+        await search_module.record_search_attempt(
+            engine=engine,
+            query="zoning",
+            num_results=10,
+            results=None,
+            error=httpx.ReadTimeout("timed out"),
+            seconds=30,
+        )
+    events = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert [e["type"] for e in events] == [
+        "search_request",
+        "search_response",
+        "search_request",
+        "search_response",
+    ]
+    assert events[0]["engine"] == "Fake Engine"
+    assert events[0]["query"] == "zoning"
+    assert events[0]["parameters"] == {"verify": False}
+    assert events[1]["results"] == ["https://example.com/zoning"]
+    assert events[1]["seconds"] == pytest.approx(0.25)
+    assert events[3]["error"] == "ReadTimeout: timed out"
+    assert events[3]["call"] == events[2]["call"]
+
+
+@pytest.mark.asyncio
+async def test_searches_pass_the_recording_hook_to_elm(monkeypatch):
+    """Both search modes hand ELM the hook that records each attempt"""
+    simple = AsyncMock(return_value=[])
+    holistic = AsyncMock(return_value=[])
+    monkeypatch.setattr(
+        search_module, "search_with_fallback_with_attrs", simple
+    )
+    monkeypatch.setattr(search_module, "search_all_se", holistic)
+    jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
+    for simple_sort in (True, False):
+        await search_module.search_single_jurisdiction(
+            [_JURISDICTION_QUERY_TEMPLATE], jurisdiction, simple=simple_sort
+        )
+    hook = search_module.record_search_attempt
+    assert simple.await_args.kwargs["on_search_hook"] is hook
+    assert holistic.await_args.kwargs["on_search_hook"] is hook
 
 
 if __name__ == "__main__":

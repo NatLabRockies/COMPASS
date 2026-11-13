@@ -31,6 +31,7 @@ class RuntimeSettings:
         max_num_concurrent_jurisdictions=25,
         log_level="INFO",
         keep_async_logs=False,
+        keep_event_logs=False,
     ):
         """
 
@@ -68,6 +69,15 @@ class RuntimeSettings:
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        keep_event_logs : bool, default=False
+            Option to record each jurisdiction's run as a structured
+            event log, ``<jurisdiction>_events.jsonl`` in the `log_dir`
+            directory next to its ``.log`` file. Each line is one event
+            (searches, downloads, filter decisions, LLM calls, extracted
+            rows), so the log can be replayed to see how documents were
+            found and judged. A workflow run as separate search,
+            collect, and extract steps adds each step's events to the
+            same file. By default, ``False``.
         """
         self.td_kwargs = td_kwargs
         self.tpe_kwargs = tpe_kwargs
@@ -77,6 +87,7 @@ class RuntimeSettings:
         )
         self.log_level = log_level
         self.keep_async_logs = keep_async_logs
+        self.keep_event_logs = keep_event_logs
 
         self._validate_num_concurrent_jurisdictions()
 
@@ -429,6 +440,7 @@ class BaseRequest:
         make_paths_relative=False,
         log_level="INFO",
         keep_async_logs=False,
+        keep_event_logs=False,
         search_result_manifest_fp=None,
         collection_manifest_fp=None,
         save_search_engine_results=True,
@@ -705,6 +717,15 @@ class BaseRequest:
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        keep_event_logs : bool, default=False
+            Option to record each jurisdiction's run as a structured
+            event log, ``<jurisdiction>_events.jsonl`` in the `log_dir`
+            directory next to its ``.log`` file. Each line is one event
+            (searches, downloads, filter decisions, LLM calls, extracted
+            rows), so the log can be replayed to see how documents were
+            found and judged. A workflow run as separate search,
+            collect, and extract steps adds each step's events to the
+            same file. By default, ``False``.
         search_result_manifest_fp : path-like or list of path-like, optional
             Saved search manifest, shard directory, or glob paths to
             replay instead of querying search engines. Missing
@@ -764,6 +785,7 @@ class BaseRequest:
             ),
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            keep_event_logs=keep_event_logs,
         )
         self.output_settings = OutputSettings(
             out_dir=out_dir,
@@ -821,6 +843,7 @@ class SearchRequest(BaseRequest):
         log_dir=None,
         log_level="INFO",
         keep_async_logs=False,
+        keep_event_logs=False,
     ):
         """
 
@@ -915,6 +938,15 @@ class SearchRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        keep_event_logs : bool, default=False
+            Option to record each jurisdiction's run as a structured
+            event log, ``<jurisdiction>_events.jsonl`` in the `log_dir`
+            directory next to its ``.log`` file. Each line is one event
+            (searches, downloads, filter decisions, LLM calls, extracted
+            rows), so the log can be replayed to see how documents were
+            found and judged. A workflow run as separate search,
+            collect, and extract steps adds each step's events to the
+            same file. By default, ``False``.
         """
         super().__init__(
             out_dir,
@@ -937,6 +969,7 @@ class SearchRequest(BaseRequest):
             log_dir=log_dir,
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            keep_event_logs=keep_event_logs,
         )
 
 
@@ -988,6 +1021,7 @@ class CollectionRequest(BaseRequest):
         llm_costs=None,
         log_level="INFO",
         keep_async_logs=False,
+        keep_event_logs=False,
         save_search_engine_results=True,
         search_result_manifest_fp=None,
     ):
@@ -1265,6 +1299,15 @@ class CollectionRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        keep_event_logs : bool, default=False
+            Option to record each jurisdiction's run as a structured
+            event log, ``<jurisdiction>_events.jsonl`` in the `log_dir`
+            directory next to its ``.log`` file. Each line is one event
+            (searches, downloads, filter decisions, LLM calls, extracted
+            rows), so the log can be replayed to see how documents were
+            found and judged. A workflow run as separate search,
+            collect, and extract steps adds each step's events to the
+            same file. By default, ``False``.
         save_search_engine_results : bool, default=True
             Save per-jurisdiction search engine results as JSON files in
             a ``se_results`` subdirectory of `out_dir`. If ``False``, no
@@ -1313,6 +1356,7 @@ class CollectionRequest(BaseRequest):
             make_paths_relative=make_paths_relative,
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            keep_event_logs=keep_event_logs,
             search_result_manifest_fp=search_result_manifest_fp,
             save_search_engine_results=save_search_engine_results,
         )
@@ -1345,6 +1389,7 @@ class ExtractionRequest(BaseRequest):
         llm_costs=None,
         log_level="INFO",
         keep_async_logs=False,
+        keep_event_logs=False,
         save_search_engine_results=True,
     ):
         """
@@ -1509,6 +1554,15 @@ class ExtractionRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        keep_event_logs : bool, default=False
+            Option to record each jurisdiction's run as a structured
+            event log, ``<jurisdiction>_events.jsonl`` in the `log_dir`
+            directory next to its ``.log`` file. Each line is one event
+            (searches, downloads, filter decisions, LLM calls, extracted
+            rows), so the log can be replayed to see how documents were
+            found and judged. A workflow run as separate search,
+            collect, and extract steps adds each step's events to the
+            same file. By default, ``False``.
         save_search_engine_results : bool, default=True
             Save per-jurisdiction search engine results as JSON files in
             a ``se_results`` subdirectory of `out_dir`. If ``False``, no
@@ -1535,6 +1589,7 @@ class ExtractionRequest(BaseRequest):
             jurisdiction_dbs_dir=jurisdiction_dbs_dir,
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            keep_event_logs=keep_event_logs,
             collection_manifest_fp=collection_manifest_fp,
             llm_costs=llm_costs,
             save_search_engine_results=save_search_engine_results,

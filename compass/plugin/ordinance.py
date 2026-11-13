@@ -27,6 +27,7 @@ from compass.plugin.interface import (
 from compass.services.threaded import CLEANED_FP_REGISTRY
 from compass.extraction import extract_ordinance_values
 from compass.utilities.enums import LLMTasks, LLMUsageCategory
+from compass.utilities.event_log import emit_branch, event_step, event_tags
 from compass.utilities.ngrams import convert_text_to_sentence_ngrams
 from compass.utilities.parsing import (
     clean_backticks_from_llm_response,
@@ -770,12 +771,25 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        match DocSelectionMethod.normalize(self.DOC_SELECTION_METHOD):
-            case DocSelectionMethod.SINGLE_DOC:
-                return await self.parse_single_doc_for_structured_data(
-                    extraction_context
-                )
+        method = DocSelectionMethod.normalize(self.DOC_SELECTION_METHOD)
+        if method == DocSelectionMethod.SINGLE_DOC:
+            emit_branch("extract.mode", "yes", method=str(method))
+            return await self.parse_single_doc_for_structured_data(
+                extraction_context
+            )
 
+        emit_branch("extract.mode", "no", method=str(method))
+        with event_step("extract.multi"):
+            context = await self._parse_multi_doc(method, extraction_context)
+        emit_branch(
+            "extract.multi",
+            "none found" if context is None else "values found",
+        )
+        return context
+
+    async def _parse_multi_doc(self, method, extraction_context):
+        """Parse documents together, as the multi-doc `method` says"""
+        match method:
             case DocSelectionMethod.MULTI_DOC_CONTEXT:
                 return await self.parse_multi_doc_context_for_structured_data(
                     extraction_context
@@ -823,8 +837,16 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
         for doc_for_extraction in extraction_context:
-            data_df = await self.parse_for_structured_data(doc_for_extraction)
-            row_count = self.get_structured_data_row_count(data_df)
+            with event_tags(document=doc_for_extraction.attrs.get("source")):
+                data_df = await self.parse_for_structured_data(
+                    doc_for_extraction
+                )
+                row_count = self.get_structured_data_row_count(data_df)
+                emit_branch(
+                    "extract.doc.qualifies",
+                    "yes" if row_count > 0 else "no",
+                    rows=row_count,
+                )
             if row_count > 0:
                 data_df["source"] = doc_for_extraction.attrs.get("source")
                 data_df["year"] = extract_year_from_doc_attrs(
@@ -844,6 +866,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
                 )
                 return extraction_context
 
+        emit_branch("extract.doc.no_data", "no documents left")
         logger.debug(
             "No ordinances found; searched %d docs",
             extraction_context.num_documents,
@@ -1095,9 +1118,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         """Apply a single extractor and parser to legal text"""
 
         if parser_class.IN_LABEL not in doc_for_extraction.attrs:
-            await self._run_text_extractors(
-                doc_for_extraction, parser_class, sub_progress
-            )
+            with event_step("extract.doc.text"):
+                await self._run_text_extractors(
+                    doc_for_extraction, parser_class, sub_progress
+                )
 
         model_config = self._get_model_config(
             parser_class.TASK_ID,

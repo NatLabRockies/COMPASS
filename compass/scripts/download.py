@@ -13,7 +13,10 @@ from elm.web.website_crawl import (
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
-from compass.web.search import search_single_jurisdiction
+from compass.web.search import (
+    record_search_attempt,
+    search_single_jurisdiction,
+)
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.pipeline.search.persistence import write_search_manifest_shard
@@ -29,6 +32,13 @@ from compass.web.file_loader import (
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.url import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
+from compass.utilities.event_log import (
+    emit_branch,
+    emit_event,
+    event_phase,
+    event_step,
+    event_tags,
+)
 from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
 
@@ -230,18 +240,24 @@ async def find_jurisdiction_website(
     query_1 = f"{name_no_the} website".casefold().replace(",", "")
     query_2 = f"main website {name}".casefold().replace(",", "")
 
-    potential_website_links = await search_with_fallback(
-        queries=[query_1, query_2],
-        num_urls=3,
-        url_ignore_substrings=url_ignore_substrings,
-        browser_semaphore=search_semaphore,
-        task_name=jurisdiction.full_name,
-        **kwargs,
-    )
+    with event_step("collect.website.search"):
+        potential_website_links = await search_with_fallback(
+            queries=[query_1, query_2],
+            num_urls=3,
+            url_ignore_substrings=url_ignore_substrings,
+            browser_semaphore=search_semaphore,
+            task_name=jurisdiction.full_name,
+            on_search_hook=record_search_attempt,
+            **kwargs,
+        )
     potential_website_links = _normalize_website_candidates(
         potential_website_links
     )
-
+    emit_branch(
+        "collect.website.search",
+        "candidates found" if potential_website_links else "no candidates",
+        candidates=potential_website_links,
+    )
     if not potential_website_links:
         return None
 
@@ -258,9 +274,11 @@ async def find_jurisdiction_website(
         **model_config.llm_call_kwargs,
     )
 
-    for url in potential_website_links:
+    for index, url in enumerate(potential_website_links):
         if await validator.check(url, jurisdiction):
             return url
+        more = index + 1 < len(potential_website_links)
+        emit_branch("collect.website.more", "yes" if more else "no")
 
     return None
 
@@ -771,15 +789,18 @@ async def filter_ordinance_docs(
         jurisdiction.full_name,
         description="Checking files for correct jurisdiction...",
     )
-    docs = await _down_select_docs_correct_jurisdiction(
-        docs,
-        jurisdiction=jurisdiction,
-        usage_tracker=usage_tracker,
-        model_config=model_configs.get(
-            LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
-            model_configs[LLMTasks.DEFAULT],
-        ),
-    )
+    with event_step("filter.jurisdiction"), event_phase("jurisdiction check"):
+        before = list(docs)
+        docs = await _down_select_docs_correct_jurisdiction(
+            docs,
+            jurisdiction=jurisdiction,
+            usage_tracker=usage_tracker,
+            model_config=model_configs.get(
+                LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
+                model_configs[LLMTasks.DEFAULT],
+            ),
+        )
+        _emit_filter_stage("jurisdiction", before, docs, _jurisdiction_result)
     sources_as_str = "\n\t- ".join(
         [doc.attrs.get("source", "Unknown source") for doc in docs]
     )
@@ -794,16 +815,25 @@ async def filter_ordinance_docs(
         jurisdiction.full_name,
         description="Checking files for extraction-relevant text...",
     )
-    docs = await filter_documents(
-        docs,
-        validation_coroutine=_contains_relevant_text,
-        task_name=jurisdiction.full_name,
-        model_configs=model_configs,
-        heuristic=heuristic,
-        tech=tech,
-        text_collectors=text_collectors,
-        usage_tracker=usage_tracker,
-    )
+    with event_step("filter.relevance"), event_phase("relevance check"):
+        before = list(docs)
+        docs = await filter_documents(
+            docs,
+            validation_coroutine=_contains_relevant_text,
+            task_name=jurisdiction.full_name,
+            model_configs=model_configs,
+            heuristic=heuristic,
+            tech=tech,
+            text_collectors=text_collectors,
+            usage_tracker=usage_tracker,
+        )
+        labels = [c.OUT_LABEL for c in text_collectors or [] if c is not None]
+        _emit_filter_stage(
+            "relevance",
+            before,
+            docs,
+            lambda doc: _relevance_result(doc, labels),
+        )
     if not docs:
         logger.info(
             "Did not find any potential ordinance documents for %s",
@@ -819,6 +849,43 @@ async def filter_ordinance_docs(
         "\n\t- ".join([str(doc) for doc in docs]),
     )
     return docs
+
+
+def _emit_filter_stage(stage, before, after, describe):
+    """Record which documents passed one filtering stage, and why"""
+    kept = {id(doc) for doc in after or []}
+    emit_event(
+        "filter_stage",
+        stage=stage,
+        results=[
+            {
+                "source": doc.attrs.get("source"),
+                "passed": id(doc) in kept,
+                **describe(doc),
+            }
+            for doc in before
+        ],
+    )
+
+
+def _jurisdiction_result(doc):
+    """Jurisdiction-check details stored on a document"""
+    return {
+        "checked": doc.attrs.get("check_correct_jurisdiction", True),
+        "score": doc.attrs.get(DTreeJurisdictionValidator.META_SCORE_KEY),
+    }
+
+
+def _relevance_result(doc, collector_labels):
+    """Relevance-check details stored on a document"""
+    return {
+        "found_extraction_text": doc.attrs.get("found_any_extraction_text"),
+        "date": doc.attrs.get("date"),
+        "collected_characters": {
+            label: len(doc.attrs.get(label) or "")
+            for label in collector_labels
+        },
+    }
 
 
 def _normalize_website_candidates(urls):
@@ -848,22 +915,23 @@ async def _docs_from_se_search(
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    search_results = await search_single_jurisdiction(
-        query_templates,
-        jurisdiction,
-        num_urls,
-        search_semaphore,
-        url_ignore_substrings,
-        simple=simple_se_result_sort,
-        **kwargs,
-    )
+    with event_phase("search"):
+        with event_step("collect.search_engine.search"):
+            search_results = await search_single_jurisdiction(
+                query_templates,
+                jurisdiction,
+                num_urls,
+                search_semaphore,
+                url_ignore_substrings,
+                simple=simple_se_result_sort,
+                **kwargs,
+            )
+        ranked_results = await _rank_search_results(
+            search_results, jurisdiction, se_shard_out_dir
+        )
 
-    return await _docs_from_search_results(
-        search_results,
-        browser_semaphore,
-        jurisdiction,
-        se_shard_out_dir,
-        **kwargs,
+    return await _docs_from_ranked_results(
+        ranked_results, browser_semaphore, jurisdiction, **kwargs
     )
 
 
@@ -871,7 +939,17 @@ async def _docs_from_search_results(
     search_results, browser_semaphore, jurisdiction, se_shard_out_dir, **kwargs
 ):
     """Retrieve documents from search results"""
+    with event_phase("search"):
+        ranked_results = await _rank_search_results(
+            search_results, jurisdiction, se_shard_out_dir
+        )
+    return await _docs_from_ranked_results(
+        ranked_results, browser_semaphore, jurisdiction, **kwargs
+    )
 
+
+async def _rank_search_results(search_results, jurisdiction, se_shard_out_dir):
+    """Record search results and rank the URLs worth downloading"""
     if se_shard_out_dir is not None:
         await write_search_manifest_shard(
             se_shard_out_dir, search_results, jurisdiction
@@ -882,17 +960,41 @@ async def _docs_from_search_results(
         for res in search_results["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
-    urls = sorted(
-        ranked_results,
-        key=lambda url: ranked_results[url].get("overall_rank") or 1,
-    )
+    with event_step("collect.search_engine.select"):
+        emit_event(
+            "search_results",
+            results=search_results["results"],
+            error=search_results.get("error"),
+        )
+        emit_event("search_selected", urls=_ranked_urls(ranked_results))
+    return ranked_results
+
+
+async def _docs_from_ranked_results(
+    ranked_results, browser_semaphore, jurisdiction, **kwargs
+):
+    """Download ranked search results as documents"""
+    urls = _ranked_urls(ranked_results)
+    emit_branch("collect.search_engine.has_urls", "yes" if urls else "no")
     if not urls:
         return []
 
-    docs = await _docs_from_urls(
-        urls, jurisdiction.full_name, browser_semaphore, **kwargs
-    )
+    with (
+        event_step("collect.search_engine.download"),
+        event_phase("download"),
+    ):
+        docs = await _docs_from_urls(
+            urls, jurisdiction.full_name, browser_semaphore, **kwargs
+        )
     return _add_se_metadata(docs, ranked_results)
+
+
+def _ranked_urls(ranked_results):
+    """URLs of ranked search results, best first"""
+    return sorted(
+        ranked_results,
+        key=lambda url: ranked_results[url].get("overall_rank") or 1,
+    )
 
 
 async def _docs_from_urls(
@@ -923,10 +1025,14 @@ async def _down_select_docs_correct_jurisdiction(
     """Remove documents that do not match the target jurisdiction"""
     exempt_docs, docs_to_check = [], []
     for doc in docs:
-        if doc.attrs.get("check_correct_jurisdiction", True):
-            docs_to_check.append(doc)
-        else:
-            exempt_docs.append(doc)
+        exempt = not doc.attrs.get("check_correct_jurisdiction", True)
+        with event_tags(
+            document=doc.attrs.get("source"), check="jurisdiction"
+        ):
+            emit_branch(
+                "filter.jurisdiction.exempt", "yes" if exempt else "no"
+            )
+        (exempt_docs if exempt else docs_to_check).append(doc)
 
     if not docs_to_check:
         return exempt_docs
@@ -938,9 +1044,16 @@ async def _down_select_docs_correct_jurisdiction(
         **model_config.llm_call_kwargs,
     )
     logger.debug("Validating documents for %r", jurisdiction)
+
+    async def check(doc, **kwargs):
+        with event_tags(
+            document=doc.attrs.get("source"), check="jurisdiction"
+        ):
+            return await jurisdiction_validator.check(doc, **kwargs)
+
     checked_docs = await filter_documents(
         docs_to_check,
-        validation_coroutine=jurisdiction_validator.check,
+        validation_coroutine=check,
         jurisdiction=jurisdiction,
         task_name=jurisdiction.full_name,
     )
@@ -951,6 +1064,16 @@ async def _contains_relevant_text(
     doc, model_configs, usage_tracker=None, **kwargs
 ):
     """Determine whether a document contains ordinance information"""
+    with event_tags(document=doc.attrs.get("source"), check="relevance"):
+        return await _check_relevant_text(
+            doc, model_configs, usage_tracker=usage_tracker, **kwargs
+        )
+
+
+async def _check_relevant_text(
+    doc, model_configs, usage_tracker=None, **kwargs
+):
+    """Look for extraction text in a document, then parse its date"""
     model_config = model_configs.get(
         LLMTasks.DOCUMENT_CONTENT_VALIDATION,
         model_configs[LLMTasks.DEFAULT],
@@ -966,6 +1089,7 @@ async def _contains_relevant_text(
         **kwargs,
     )
     doc.attrs["found_any_extraction_text"] = found_text
+    emit_branch("filter.relevance.found", "yes" if found_text else "no")
     if found_text:
         logger.info(
             "Detected some relevant extraction text for document from "
@@ -975,9 +1099,10 @@ async def _contains_relevant_text(
         date_model_config = model_configs.get(
             LLMTasks.DATE_EXTRACTION, model_configs[LLMTasks.DEFAULT]
         )
-        doc = await extract_date(
-            doc, date_model_config, usage_tracker=usage_tracker
-        )
+        with event_step("filter.relevance.date"):
+            doc = await extract_date(
+                doc, date_model_config, usage_tracker=usage_tracker
+            )
     else:
         logger.info(
             "Did not detect relevant extraction text for document from "

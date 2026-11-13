@@ -5,7 +5,16 @@ import time
 from functools import partial, cached_property
 
 from compass.services.threaded import JurisdictionUpdater
+from compass.utilities.io import normalize_output_stem
 from compass.utilities.logs import LocationFileLog
+from compass.utilities.event_log import (
+    EventLog,
+    emit_event,
+    error_details,
+    event_step,
+    use_event_log,
+)
+from compass.utilities.workflow import load_workflow
 from compass.pipeline.collection import DocumentCollection
 from compass.pipeline import JurisdictionResult
 from compass.pipeline.collection.persistence import (
@@ -261,22 +270,64 @@ class SingleJurisdictionRun:
                     location=self.jurisdiction.full_name,
                     level=self.runtime.log_level,
                 ):
-                    try:
-                        return await runner()
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception as error:
-                        msg = "Encountered error of type %r while %s %s:"
-                        err_type = type(error)
-                        logger.exception(
-                            msg,
-                            err_type,
-                            error_action,
-                            self.jurisdiction.full_name,
+                    with use_event_log(self._new_event_log(error_action)):
+                        return await self._run_and_record(
+                            runner, error_action, fallback
                         )
-                        if isinstance(error, COMPASSPluginConfigurationError):
-                            raise
-                        return fallback
+
+    def _new_event_log(self, action):
+        """Open the jurisdiction's event log for one pipeline action
+
+        Returns ``None`` unless event logs were requested
+        (``keep_event_logs``). The log sits next to the jurisdiction's
+        ``.log`` file and, like it, is added to by every step of a
+        workflow run as separate search, collect, and extract steps.
+        """
+        if not self.runtime.keep_event_logs:
+            return None
+        stem = normalize_output_stem(f"{self.jurisdiction.full_name}_events")
+        log = EventLog(self.runtime.dirs.logs / f"{stem}.jsonl")
+        with event_step("start"):
+            log.emit(
+                "jurisdiction_started",
+                action=action,
+                jurisdiction=self.jurisdiction.full_name,
+                code=str(self.jurisdiction.code),
+                technology=self.runtime.tech,
+            )
+            if log.is_new:
+                # The map of every possible path, for replaying this log
+                log.emit("workflow_graph", **load_workflow())
+        return log
+
+    async def _run_and_record(self, runner, error_action, fallback):
+        """Run one action, logging errors and recording the outcome"""
+        try:
+            result = await runner()
+        except KeyboardInterrupt:
+            raise
+        except Exception as error:
+            with event_step("finish"):
+                emit_event(
+                    "jurisdiction_finished",
+                    **error_details(error),
+                )
+            msg = "Encountered error of type %r while %s %s:"
+            err_type = type(error)
+            logger.exception(
+                msg, err_type, error_action, self.jurisdiction.full_name
+            )
+            if isinstance(error, COMPASSPluginConfigurationError):
+                raise
+            return fallback
+        with event_step("finish"):
+            emit_event(
+                "jurisdiction_finished",
+                ord_db_fp=(
+                    str(getattr(result, "ord_db_fp", None) or "") or None
+                ),
+            )
+        return result
 
     async def run_process_with_logging(self):
         """Run one jurisdiction under location-scoped logging

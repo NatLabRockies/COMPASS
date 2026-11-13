@@ -144,6 +144,8 @@ nitpick_ignore = [
     ),
     ("py:class", "compass.utilities.io._ConfigType"),
     ("py:class", "elm.web.document.Document"),
+    ("py:obj", "elm.web.document.Document"),
+    ("py:meth", "async_playwright.chromium.launch"),
 ]
 
 # -- Options for HTML output -------------------------------------------------

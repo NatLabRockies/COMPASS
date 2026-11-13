@@ -2,7 +2,9 @@
 
 import os
 import asyncio
+import hashlib
 import logging
+import time
 from importlib import import_module
 
 from elm.web.file_loader import (
@@ -14,6 +16,14 @@ from elm.web.file_loader import (
 )
 from elm.web.document import MDDocument
 from compass.services.threaded import TempFileCache
+from compass.utilities.timing import log_operation
+from compass.utilities.event_log import (
+    body_preview,
+    document_summary,
+    emit_event,
+    error_details,
+    loggable_headers,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -83,6 +93,11 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
 
 class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
     """Async web file loader using Docling"""
+
+    HTML_LOADER_CLASS = _AsyncHTMLOnlyLoader
+    """Loader that re-renders HTML sources in a browser"""
+    FALLBACK_LOADER_CLASS = AsyncWebFileLoader
+    """Loader that re-fetches sources Docling could not parse"""
 
     # ruff:ignore[too-many-arguments, too-many-positional-arguments]
     def __init__(
@@ -189,7 +204,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             verify_ssl=verify_ssl,
             aget_kwargs=aget_kwargs,
         )
-        self.html_loader = _AsyncHTMLOnlyLoader(
+        self.html_loader = self.HTML_LOADER_CLASS(
             pw_launch_kwargs=pw_launch_kwargs,
             html_read_kwargs=html_read_kwargs,
             html_read_coroutine=html_read_coroutine,
@@ -202,7 +217,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
         self.failed_fetcher = None
         if re_fetch_failed_with_elm:
-            self.failed_fetcher = AsyncWebFileLoader(
+            self.failed_fetcher = self.FALLBACK_LOADER_CLASS(
                 header_template=header_template,
                 verify_ssl=verify_ssl,
                 aget_kwargs=aget_kwargs,
@@ -485,8 +500,142 @@ def _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source):
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
     import_module("compass.services.docling")
-    COMPASSWebFileLoader = AsyncDoclingWebFileLoader
+    _WebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
-    COMPASSWebFileLoader = AsyncWebFileLoader
+    _WebFileLoader = AsyncWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalFileLoader
+
+
+class _RecordedFetch:
+    """Mixin: time each fetch of a loader and record it as an event
+
+    Every source fetched is recorded as a ``document_fetched`` event
+    with what came back (or the error) and, where the loader downloads
+    over HTTP, the exchange behind it.
+    """
+
+    FETCH_STAGE = None
+    """How the loader is used when it is not the first one tried"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._exchanges = {}
+        fetcher = getattr(self, "content_fetcher", None)
+        if hasattr(fetcher, "on_response_hook"):
+            fetcher.on_response_hook = self._record_exchange
+            fetcher.on_error_hook = self._record_error
+
+    async def fetch(self, source):
+        """Load and cache one document, recording the outcome"""
+        started = time.monotonic()
+        stage = {"stage": self.FETCH_STAGE} if self.FETCH_STAGE else {}
+        try:
+            async with log_operation(logger, "document retrieval", source):
+                doc = await super().fetch(source)
+        except Exception as exc:
+            emit_event(
+                "document_fetched",
+                source=source,
+                **error_details(exc),
+                seconds=round(time.monotonic() - started, 3),
+                **stage,
+                **self._http_exchange(source),
+            )
+            raise
+        emit_event(
+            "document_fetched",
+            requested=source,
+            empty=doc.empty,
+            seconds=round(time.monotonic() - started, 3),
+            **stage,
+            **document_summary(doc),
+            **self._http_exchange(source),
+        )
+        logger.info(
+            "Document retrieval result: %s | empty=%s", source, doc.empty
+        )
+        return doc
+
+    def _http_exchange(self, source):
+        """The HTTP exchange behind a fetch, if one was recorded"""
+        exchange = self._exchanges.pop(source, None)
+        return {"http": exchange} if exchange else {}
+
+    async def _record_exchange(self, url, response, body):
+        """ELM response hook: keep the last exchange for each URL"""
+        self._exchanges[url] = http_exchange(response, body)
+
+    async def _record_error(self, url, error):
+        """ELM error hook: keep why a URL gave no response at all"""
+        self._exchanges[url] = error_details(error)
+
+
+class _RecordedBrowserLoader(_RecordedFetch, _AsyncHTMLOnlyLoader):
+    """Browser re-render of an HTML source, recorded like a download"""
+
+    FETCH_STAGE = "browser render"
+
+
+class _RecordedFallbackLoader(_RecordedFetch, AsyncWebFileLoader):
+    """ELM re-fetch of a source Docling could not parse, recorded"""
+
+    FETCH_STAGE = "ELM fallback"
+
+
+class COMPASSWebFileLoader(_RecordedFetch, _WebFileLoader):
+    """The configured loader, timing and recording each download
+
+    With the Docling backend, the loaders it falls back on (a browser
+    render for HTML, and ELM for sources Docling could not parse) are
+    recorded too, so a document recovered by a fallback is not left
+    looking like a failed download.
+    """
+
+    HTML_LOADER_CLASS = _RecordedBrowserLoader
+    FALLBACK_LOADER_CLASS = _RecordedFallbackLoader
+
+
+def http_exchange(response, body):
+    """Describe an HTTP exchange for the event log
+
+    Parameters
+    ----------
+    response : aiohttp.ClientResponse
+        Response received, as passed to ELM's ``on_response_hook``.
+    body : bytes
+        Content of the response.
+
+    Returns
+    -------
+    dict
+        The ``request`` (method, URL, headers) and the ``response``
+        (status, final URL, headers, redirect history, and the body's
+        size, hash, and opening text), with credentials redacted.
+    """
+    request = response.request_info
+    headers = loggable_headers(response.headers)
+    return {
+        "request": {
+            "method": request.method,
+            "url": str(request.url),
+            "headers": loggable_headers(request.headers),
+        },
+        "response": {
+            "status": response.status,
+            "reason": response.reason,
+            "url": str(response.url),
+            "headers": headers,
+            "history": [
+                {
+                    "status": hop.status,
+                    "url": str(hop.url),
+                    "location": hop.headers.get("Location"),
+                }
+                for hop in response.history
+            ],
+            "bytes": len(body),
+            "sha256": hashlib.sha256(body).hexdigest(),
+            "preview": body_preview(body, headers.get("content-type", "")),
+        },
+    }
