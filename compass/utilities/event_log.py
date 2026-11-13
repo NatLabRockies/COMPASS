@@ -191,7 +191,11 @@ def error_details(error):
     (for example, ELM's "Maximum number of retries (3) exceeded" raised
     from the OpenAI client's ``APIConnectionError``, itself raised from
     an ``httpx.ReadError``). The outermost error alone rarely says what
-    went wrong, so the whole chain is recorded.
+    went wrong, so the whole chain is recorded, down to the operating
+    system's error where there is one (such as a connection reset).
+    Libraries sometimes re-raise with ``from None``, which hides the
+    original error from tracebacks without discarding it; it is still
+    followed here, since that original error is usually the useful one.
 
     Parameters
     ----------
@@ -211,9 +215,7 @@ def error_details(error):
     while error is not None and id(error) not in seen:
         seen.add(id(error))
         chain.append(error)
-        error = error.__cause__ or (
-            None if error.__suppress_context__ else error.__context__
-        )
+        error = error.__cause__ or error.__context__
     text = _error_text(chain[0])
     if len(chain) == 1:
         return {"error": text}

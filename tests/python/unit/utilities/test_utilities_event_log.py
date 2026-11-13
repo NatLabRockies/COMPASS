@@ -102,8 +102,14 @@ def test_phases_nest_and_tag_events(tmp_path):
 
 
 def _retries_exhausted():
-    """The error a call gives when every retry lost its connection"""
+    """The error a call gives when every retry lost its connection
+
+    As httpcore does, the read error is re-raised ``from None``, which
+    keeps the socket error only as its hidden context.
+    """
+    reset = ConnectionResetError(54, "Connection reset by peer")
     read = httpx.ReadError("")
+    read.__context__, read.__suppress_context__ = reset, True
     connection = ConnectionError("Connection error.")
     connection.__cause__ = read
     exhausted = RuntimeError("Maximum number of retries (3) exceeded")
@@ -116,7 +122,7 @@ def test_error_details_follow_the_cause_chain():
     out = error_details(_retries_exhausted())
     assert out["error"] == (
         "RuntimeError: Maximum number of retries (3) exceeded "
-        "(caused by ReadError)"
+        "(caused by ConnectionResetError: [Errno 54] Connection reset by peer)"
     )
     assert out["error_chain"] == [
         {
@@ -125,6 +131,10 @@ def test_error_details_follow_the_cause_chain():
         },
         {"type": "ConnectionError", "message": "Connection error."},
         {"type": "httpx.ReadError", "message": ""},
+        {
+            "type": "ConnectionResetError",
+            "message": "[Errno 54] Connection reset by peer",
+        },
     ]
     assert error_details(ValueError("boom")) == {"error": "ValueError: boom"}
 
@@ -142,7 +152,7 @@ async def test_failed_llm_call_records_the_underlying_error(tmp_path):
         await caller.call("system", "text", response_format={})
     response = read_events(log.path)[-1]
     assert response["type"] == "llm_response"
-    assert response["error"].endswith("(caused by ReadError)")
+    assert "Connection reset by peer" in response["error"]
     assert response["error_chain"][1]["message"] == "Connection error."
 
 
