@@ -2,6 +2,7 @@
 
 import pprint
 import logging
+from datetime import date
 from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
@@ -16,7 +17,10 @@ from elm.web.utilities import filter_documents
 from compass.web.search import (
     record_search_attempt,
     search_single_jurisdiction,
+    search_ordinance_candidates,
+    format_queries,
 )
+from compass.llm.calling import SchemaOutputLLMCaller
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.pipeline.search.persistence import write_search_manifest_shard
@@ -30,7 +34,13 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.utilities.url import base_website_url, sanitize_url
+from compass.web.priority_crawl import PriorityCrawler
+from compass.utilities.url import (
+    URLPartFilter,
+    base_website_url,
+    canonical_url,
+    sanitize_url,
+)
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.event_log import (
     emit_branch,
@@ -547,6 +557,106 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     async with cpb:
         return await crawler.run(
             website, crawl_timeout_s=timeout_seconds, on_new_page_visit_hook=ch
+        )
+
+
+async def download_prioritized_ordinances(workflow):
+    """Search both engines and follow one queue per jurisdiction."""
+    runtime = workflow.runtime
+    templates = await workflow.extractor.get_query_templates()
+    queries = format_queries(workflow.jurisdiction, templates)
+    options = dict(runtime.search_params.priority_search)
+    results_per_engine = options.pop("results_per_engine", 10)
+    if workflow.known_se_results is not None:
+        seeds = _saved_search_seeds(workflow.known_se_results)
+    else:
+        seeds = await _priority_search_seeds(
+            runtime, queries, results_per_engine
+        )
+    model = runtime.models[LLMTasks.DEFAULT]
+    call_kwargs = dict(model.llm_call_kwargs)
+    # Reasoning tokens count toward this cap. A long reasoning pass with
+    # a small cap leaves no room for the answer and returns no content.
+    call_kwargs.update(max_completion_tokens=16_000)
+    caller = SchemaOutputLLMCaller(
+        model.llm_service,
+        usage_tracker=workflow.usage_tracker,
+        **call_kwargs,
+    )
+    # The configured backend (ELM or Docling) reads the documents
+    loader = COMPASSWebFileLoader(
+        browser_semaphore=runtime.browser_semaphore,
+        **runtime.file_loader_kwargs,
+    )
+    crawler = PriorityCrawler(
+        caller,
+        loader,
+        {
+            "technology": runtime.tech.replace("_", " "),
+            "jurisdiction": workflow.jurisdiction.full_name,
+            "as_of": date.today().isoformat(),
+            "queries": queries,
+        },
+        url_filter=URLPartFilter(
+            runtime.search_params.url_ignore_substrings,
+            runtime.search_params.url_keep_substrings,
+        ),
+        **options,
+    )
+    docs = await crawler.run(seeds)
+    for doc in docs:
+        content = doc.attrs.pop("raw_pdf", doc.text)
+        doc.attrs["cache_fn"] = await TempFileCache.call(doc, content)
+    return docs
+
+
+def _saved_search_seeds(saved):
+    """Turn saved search results into seeds, instead of searching again
+
+    Results the saved search filtered out are left out, and a URL found
+    by several queries or engines becomes one seed listing each result
+    as a source, as a live priority search would give.
+    """
+    seeds = {}
+    for result in saved.get("results", []):
+        if result.get("filtered_reason") is not None or not result.get("url"):
+            continue
+        url = canonical_url(result["url"])
+        seeds.setdefault(url, {"url": url, "sources": []})["sources"].append(
+            result
+        )
+    with (
+        event_step("collect.search_engine.priority.search"),
+        event_phase("search"),
+    ):
+        emit_event(
+            "search_queries",
+            queries=saved.get("queries", []),
+            source="saved search results",
+            seeds=len(seeds),
+        )
+    return list(seeds.values())
+
+
+async def _priority_search_seeds(runtime, queries, results_per_engine):
+    """Search both engines and keep each engine's top results"""
+    params = runtime.search_params
+    with (
+        event_step("collect.search_engine.priority.search"),
+        event_phase("search"),
+    ):
+        emit_event(
+            "search_queries",
+            queries=queries,
+            results_per_engine=results_per_engine,
+        )
+        return await search_ordinance_candidates(
+            queries,
+            results_per_engine=results_per_engine,
+            url_ignore_substrings=params.url_ignore_substrings,
+            url_keep_substrings=params.url_keep_substrings,
+            browser_semaphore=runtime.search_engine_semaphore,
+            **params.se_kwargs,
         )
 
 

@@ -5,11 +5,13 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 from contextlib import AsyncExitStack
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 from elm.web.document import HTMLDocument, MDDocument, PDFDocument
 
 import compass.pipeline.collection.steps as steps_module
+import compass.scripts.download as download_module
 from compass.utilities.event_log import EventLog, use_event_log
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
@@ -20,6 +22,7 @@ from compass.pipeline.collection.steps import (
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
 from compass.pipeline.data_classes import CollectionRequest, ProcessRequest
 from compass.pipeline.runtime import _setup_folders
+from compass.pipeline.data_classes import WebSearchParams
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 
 
@@ -99,6 +102,7 @@ def _build_workflow(
             url_keep_substrings=("trusted.example",),
             se_kwargs={},
             website_crawl_timeout_seconds=3600,
+            priority_search=None,
         ),
         models=models,
     )
@@ -745,6 +749,103 @@ async def test_search_results_crawl_records_seeds_and_outcomes(
     assert {e["tags"]["step"] for e in outcomes.values()} == {
         "collect.search_results_crawl.crawl"
     }
+
+
+@pytest.mark.parametrize("priority_search", [{}, {"max_pages": 15}])
+async def test_priority_search_replaces_standard_search(
+    monkeypatch, priority_search
+):
+    """Explicit options route collection to the priority queue."""
+    workflow = _build_workflow()
+    workflow.perform_se_search = True
+    workflow.runtime.search_params.priority_search = priority_search
+    expected = [object()]
+    prioritized = AsyncMock(return_value=expected)
+    old_search = AsyncMock(side_effect=AssertionError("Unexpected old search"))
+    monkeypatch.setattr(
+        steps_module, "download_prioritized_ordinances", prioritized
+    )
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinance_using_search_engine",
+        old_search,
+    )
+    assert (
+        await steps_module.SearchEngineDocumentsStep().collect(workflow)
+        == expected
+    )
+    prioritized.assert_awaited_once_with(workflow)
+    old_search.assert_not_awaited()
+
+
+async def test_priority_search_failure_returns_no_documents(
+    monkeypatch, caplog
+):
+    """Priority search errors are logged without failing the jurisdiction"""
+    workflow = _build_workflow()
+    workflow.perform_se_search = True
+    workflow.runtime.search_params.priority_search = {}
+    monkeypatch.setattr(
+        steps_module,
+        "download_prioritized_ordinances",
+        AsyncMock(side_effect=TypeError("not JSON serializable")),
+    )
+
+    docs = await steps_module.SearchEngineDocumentsStep().collect(workflow)
+
+    assert docs == []
+    assert "Error collecting documents using priority search" in caplog.text
+
+
+@pytest.mark.parametrize("settings", [{}, {"priority_search": None}])
+async def test_standard_search_does_not_expand_links(monkeypatch, settings):
+    """Default retrieval returns search documents without starting a crawl."""
+    workflow = _build_workflow()
+    workflow.perform_se_search = True
+    workflow.runtime.search_params = WebSearchParams(**settings)
+    workflow.extractor.get_query_templates = AsyncMock(
+        return_value=["{jurisdiction} ordinance"]
+    )
+    doc = SimpleNamespace(attrs={"source": "https://example.com/ordinance"})
+    search = AsyncMock(
+        return_value={"results": [{"url": doc.attrs["source"]}]}
+    )
+    download = AsyncMock(return_value=[doc])
+    prioritized = AsyncMock()
+    monkeypatch.setattr(
+        download_module.COMPASS_PB, "update_jurisdiction_task", Mock()
+    )
+    monkeypatch.setattr(
+        download_module,
+        "search_single_jurisdiction",
+        search,
+    )
+    monkeypatch.setattr(download_module, "_docs_from_urls", download)
+    monkeypatch.setattr(
+        steps_module, "download_prioritized_ordinances", prioritized
+    )
+    workflow.extractor.get_website_keywords = AsyncMock(
+        side_effect=AssertionError("Unexpected link expansion")
+    )
+    workflow.extractor.get_heuristic = AsyncMock(
+        side_effect=AssertionError("Unexpected link expansion")
+    )
+
+    docs = await steps_module.SearchEngineDocumentsStep().collect(workflow)
+
+    assert docs == [doc]
+    assert doc.attrs["compass_crawl"] is False
+    assert doc.attrs["check_correct_jurisdiction"] is True
+    search.assert_awaited_once()
+    assert search.call_args.args[:2] == (
+        ["{jurisdiction} ordinance"],
+        workflow.jurisdiction,
+    )
+    assert search.call_args.args[2] == 5
+    assert search.call_args.kwargs["simple"] is False
+    download.assert_awaited_once()
+    assert download.call_args.args[0] == [doc.attrs["source"]]
+    prioritized.assert_not_awaited()
 
 
 if __name__ == "__main__":

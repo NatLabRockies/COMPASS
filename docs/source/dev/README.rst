@@ -389,6 +389,70 @@ Again, if you don't get any critical errors (poppler errors are ok) and you see 
 variable, then you are good to go.
 
 
+Priority document search
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Standard search and document retrieval are used by default. Priority search
+is optional: omit ``priority_search`` or set it to ``null`` to keep the
+standard path. Set it to an options object to enable LLM-ranked collection
+with the process or collect command. An empty object uses the default limits.
+
+The standard search-engine step downloads the selected search-result URLs
+without crawling their outgoing links. ``perform_website_search`` controls
+the separate website-crawl steps. LLM ranking and priority-queue traversal
+run only when ``priority_search`` is an options object.
+
+.. code-block:: json
+
+    {
+        "priority_search": {"max_pages": 15, "max_depth": 3, "max_links": 3},
+        "perform_website_search": false,
+        "search_engines": [
+            {"se_name": "SerpAPIGoogleSearch"},
+            {"se_name": "SerpAPIDuckDuckGoSearch"}
+        ],
+        "model": [{
+            "name": "compassop-gpt-5.4",
+            "client_type": "azure",
+            "tasks": ["default"],
+            "llm_call_kwargs": {"reasoning_effort": "medium"}
+        }]
+    }
+
+This mode formats every plugin ``query_templates`` entry for the
+jurisdiction and sends each query to both SerpAPI engines. It merges up
+to ten results per query and engine, without a combined top-ten cutoff.
+The configured default LLM ranks those results, then assesses fetched
+pages and their observed outgoing
+links. Newly discovered links compete with search results in the same
+queue. Document scores and link priorities are separate. Links can be
+followed at any document score, including across domains. No hosted LLM
+web-search tool or personal OpenAI key is required with the Azure config.
+
+The search saves candidate documents with scores and adoption evidence;
+it does not treat a high score as proof or replace downstream validation.
+PDF assessment samples opening, closing, and technology-matching pages.
+Scanned PDFs use the configured OCR reader. Unreadable pages and failed
+fetches remain unassessed. Duplicate content avoids another LLM call.
+
+With ``keep_event_logs`` enabled, the search is recorded in the
+jurisdiction's event log, ``<log_dir>/<jurisdiction>_events.jsonl``: search
+results, visits, HTTP exchanges, scores, parent links, limits, assessment
+inputs, model responses, token details, the ranked candidates, and the
+remaining queue. No other files are written; fetched pages are kept only
+for the documents the pipeline keeps, in ``ordinance_files``.
+The SerpAPI subscription price is not allocated to individual searches.
+Model costs are estimates using configured ``llm_costs``; missing rates
+remain unknown in the per-call metrics.
+
+The limits apply per jurisdiction. A document found at the final depth
+is still assessed, but its links are not added. The crawler continues
+after finding a strong candidate so that amendments can also be found.
+Set ``perform_website_search`` to ``false`` to avoid running the separate
+legacy website-crawl steps after this bounded search. Omitting
+``priority_search`` preserves the existing collection behavior.
+
+
 Releases
 ^^^^^^^^
 

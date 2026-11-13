@@ -274,7 +274,10 @@ class PipelineRuntime:
     @cached_property
     def _llm_services(self):
         """LLM services for modes that require them"""
-        if self.mode == self.mode.COLLECT:
+        if (
+            self.mode == self.mode.COLLECT
+            and self.search_params.priority_search is None
+        ):
             return []
         return [model.llm_service for model in set(self.models.values())]
 

@@ -318,25 +318,44 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
         return out_docs + elm_docs
 
-    async def _fetch_doc(self, url):
-        """Fetch a doc using Docling"""
+    async def read_pdf(self, content, url, headers=None):
+        """Read PDF content that was already downloaded, using Docling
+
+        Parameters
+        ----------
+        content : bytes
+            Content of the PDF.
+        url : str
+            URL the content was downloaded from.
+        headers : mapping, optional
+            Response headers received with the content.
+            By default, ``None``.
+
+        Returns
+        -------
+        elm.web.document.MDDocument
+            The converted document, empty if Docling could not read it
+            or ran out of time.
+        """
+        doc = await self._read_content(content, url, headers or {})
+        if not doc.empty:
+            doc.WRITE_KWARGS = {"mode": "wb"}
+            doc.FILE_EXTENSION = doc.attrs["doc_type"]
+        return doc
+
+    async def _read_content(self, raw_content, url, headers):
+        """Convert downloaded content to a document with Docling"""
         docling = import_module("compass.services.docling")
 
         # ruff:ignore[import-outside-top-level]
         from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
-        out = await self.content_fetcher.fetch(url)
-        if out is None:
-            return MDDocument(pages=[]), None
-
-        logger.debug("Got content from %r", url)
-        raw_content, __, __, headers = out
         resolved_filename = resolve_remote_filename(
             http_url=AnyHttpUrl(url), response_headers=dict(headers)
         )
         logger.debug("Docling is starting content read from %r", url)
         try:
-            doc = await docling.read_docling_web_file(
+            return await docling.read_docling_web_file(
                 raw_content,
                 url=resolved_filename,
                 source_uri=url,
@@ -346,8 +365,17 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             )
         except TimeoutError:
             logger.info("Docling parsing timed out for %r", url)
+            return MDDocument(pages=[])
+
+    async def _fetch_doc(self, url):
+        """Fetch a doc using Docling"""
+        out = await self.content_fetcher.fetch(url)
+        if out is None:
             return MDDocument(pages=[]), None
 
+        logger.debug("Got content from %r", url)
+        raw_content, __, __, headers = out
+        doc = await self._read_content(raw_content, url, headers)
         if doc.empty:
             logger.info("Docling could not parse content from %s", url)
             return doc, None
@@ -594,6 +622,47 @@ class COMPASSWebFileLoader(_RecordedFetch, _WebFileLoader):
 
     HTML_LOADER_CLASS = _RecordedBrowserLoader
     FALLBACK_LOADER_CLASS = _RecordedFallbackLoader
+
+    @property
+    def browser_loader(self):
+        """elm.web.file_loader.AsyncHTMLLoader: Browser page renderer
+
+        The same object whichever backend is configured, for code that
+        renders a page itself rather than fetching a whole document.
+        """
+        return getattr(self.html_loader, "_html_loader", self.html_loader)
+
+    async def read_pdf(self, content, url, headers=None):
+        """Read PDF content that was already downloaded
+
+        The configured backend does the reading: Docling when it is
+        selected, otherwise the ELM PDF reader with its OCR reader as a
+        fallback for scanned documents.
+
+        Parameters
+        ----------
+        content : bytes
+            Content of the PDF.
+        url : str
+            URL the content was downloaded from.
+        headers : mapping, optional
+            Response headers received with the content.
+            By default, ``None``.
+
+        Returns
+        -------
+        elm.web.document.BaseDocument
+            The document read, empty if it could not be read.
+        """
+        backend_read = getattr(super(), "read_pdf", None)
+        if backend_read is not None:
+            return await backend_read(content, url, headers)
+        doc = await self.pdf_read_coroutine(content, **self.pdf_read_kwargs)
+        if doc.empty and self.pdf_ocr_read_coroutine:
+            doc = await self.pdf_ocr_read_coroutine(
+                content, **self.pdf_read_kwargs
+            )
+        return doc
 
 
 def http_exchange(response, body):
