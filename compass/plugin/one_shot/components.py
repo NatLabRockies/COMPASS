@@ -56,11 +56,7 @@ text. Do not treat chapter titles, section titles, tables of contents, \
 navigation links, cross-reference lists, or citation-only indexes as relevant \
 on their own; mark them relevant only when they also include operative \
 provisions, definitions, prohibitions, or other substantive regulatory text \
-that supports extraction. The content must be about the specific technology \
-or use the schema targets; tangentially related material does not count, \
-such as a general definition or provision for some other use that merely \
-mentions a related activity in passing. \
-If relevant, summarize the specific matching \
+that supports extraction. If relevant, summarize the specific matching \
 content; if not, state why it does not meet the schema's requirements. \
 Keep the response concise and consistent.\
 """
@@ -520,9 +516,8 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
         data = extraction["outputs"]
         if not data:
-            logger.info(
-                "LLM did not extract any relevant features from the text: %s",
-                extraction.get("extraction_notes") or "no explanation given",
+            logger.debug(
+                "LLM did not extract any relevant features from the text"
             )
             return None
 
