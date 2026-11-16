@@ -571,7 +571,7 @@ async def test_read_pdf_with_elm_backend_falls_back_to_ocr():
         pdf_read_coroutine=AsyncMock(return_value=scanned),
         pdf_ocr_read_coroutine=AsyncMock(return_value=text),
     )
-    if hasattr(type(loader).__bases__[1], "read_pdf"):
+    if hasattr(type(loader).__bases__[0], "read_pdf"):
         pytest.skip("Covers the ELM backend")
     doc = await loader.read_pdf(b"%PDF-scan", "https://city.gov/law.pdf")
     assert doc is text
