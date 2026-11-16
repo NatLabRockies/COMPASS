@@ -5,7 +5,6 @@ import asyncio
 import runpy
 from importlib.util import find_spec
 from pathlib import Path
-from functools import partial
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -20,6 +19,8 @@ from compass.web.file_loader import (
     AsyncDoclingWebFileLoader,
     AsyncLocalDoclingFileLoader,
     COMPASSWebFileLoader,
+    _at_stage,
+    _FetchRecorder,
 )
 
 
@@ -474,33 +475,47 @@ async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
     assert captured["pdf_pipeline_options"] == {"document_timeout": 120}
 
 
+def _loader_returning(doc):
+    """A COMPASS loader whose download step returns `doc`"""
+    loader = COMPASSWebFileLoader()
+    loader._fetch_doc = AsyncMock(return_value=(doc, None))
+    return loader
+
+
 @pytest.mark.parametrize("empty", [False, True])
-async def test_timing_preserves_backend_result(monkeypatch, caplog, empty):
-    """Timing retains the backend result and reports empty downloads."""
+async def test_fetch_returns_the_backend_result(caplog, empty):
+    """Recording keeps the backend result and logs empty downloads."""
     doc = _doc("https://city.gov/code", empty=empty)
-    fetch = AsyncMock(return_value=doc)
-    monkeypatch.setattr(COMPASSWebFileLoader.__bases__[1], "fetch", fetch)
     with caplog.at_level("INFO"):
-        result = await COMPASSWebFileLoader().fetch(doc.attrs["source"])
+        result = await _loader_returning(doc).fetch(doc.attrs["source"])
     assert result is doc
-    fetch.assert_awaited_once_with(doc.attrs["source"])
-    assert "Finished document retrieval" in caplog.text
     assert f"empty={empty}" in caplog.text
 
 
-async def test_fetch_records_document_event(monkeypatch, tmp_path):
+async def test_fetch_records_document_event(tmp_path):
     """Every COMPASS download is recorded in the event log."""
     doc = _doc("https://city.gov/code")
-    monkeypatch.setattr(
-        COMPASSWebFileLoader.__bases__[1], "fetch", AsyncMock(return_value=doc)
-    )
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
-        await COMPASSWebFileLoader().fetch(doc.attrs["source"])
+        await _loader_returning(doc).fetch(doc.attrs["source"])
     (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
     assert event["type"] == "document_fetched"
     assert event["requested"] == "https://city.gov/code"
     assert event["empty"] is False
+    assert event["seconds"] >= 0
+
+
+async def test_failed_fetch_records_why(tmp_path):
+    """A download that fails is recorded with the error behind it."""
+    loader = COMPASSWebFileLoader()
+    loader._fetch_doc = AsyncMock(side_effect=ValueError("bad PDF"))
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        doc = await loader.fetch("https://city.gov/code.pdf")
+    assert doc.empty
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["source"] == "https://city.gov/code.pdf"
+    assert event["error"] == "ValueError: bad PDF"
 
 
 if __name__ == "__main__":
@@ -545,28 +560,34 @@ async def challenge_server():
 
 
 def test_docling_fallback_loaders_are_recorded():
-    """The Docling backend's fallback loaders record their fetches too"""
-    assert COMPASSWebFileLoader.HTML_LOADER_CLASS.FETCH_STAGE == (
-        "browser render"
+    """The Docling backend's fallback loaders get the hooks, with a stage"""
+    recorder = _FetchRecorder()
+    loader = AsyncDoclingWebFileLoader(
+        re_fetch_failed_with_elm=True,
+        on_fetch_hook=recorder.fetched,
+        on_response_hook=recorder.response,
+        on_error_hook=recorder.error,
     )
-    fallback = COMPASSWebFileLoader.FALLBACK_LOADER_CLASS()
-    assert fallback.FETCH_STAGE == "ELM fallback"
-    hook = fallback.content_fetcher.on_response_hook
-    assert hook == fallback._record_exchange
+    assert loader.on_fetch_hook == recorder.fetched
+    assert loader.content_fetcher.on_response_hook == recorder.response
+    browser = loader.html_loader.on_fetch_hook
+    assert browser.keywords == {"stage": "browser render"}
+    fallback = loader.failed_fetcher
+    assert fallback.on_fetch_hook.keywords == {"stage": "ELM fallback"}
+    assert fallback.content_fetcher.on_error_hook == recorder.error
 
 
 @pytest.mark.asyncio
-async def test_fallback_fetch_is_labelled_in_the_log(monkeypatch, tmp_path):
+async def test_fallback_fetch_is_labelled_in_the_log(tmp_path):
     """A document recovered by a fallback is recorded with its stage"""
     doc = _doc("https://city.gov/code", empty=False)
-    monkeypatch.setattr(
-        AsyncWebFileLoader, "fetch", AsyncMock(return_value=doc)
+    loader = AsyncWebFileLoader(
+        on_fetch_hook=_at_stage(_FetchRecorder().fetched, "ELM fallback")
     )
+    loader._fetch_doc = AsyncMock(return_value=(doc, None))
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
-        await COMPASSWebFileLoader.FALLBACK_LOADER_CLASS().fetch(
-            doc.attrs["source"]
-        )
+        await loader.fetch(doc.attrs["source"])
     (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
     assert event["type"] == "document_fetched"
     assert event["stage"] == "ELM fallback"
@@ -576,22 +597,23 @@ async def test_fallback_fetch_is_labelled_in_the_log(monkeypatch, tmp_path):
 def test_web_loader_listens_for_http_responses():
     """The loader asks ELM's fetcher to report each response to it"""
     loader = COMPASSWebFileLoader()
-    hook = loader.content_fetcher.on_response_hook
-    assert hook == loader._record_exchange
-    assert loader.content_fetcher.on_error_hook == loader._record_error
+    recorder = loader.on_fetch_hook.__self__
+    assert isinstance(recorder, _FetchRecorder)
+    assert loader.content_fetcher.on_response_hook == recorder.response
+    assert loader.content_fetcher.on_error_hook == recorder.error
 
 
 @pytest.mark.asyncio
-async def test_downloads_record_why_no_response_came():
+async def test_downloads_record_why_no_response_came(tmp_path):
     """A fetch that never got a response logs the connection error"""
-    loader = SimpleNamespace(_exchanges={})
+    recorder = _FetchRecorder()
     url = "https://unreachable.example/doc.pdf"
-    await COMPASSWebFileLoader._record_error(
-        loader, url, ConnectionError("connection refused")
-    )
-    assert COMPASSWebFileLoader._http_exchange(loader, url) == {
-        "http": {"error": "ConnectionError: connection refused"}
-    }
+    await recorder.error(url, ConnectionError("connection refused"))
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await recorder.fetched(url, _doc(url, empty=True), None, 1.0)
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["http"] == {"error": "ConnectionError: connection refused"}
 
 
 @pytest.mark.asyncio
@@ -599,20 +621,14 @@ async def test_downloads_record_their_http_exchange(
     challenge_server, tmp_path
 ):
     """Status, headers, redirects, and a body summary reach the log"""
-    loader = SimpleNamespace(_exchanges={})
-    fetcher = AsyncFetchWithRetry(
-        on_response_hook=partial(COMPASSWebFileLoader._record_exchange, loader)
-    )
+    recorder = _FetchRecorder()
+    fetcher = AsyncFetchWithRetry(on_response_hook=recorder.response)
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
         await fetcher.fetch(f"{challenge_server}/challenge")
         await fetcher.fetch(f"{challenge_server}/moved")
-        blocked = COMPASSWebFileLoader._http_exchange(
-            loader, f"{challenge_server}/challenge"
-        )["http"]
-        moved = COMPASSWebFileLoader._http_exchange(
-            loader, f"{challenge_server}/moved"
-        )["http"]
+    blocked = recorder._exchanges.pop(f"{challenge_server}/challenge")
+    moved = recorder._exchanges.pop(f"{challenge_server}/moved")
     assert blocked["response"]["status"] == 307
     assert blocked["response"]["headers"]["server"] == "Sucuri/Cloudproxy"
     assert "You are being redirected" in blocked["response"]["preview"]
@@ -622,4 +638,4 @@ async def test_downloads_record_their_http_exchange(
     assert moved["response"]["history"][0]["location"] == "/doc.pdf"
     # bodies are described in the log, never saved as files
     assert not [p for p in tmp_path.iterdir() if p.name != "events.jsonl"]
-    assert loader._exchanges == {}
+    assert recorder._exchanges == {}

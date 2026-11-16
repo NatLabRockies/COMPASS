@@ -4,7 +4,7 @@ import os
 import asyncio
 import hashlib
 import logging
-import time
+from functools import partial
 from importlib import import_module
 
 from elm.web.file_loader import (
@@ -16,7 +16,6 @@ from elm.web.file_loader import (
 )
 from elm.web.document import MDDocument
 from compass.services.threaded import TempFileCache
-from compass.utilities.timing import log_operation
 from compass.utilities.event_log import (
     body_preview,
     document_summary,
@@ -40,6 +39,7 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
         browser_semaphore=None,
         use_scrapling_stealth=False,
         num_pw_html_retries=3,
+        on_fetch_hook=None,
         **__,  # consume any extra kwargs
     ):
         """
@@ -74,8 +74,15 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
             attempts and retrieval success. Note that the minimum number
             of attempts will always be 2, even if the user provides a
             value smaller than this. By default, ``3``.
+        on_fetch_hook : callable, optional
+            ELM loader hook awaited after every fetch. See
+            :class:`elm.web.file_loader.BaseAsyncFileLoader`.
+            By default, ``None``.
         """
-        super().__init__(file_cache_coroutine=TempFileCache.call)
+        super().__init__(
+            file_cache_coroutine=TempFileCache.call,
+            on_fetch_hook=on_fetch_hook,
+        )
         self._html_loader = AsyncHTMLLoader(
             pw_launch_kwargs=pw_launch_kwargs,
             html_read_kwargs=html_read_kwargs,
@@ -94,11 +101,6 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
 class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
     """Async web file loader using Docling"""
 
-    HTML_LOADER_CLASS = _AsyncHTMLOnlyLoader
-    """Loader that re-renders HTML sources in a browser"""
-    FALLBACK_LOADER_CLASS = AsyncWebFileLoader
-    """Loader that re-fetches sources Docling could not parse"""
-
     # ruff:ignore[too-many-arguments, too-many-positional-arguments]
     def __init__(
         self,
@@ -115,6 +117,9 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         to_md_kwargs=None,
         pdf_pipeline_options=None,
         re_fetch_failed_with_elm=False,
+        on_fetch_hook=None,
+        on_response_hook=None,
+        on_error_hook=None,
         **extra,
     ):
         """
@@ -197,27 +202,44 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 disabled for the ELM fallback.
 
             By default, ``False``.
+        on_fetch_hook : callable, optional
+            ELM loader hook awaited after every fetch. It also observes
+            the loaders this one falls back on, called with
+            ``stage="browser render"`` or ``stage="ELM fallback"``.
+            See :class:`elm.web.file_loader.BaseAsyncFileLoader`.
+            By default, ``None``.
+        on_response_hook, on_error_hook : callable, optional
+            ELM fetcher hooks, awaited on every HTTP response and when a
+            request gets no response. See
+            :class:`elm.web.file_loader.AsyncFetchWithRetry`.
+            By default, ``None``.
         """
-        super().__init__(file_cache_coroutine=file_cache_coroutine)
+        super().__init__(
+            file_cache_coroutine=file_cache_coroutine,
+            on_fetch_hook=on_fetch_hook,
+        )
         self.content_fetcher = AsyncFetchWithRetry(
             header_template=header_template,
             verify_ssl=verify_ssl,
             aget_kwargs=aget_kwargs,
+            on_response_hook=on_response_hook,
+            on_error_hook=on_error_hook,
         )
-        self.html_loader = self.HTML_LOADER_CLASS(
+        self.html_loader = _AsyncHTMLOnlyLoader(
             pw_launch_kwargs=pw_launch_kwargs,
             html_read_kwargs=html_read_kwargs,
             html_read_coroutine=html_read_coroutine,
             browser_semaphore=browser_semaphore,
             use_scrapling_stealth=use_scrapling_stealth,
             num_pw_html_retries=num_pw_html_retries,
+            on_fetch_hook=_at_stage(on_fetch_hook, "browser render"),
         )
         self.to_md_kwargs = to_md_kwargs or {}
         self.pdf_pipeline_options = pdf_pipeline_options
 
         self.failed_fetcher = None
         if re_fetch_failed_with_elm:
-            self.failed_fetcher = self.FALLBACK_LOADER_CLASS(
+            self.failed_fetcher = AsyncWebFileLoader(
                 header_template=header_template,
                 verify_ssl=verify_ssl,
                 aget_kwargs=aget_kwargs,
@@ -231,6 +253,9 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 browser_semaphore=browser_semaphore,
                 use_scrapling_stealth=use_scrapling_stealth,
                 num_pw_html_retries=num_pw_html_retries,
+                on_fetch_hook=_at_stage(on_fetch_hook, "ELM fallback"),
+                on_response_hook=on_response_hook,
+                on_error_hook=on_error_hook,
             )
 
     async def fetch_all(self, *sources):
@@ -507,93 +532,75 @@ else:
     COMPASSLocalFileLoader = AsyncLocalFileLoader
 
 
-class _RecordedFetch:
-    """Mixin: time each fetch of a loader and record it as an event
+def _at_stage(hook, stage):
+    """A fetch hook for a fallback loader, labelled with its stage"""
+    return None if hook is None else partial(hook, stage=stage)
 
-    Every source fetched is recorded as a ``document_fetched`` event
-    with what came back (or the error) and, where the loader downloads
-    over HTTP, the exchange behind it.
+
+class _FetchRecorder:
+    """Record each document fetch as a ``document_fetched`` event
+
+    Its methods are ELM loader hooks. The HTTP exchange behind a
+    download (or why no response came) is kept per URL until the fetch
+    of that URL finishes, and is recorded with it.
     """
 
-    FETCH_STAGE = None
-    """How the loader is used when it is not the first one tried"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self):
         self._exchanges = {}
-        fetcher = getattr(self, "content_fetcher", None)
-        if hasattr(fetcher, "on_response_hook"):
-            fetcher.on_response_hook = self._record_exchange
-            fetcher.on_error_hook = self._record_error
 
-    async def fetch(self, source):
-        """Load and cache one document, recording the outcome"""
-        started = time.monotonic()
-        stage = {"stage": self.FETCH_STAGE} if self.FETCH_STAGE else {}
-        try:
-            async with log_operation(logger, "document retrieval", source):
-                doc = await super().fetch(source)
-        except Exception as exc:
-            emit_event(
-                "document_fetched",
-                source=source,
-                **error_details(exc),
-                seconds=round(time.monotonic() - started, 3),
-                **stage,
-                **self._http_exchange(source),
-            )
-            raise
-        emit_event(
-            "document_fetched",
-            requested=source,
-            empty=doc.empty,
-            seconds=round(time.monotonic() - started, 3),
-            **stage,
-            **document_summary(doc),
-            **self._http_exchange(source),
-        )
-        logger.info(
-            "Document retrieval result: %s | empty=%s", source, doc.empty
-        )
-        return doc
-
-    def _http_exchange(self, source):
-        """The HTTP exchange behind a fetch, if one was recorded"""
-        exchange = self._exchanges.pop(source, None)
-        return {"http": exchange} if exchange else {}
-
-    async def _record_exchange(self, url, response, body):
+    async def response(self, url, response, body):
         """ELM response hook: keep the last exchange for each URL"""
         self._exchanges[url] = http_exchange(response, body)
 
-    async def _record_error(self, url, error):
+    async def error(self, url, error):
         """ELM error hook: keep why a URL gave no response at all"""
         self._exchanges[url] = error_details(error)
 
+    async def fetched(self, source, doc, error, seconds, stage=None):
+        """ELM fetch hook: record what one fetch produced"""
+        fields = {"seconds": round(seconds, 3)}
+        if stage:
+            fields["stage"] = stage
+        if exchange := self._exchanges.pop(source, None):
+            fields["http"] = exchange
+        if error is not None:
+            emit_event(
+                "document_fetched",
+                source=source,
+                **error_details(error),
+                **fields,
+            )
+        else:
+            emit_event(
+                "document_fetched",
+                requested=source,
+                empty=doc.empty,
+                **fields,
+                **document_summary(doc),
+            )
+        logger.info(
+            "Document retrieval result: %s | empty=%s", source, doc.empty
+        )
 
-class _RecordedBrowserLoader(_RecordedFetch, _AsyncHTMLOnlyLoader):
-    """Browser re-render of an HTML source, recorded like a download"""
 
-    FETCH_STAGE = "browser render"
+class COMPASSWebFileLoader(_WebFileLoader):
+    """The configured web file loader, recording each download
 
-
-class _RecordedFallbackLoader(_RecordedFetch, AsyncWebFileLoader):
-    """ELM re-fetch of a source Docling could not parse, recorded"""
-
-    FETCH_STAGE = "ELM fallback"
-
-
-class COMPASSWebFileLoader(_RecordedFetch, _WebFileLoader):
-    """The configured loader, timing and recording each download
-
-    With the Docling backend, the loaders it falls back on (a browser
-    render for HTML, and ELM for sources Docling could not parse) are
-    recorded too, so a document recovered by a fallback is not left
-    looking like a failed download.
+    Every fetch is recorded in the event log through ELM's loader hooks.
+    With the Docling backend, so are the loaders it falls back on (a
+    browser render for HTML, and ELM for sources Docling could not
+    parse), so a document recovered by a fallback is not left looking
+    like a failed download.
     """
 
-    HTML_LOADER_CLASS = _RecordedBrowserLoader
-    FALLBACK_LOADER_CLASS = _RecordedFallbackLoader
+    def __init__(self, **kwargs):
+        recorder = _FetchRecorder()
+        super().__init__(
+            **kwargs,
+            on_fetch_hook=recorder.fetched,
+            on_response_hook=recorder.response,
+            on_error_hook=recorder.error,
+        )
 
 
 def http_exchange(response, body):

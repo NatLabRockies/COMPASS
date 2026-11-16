@@ -143,11 +143,6 @@ nitpick_ignore = [
         "compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.OUT_LABEL",
     ),
     ("py:class", "compass.utilities.io._ConfigType"),
-    # Private loaders behind the recorded (event-logged) web file loader
-    ("py:class", "compass.web.file_loader._AsyncHTMLOnlyLoader"),
-    ("py:class", "compass.web.file_loader._RecordedFetch"),
-    ("py:class", "compass.web.file_loader._RecordedBrowserLoader"),
-    ("py:class", "compass.web.file_loader._RecordedFallbackLoader"),
     ("py:class", "elm.web.document.Document"),
     ("py:obj", "elm.web.document.Document"),
     ("py:meth", "async_playwright.chromium.launch"),

@@ -46,7 +46,7 @@ dependencies = [
   # TEMPORARY: ELM branch with the search and response hooks
   # (NatLabRockies/elm#96). Replace with a version pin once it is
   # released; PyPI rejects packages with a direct URL dependency.
-  "nlr-elm @ git+https://github.com/NatLabRockies/elm.git@79182cd4781b18d4c34521fe21de0712e9a079aa",
+  "nlr-elm @ git+https://github.com/NatLabRockies/elm.git@ce8b16645c8617bfc7713e88e06ecc9fadc8f8ed",
   "numpy>=2.4.3,<3",
   "openai>=2.34.0",
   "pandas>=2.2.3,<3",
