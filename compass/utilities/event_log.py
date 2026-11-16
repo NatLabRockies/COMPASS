@@ -14,6 +14,7 @@ the path a run took against every path that was possible.
 
 import json
 import math
+import sys
 import time
 import traceback
 from contextlib import contextmanager, nullcontext
@@ -215,7 +216,10 @@ def error_details(error):
         exception in the chain, outermost first, each with its full
         ``type`` name, ``message`` and, from its traceback, the
         ``frames`` (``file``, ``line``, ``function``) it was raised
-        through; files in this repository are relative to its root.
+        through, outermost first; files in this repository are
+        relative to its root. When called while the error is being
+        handled, the outermost error's frames start with the code that
+        led to the handler, since its traceback starts only there.
     """
     chain, seen = [], set()
     while error is not None and id(error) not in seen:
@@ -227,13 +231,22 @@ def error_details(error):
         return {"error": text}
     if len(chain) > 1:
         text = f"{text} (caused by {_error_text(chain[-1])})"
-    return {"error": text, "error_chain": [_error_entry(exc) for exc in chain]}
+    # A traceback starts where the error was caught. While it is being
+    # handled, the code that led there is still on the stack: keep it
+    # too (minus this function and the handler, which the traceback has)
+    handling = sys.exception() is chain[0]
+    callers = traceback.extract_stack()[:-2] if handling else []
+    entries = [
+        _error_entry(exc, callers if i == 0 else ())
+        for i, exc in enumerate(chain)
+    ]
+    return {"error": text, "error_chain": entries}
 
 
-def _error_entry(error):
+def _error_entry(error, callers=()):
     """Type, message, and (once raised) where an exception came from"""
     entry = {"type": _error_type(error), "message": str(error)}
-    frames = traceback.extract_tb(error.__traceback__)
+    frames = [*callers, *traceback.extract_tb(error.__traceback__)]
     if frames:
         entry["frames"] = [
             {

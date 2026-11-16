@@ -158,6 +158,24 @@ def test_error_details_record_where_the_error_was_raised():
     assert frame["line"] == fail.__code__.co_firstlineno + 1
 
 
+def test_error_details_include_the_code_that_led_to_the_handler():
+    """An error logged where it is caught still shows who called that code"""
+
+    def handler():
+        try:
+            raise ValueError("boom")
+        except ValueError as error:
+            return error_details(error)
+
+    def caller():
+        return handler()
+
+    frames = caller()["error_chain"][0]["frames"]
+    names = [f["function"] for f in frames]
+    assert names[-2:] == ["caller", "handler"]
+    assert "error_details" not in names
+
+
 async def test_failed_llm_call_records_the_underlying_error(tmp_path):
     """A call that finally fails logs why, not only that retries ran out"""
 
