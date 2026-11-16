@@ -8,6 +8,7 @@ from compass.utilities.event_log import (
     ResponseRecorder,
     current_event_log,
     error_details,
+    event_tags,
     loggable_headers,
 )
 from compass.utilities.enums import LLMUsageCategory
@@ -123,13 +124,15 @@ class BaseLLMCaller:
         recorder = ResponseRecorder(self.usage_tracker)
         started = time.monotonic()
         try:
-            response = await self.llm_service.call(
-                usage_tracker=recorder,
-                usage_sub_label=usage_sub_label,
-                messages=messages,
-                **extra,
-                **self.kwargs,
-            )
+            # Retries the clients make along the way are tagged with it
+            with event_tags(call=call_id):
+                response = await self.llm_service.call(
+                    usage_tracker=recorder,
+                    usage_sub_label=usage_sub_label,
+                    messages=messages,
+                    **extra,
+                    **self.kwargs,
+                )
         except Exception as exc:
             log.emit(
                 "llm_response",

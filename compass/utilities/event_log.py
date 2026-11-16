@@ -13,6 +13,7 @@ the path a run took against every path that was possible.
 """
 
 import json
+import logging
 import math
 import sys
 import time
@@ -300,6 +301,48 @@ def _json_safe(value):
     if isinstance(value, (list, tuple)):
         return [_json_safe(item) for item in value]
     return value
+
+
+class _RetryEvents(logging.Handler):
+    """Record the retries LLM clients make without raising an error
+
+    The OpenAI client, and the retry wrapper COMPASS calls it through,
+    retry failed requests on their own: a call that succeeds in the end
+    shows only as a slow one. Both log each retry from inside the
+    ``except`` block that caught the failure, so the error is at hand.
+    """
+
+    def emit(self, record):  # ruff:ignore[no-self-use]
+        if _CURRENT_LOG.get() is None:
+            return
+        error = sys.exception()
+        delay = record.args[-1] if record.args else None
+        emit_event(
+            "llm_retry",
+            by="openai client"
+            if record.name.startswith("openai")
+            else "retry wrapper",
+            delay=round(delay, 2) if isinstance(delay, (int, float)) else None,
+            error=error_details(error)["error"] if error else None,
+        )
+
+
+def _record_retries():
+    """Turn retry log records from the LLM clients into events"""
+    for name, text in (
+        ("openai._base_client", "Retrying request"),
+        ("elm.utilities.retry", "Retrying in"),
+    ):
+        logger = logging.getLogger(name)
+        handler = _RetryEvents()
+        handler.addFilter(lambda r, t=text: t in r.msg)
+        logger.addHandler(handler)
+        # The OpenAI client logs retries at INFO, below Python's default
+        if logger.getEffectiveLevel() > logging.INFO:
+            logger.setLevel(logging.INFO)
+
+
+_record_retries()
 
 
 @contextmanager

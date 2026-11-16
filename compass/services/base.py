@@ -1,6 +1,7 @@
 """COMPASS abstract Service class"""
 
 import asyncio
+import contextvars
 import logging
 from abc import ABC, abstractmethod
 
@@ -70,7 +71,9 @@ class Service(ABC):
         """
         fut = asyncio.Future()
         outer_task_name = asyncio.current_task().get_name()
-        await cls._queue().put((fut, outer_task_name, args, kwargs))
+        await cls._queue().put(
+            (fut, outer_task_name, contextvars.copy_context(), args, kwargs)
+        )
         return await fut
 
     @property
@@ -199,5 +202,7 @@ class LLMService(Service):
         """
         fut = asyncio.Future()
         outer_task_name = asyncio.current_task().get_name()
-        await self._queue().put((fut, outer_task_name, args, kwargs))
+        await self._queue().put(
+            (fut, outer_task_name, contextvars.copy_context(), args, kwargs)
+        )
         return await fut

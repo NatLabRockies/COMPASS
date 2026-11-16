@@ -1,13 +1,20 @@
 """Tests for phase-organized jurisdiction event logs"""
 
 import json
+import logging
 from pathlib import Path
 from types import SimpleNamespace
 
 import httpx
 import pytest
 
-from compass.llm.calling import ChatLLMCaller, SchemaOutputLLMCaller
+from compass.llm.calling import (
+    ChatLLMCaller,
+    LLMCaller,
+    SchemaOutputLLMCaller,
+)
+from compass.services.base import Service
+from compass.services.provider import RunningAsyncServices
 from compass.utilities.event_log import (
     error_details,
     document_summary,
@@ -191,6 +198,42 @@ async def test_failed_llm_call_records_the_underlying_error(tmp_path):
     assert response["type"] == "llm_response"
     assert "Connection reset by peer" in response["error"]
     assert response["error_chain"][1]["message"] == "Connection error."
+
+
+class _RetryingService(Service):
+    """Runs each call as a queued job that retries once before answering"""
+
+    model_name = "test-model"
+
+    @property
+    def can_process(self):
+        return True
+
+    async def process(self, **_):
+        try:
+            raise httpx.ReadError("")
+        except httpx.ReadError as error:
+            logging.getLogger("elm.utilities.retry").info(
+                "Error: %s. Retrying in %.2f seconds.", error, 1.5
+            )
+        return "answer"
+
+
+async def test_retries_are_recorded_with_their_call(tmp_path):
+    """A retry inside a service job lands in the caller's event log"""
+    service = _RetryingService()
+    log = EventLog(tmp_path / "events.jsonl")
+    async with RunningAsyncServices([service]):
+        with use_event_log(log):
+            assert await LLMCaller(service).call("system", "text") == "answer"
+    (retry,) = [e for e in read_events(log.path) if e["type"] == "llm_retry"]
+    request = next(
+        e for e in read_events(log.path) if e["type"] == "llm_request"
+    )
+    assert retry["tags"]["call"] == request["call"]
+    assert retry["by"] == "retry wrapper"
+    assert retry["delay"] == pytest.approx(1.5)
+    assert retry["error"] == "ReadError"
 
 
 def test_phase_records_errors(tmp_path):
