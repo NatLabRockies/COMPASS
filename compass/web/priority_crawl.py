@@ -413,7 +413,6 @@ class PriorityCrawler:
 
     async def _store(self, entry, raw, fetched, started, read):
         """De-duplicate and read fetched content"""
-        entry["loaded"] = True
         duplicate_of = self._assessed_with_final_url(entry)
         if duplicate_of is not None:
             entry.update(state="duplicate", duplicate_of=duplicate_of)
@@ -430,9 +429,16 @@ class PriorityCrawler:
             return _skip_duplicate(entry, fetched, self.hashes[digest])
         self.hashes.setdefault(digest, entry["id"])
         pdf = raw.lstrip().startswith(b"%PDF-")
-        doc, links, rendered, rendered_html = await asyncio.wait_for(
-            read(pdf), 120
-        )
+        try:
+            doc, links, rendered, rendered_html = await asyncio.wait_for(
+                read(pdf), _READ_TIMEOUT
+            )
+        except TimeoutError as exc:
+            what = "the PDF" if pdf else "the page"
+            msg = f"Reading {what} took longer than {_READ_TIMEOUT} seconds"
+            raise TimeoutError(msg) from exc
+        # Loaded means read: failing before here is failing to load
+        entry["loaded"] = True
         entry["fetch_seconds"] = round(time.monotonic() - started, 3)
         if rendered_html is not None:
             self.skeleton_hashes.add(digest)
@@ -757,6 +763,7 @@ _MIN_PAGES_TO_SAMPLE = 2
 _MAX_TOPIC_WINDOWS = 5
 """Most technology passages taken from past a page's opening text"""
 _FETCH_TIMEOUT = 60
+_READ_TIMEOUT = 120
 """Seconds to wait for a page before retrying it in a browser"""
 _HTTP_OK, _HTTP_REDIRECT = 200, 300
 

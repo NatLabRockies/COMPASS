@@ -632,6 +632,34 @@ async def test_unreadable_pdf_is_unassessed(web, loader, tmp_path):
     assert caller.call.await_count == 1
 
 
+async def test_pdf_that_takes_too_long_to_read_failed_to_load(
+    web, loader, tmp_path, monkeypatch
+):
+    """A read that times out is a load failure, and says what timed out"""
+    url = "https://city.gov/slow.pdf"
+    web[0][url] = b"%PDF-slow"
+
+    async def slow_read(_content):
+        await asyncio.sleep(1)
+
+    loader.pdf_read_coroutine = slow_read
+    monkeypatch.setattr(crawl, "_READ_TIMEOUT", 0.01)
+    caller = SimpleNamespace(
+        call=AsyncMock(return_value={"links": [rating(0, 10)]})
+    )
+    runner = crawl.PriorityCrawler(
+        caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
+    )
+    assert not await runner.run([{"url": url}])
+    events = _events(tmp_path)
+    (failed,) = [e for e in events if e["type"] == "visit_failed"]
+    assert failed["stage"] == "load"
+    assert failed["error"].startswith(
+        "TimeoutError: Reading the PDF took longer than 0.01 seconds"
+    )
+    assert caller.call.await_count == 1  # ranking only, never assessed
+
+
 async def test_ranking_tolerates_omitted_and_invented_links(
     web, loader, tmp_path
 ):
