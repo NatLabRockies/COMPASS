@@ -20,7 +20,9 @@ from compass.web.file_loader import (
     AsyncLocalDoclingFileLoader,
     COMPASSWebFileLoader,
     _at_stage,
-    _FetchRecorder,
+    _record_fetch,
+    _record_no_response,
+    _record_response,
 )
 
 
@@ -561,20 +563,19 @@ async def challenge_server():
 
 def test_docling_fallback_loaders_are_recorded():
     """The Docling backend's fallback loaders get the hooks, with a stage"""
-    recorder = _FetchRecorder()
     loader = AsyncDoclingWebFileLoader(
         re_fetch_failed_with_elm=True,
-        on_fetch_hook=recorder.fetched,
-        on_response_hook=recorder.response,
-        on_error_hook=recorder.error,
+        on_fetch_hook=_record_fetch,
+        on_response_hook=_record_response,
+        on_error_hook=_record_no_response,
     )
-    assert loader.on_fetch_hook == recorder.fetched
-    assert loader.content_fetcher.on_response_hook == recorder.response
+    assert loader.on_fetch_hook is _record_fetch
+    assert loader.content_fetcher.on_response_hook is _record_response
     browser = loader.html_loader.on_fetch_hook
     assert browser.keywords == {"stage": "browser render"}
     fallback = loader.failed_fetcher
     assert fallback.on_fetch_hook.keywords == {"stage": "ELM fallback"}
-    assert fallback.content_fetcher.on_error_hook == recorder.error
+    assert fallback.content_fetcher.on_error_hook is _record_no_response
 
 
 @pytest.mark.asyncio
@@ -582,7 +583,7 @@ async def test_fallback_fetch_is_labelled_in_the_log(tmp_path):
     """A document recovered by a fallback is recorded with its stage"""
     doc = _doc("https://city.gov/code", empty=False)
     loader = AsyncWebFileLoader(
-        on_fetch_hook=_at_stage(_FetchRecorder().fetched, "ELM fallback")
+        on_fetch_hook=_at_stage(_record_fetch, "ELM fallback")
     )
     loader._fetch_doc = AsyncMock(return_value=(doc, None))
     log = EventLog(tmp_path / "events.jsonl")
@@ -595,25 +596,24 @@ async def test_fallback_fetch_is_labelled_in_the_log(tmp_path):
 
 
 def test_web_loader_listens_for_http_responses():
-    """The loader asks ELM's fetcher to report each response to it"""
+    """The loader asks ELM to report each fetch and response to it"""
     loader = COMPASSWebFileLoader()
-    recorder = loader.on_fetch_hook.__self__
-    assert isinstance(recorder, _FetchRecorder)
-    assert loader.content_fetcher.on_response_hook == recorder.response
-    assert loader.content_fetcher.on_error_hook == recorder.error
+    assert loader.on_fetch_hook is _record_fetch
+    assert loader.content_fetcher.on_response_hook is _record_response
+    assert loader.content_fetcher.on_error_hook is _record_no_response
 
 
 @pytest.mark.asyncio
 async def test_downloads_record_why_no_response_came(tmp_path):
     """A fetch that never got a response logs the connection error"""
-    recorder = _FetchRecorder()
     url = "https://unreachable.example/doc.pdf"
-    await recorder.error(url, ConnectionError("connection refused"))
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
-        await recorder.fetched(url, _doc(url, empty=True), None, 1.0)
+        await _record_no_response(url, ConnectionError("connection refused"))
     (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
-    assert event["http"] == {"error": "ConnectionError: connection refused"}
+    assert event["type"] == "http_error"
+    assert event["url"] == url
+    assert event["error"] == "ConnectionError: connection refused"
 
 
 @pytest.mark.asyncio
@@ -621,14 +621,16 @@ async def test_downloads_record_their_http_exchange(
     challenge_server, tmp_path
 ):
     """Status, headers, redirects, and a body summary reach the log"""
-    recorder = _FetchRecorder()
-    fetcher = AsyncFetchWithRetry(on_response_hook=recorder.response)
+    fetcher = AsyncFetchWithRetry(on_response_hook=_record_response)
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
         await fetcher.fetch(f"{challenge_server}/challenge")
         await fetcher.fetch(f"{challenge_server}/moved")
-    blocked = recorder._exchanges.pop(f"{challenge_server}/challenge")
-    moved = recorder._exchanges.pop(f"{challenge_server}/moved")
+    events = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert {e["type"] for e in events} == {"http_response"}
+    by_url = {e["url"]: e for e in events}
+    blocked = by_url[f"{challenge_server}/challenge"]
+    moved = by_url[f"{challenge_server}/moved"]
     assert blocked["response"]["status"] == 307
     assert blocked["response"]["headers"]["server"] == "Sucuri/Cloudproxy"
     assert "You are being redirected" in blocked["response"]["preview"]
@@ -638,4 +640,3 @@ async def test_downloads_record_their_http_exchange(
     assert moved["response"]["history"][0]["location"] == "/doc.pdf"
     # bodies are described in the log, never saved as files
     assert not [p for p in tmp_path.iterdir() if p.name != "events.jsonl"]
-    assert recorder._exchanges == {}

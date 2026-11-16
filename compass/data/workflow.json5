@@ -64,7 +64,7 @@
       label: "2. Download known URLs",
       about: "Downloads the URLs listed under known_doc_urls. They skip the jurisdiction check, since the user vouched for their source.",
       code: "compass/pipeline/collection/steps.py:KnownUrlDocumentsStep",
-      events: ["document_fetched"],
+      events: ["document_fetched", "http_response", "http_error"],
     },
     {
       id: "collect.search_engine",
@@ -115,7 +115,7 @@
       label: "Download each URL",
       about: "All URLs download concurrently. PDFs are parsed for text (with OCR if configured); other pages are rendered in a browser. A failed or empty download yields no document.",
       code: "compass/scripts/download.py:_docs_from_urls",
-      events: ["document_fetched"],
+      events: ["document_fetched", "http_response", "http_error"],
     },
     {
       id: "collect.search_engine.none",
@@ -251,7 +251,7 @@
       label: "Is this page the main website?",
       about: "Downloads the page and asks whether it is the jurisdiction's main website (not a school district, court, library, or agency site). A failed or empty download is a no.",
       code: "compass/validation/location.py:JurisdictionWebsiteValidator.check",
-      events: ["document_fetched", "llm_request", "llm_response"],
+      events: ["document_fetched", "http_response", "http_error", "llm_request", "llm_response"],
       next: [
         {to: "collect.website.found", when: "yes"},
         {to: "collect.website.more", when: "no"},
@@ -309,7 +309,7 @@
       kind: "decision",
       label: "Passes the keyword check?",
       about: "The plugin's keyword heuristic (no LLM). Documents that pass are downloaded again with the final loader.",
-      events: ["crawl_document_found", "crawl_document_validated", "document_fetched"],
+      events: ["crawl_document_found", "crawl_document_validated", "document_fetched", "http_response", "http_error"],
       next: [
         {to: "collect.crawler.stop", when: "yes"},
         {to: "collect.crawler.stop", when: "no"},

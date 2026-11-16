@@ -537,69 +537,56 @@ def _at_stage(hook, stage):
     return None if hook is None else partial(hook, stage=stage)
 
 
-class _FetchRecorder:
-    """Record each document fetch as a ``document_fetched`` event
+async def _record_response(url, response, body):  # ruff:ignore[unused-async]
+    """ELM response hook: record each HTTP response as it arrives"""
+    emit_event("http_response", url=url, **http_exchange(response, body))
 
-    Its methods are ELM loader hooks. The HTTP exchange behind a
-    download (or why no response came) is kept per URL until the fetch
-    of that URL finishes, and is recorded with it.
-    """
 
-    def __init__(self):
-        self._exchanges = {}
+async def _record_no_response(url, error):  # ruff:ignore[unused-async]
+    """ELM error hook: record why a URL gave no response at all"""
+    emit_event("http_error", url=url, **error_details(error))
 
-    async def response(self, url, response, body):
-        """ELM response hook: keep the last exchange for each URL"""
-        self._exchanges[url] = http_exchange(response, body)
 
-    async def error(self, url, error):
-        """ELM error hook: keep why a URL gave no response at all"""
-        self._exchanges[url] = error_details(error)
-
-    async def fetched(self, source, doc, error, seconds, stage=None):
-        """ELM fetch hook: record what one fetch produced"""
-        fields = {"seconds": round(seconds, 3)}
-        if stage:
-            fields["stage"] = stage
-        if exchange := self._exchanges.pop(source, None):
-            fields["http"] = exchange
-        if error is not None:
-            emit_event(
-                "document_fetched",
-                source=source,
-                **error_details(error),
-                **fields,
-            )
-        else:
-            emit_event(
-                "document_fetched",
-                requested=source,
-                empty=doc.empty,
-                **fields,
-                **document_summary(doc),
-            )
-        logger.info(
-            "Document retrieval result: %s | empty=%s", source, doc.empty
+# ruff:ignore[unused-async]
+async def _record_fetch(source, doc, error, seconds, stage=None):
+    """ELM fetch hook: record what one document fetch produced"""
+    fields = {"seconds": round(seconds, 3)}
+    if stage:
+        fields["stage"] = stage
+    if error is not None:
+        emit_event(
+            "document_fetched",
+            source=source,
+            **error_details(error),
+            **fields,
         )
+    else:
+        emit_event(
+            "document_fetched",
+            requested=source,
+            empty=doc.empty,
+            **fields,
+            **document_summary(doc),
+        )
+    logger.info("Document retrieval result: %s | empty=%s", source, doc.empty)
 
 
 class COMPASSWebFileLoader(_WebFileLoader):
     """The configured web file loader, recording each download
 
-    Every fetch is recorded in the event log through ELM's loader hooks.
-    With the Docling backend, so are the loaders it falls back on (a
-    browser render for HTML, and ELM for sources Docling could not
-    parse), so a document recovered by a fallback is not left looking
-    like a failed download.
+    Every fetch, and each HTTP response behind it, is recorded in the
+    event log through ELM's loader hooks. With the Docling backend, so
+    are the loaders it falls back on (a browser render for HTML, and ELM
+    for sources Docling could not parse), so a document recovered by a
+    fallback is not left looking like a failed download.
     """
 
     def __init__(self, **kwargs):
-        recorder = _FetchRecorder()
         super().__init__(
             **kwargs,
-            on_fetch_hook=recorder.fetched,
-            on_response_hook=recorder.response,
-            on_error_hook=recorder.error,
+            on_fetch_hook=_record_fetch,
+            on_response_hook=_record_response,
+            on_error_hook=_record_no_response,
         )
 
 
