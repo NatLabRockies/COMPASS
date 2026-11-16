@@ -429,14 +429,7 @@ class PriorityCrawler:
             return _skip_duplicate(entry, fetched, self.hashes[digest])
         self.hashes.setdefault(digest, entry["id"])
         pdf = raw.lstrip().startswith(b"%PDF-")
-        try:
-            doc, links, rendered, rendered_html = await asyncio.wait_for(
-                read(pdf), _READ_TIMEOUT
-            )
-        except TimeoutError as exc:
-            what = "the PDF" if pdf else "the page"
-            msg = f"Reading {what} took longer than {_READ_TIMEOUT} seconds"
-            raise TimeoutError(msg) from exc
+        doc, links, rendered, rendered_html = await _read_in_time(read, pdf)
         # Loaded means read: failing before here is failing to load
         entry["loaded"] = True
         entry["fetch_seconds"] = round(time.monotonic() - started, 3)
@@ -780,6 +773,16 @@ class _Page(NamedTuple):
 def _as_llm_input(content):
     """Text of the data sent to the LLM with a request"""
     return json.dumps(content, ensure_ascii=False)
+
+
+async def _read_in_time(read, pdf):
+    """Read fetched content, saying what took too long on a timeout"""
+    try:
+        return await asyncio.wait_for(read(pdf), _READ_TIMEOUT)
+    except TimeoutError as exc:
+        what = "the PDF" if pdf else "the page"
+        msg = f"Reading {what} took longer than {_READ_TIMEOUT} seconds"
+        raise TimeoutError(msg) from exc
 
 
 def _record_failure(entry, exc):
