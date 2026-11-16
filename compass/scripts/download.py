@@ -624,10 +624,7 @@ def _saved_search_seeds(saved):
         seeds.setdefault(url, {"url": url, "sources": []})["sources"].append(
             result
         )
-    with (
-        event_step("collect.search_engine.priority.search"),
-        event_phase("search"),
-    ):
+    with event_step("collect.search_engine.priority.search"):
         emit_event(
             "search_queries",
             queries=saved.get("queries", []),
@@ -640,10 +637,7 @@ def _saved_search_seeds(saved):
 async def _priority_search_seeds(runtime, queries, results_per_engine):
     """Search both engines and keep each engine's top results"""
     params = runtime.search_params
-    with (
-        event_step("collect.search_engine.priority.search"),
-        event_phase("search"),
-    ):
+    with event_step("collect.search_engine.priority.search"):
         emit_event(
             "search_queries",
             queries=queries,

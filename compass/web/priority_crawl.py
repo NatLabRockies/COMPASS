@@ -20,13 +20,12 @@ from compass.utilities.event_log import (
     emit_branch,
     emit_event,
     error_details,
-    event_phase,
     event_step,
     event_tags,
+    http_exchange,
     use_event_log,
 )
 from compass.utilities.parsing import is_pdf_doc
-from compass.web.file_loader import http_exchange
 from compass.utilities.url import canonical_url
 
 
@@ -105,10 +104,8 @@ class PriorityCrawler:
             emit_event("search_results", candidates=[])
             self._finish("no_search_results")
             return []
-        with event_phase("search"):
-            await self._rank_seeds(seeds)
-        with event_phase("crawl"):
-            await self._crawl()
+        await self._rank_seeds(seeds)
+        await self._crawl()
         stop_reason = self._stop_reason()
         emit_branch(_STEP_STOP, "stop", reason=stop_reason)
         self._finish(stop_reason)

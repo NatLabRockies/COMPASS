@@ -751,26 +751,21 @@ async def test_events_replay_the_full_search(web, loader, tmp_path):
     ]
     # schemas are logged once each, ahead of the first call that uses them
     events = [e for e in events if e["type"] not in {"branch", "llm_schema"}]
-    assert [(e["phase"], e["type"]) for e in events] == [
-        (None, "run_started"),
-        ("search", "phase_started"),
-        ("search", "search_results"),
-        ("search", "llm_request"),
-        ("search", "llm_response"),
-        ("search", "ranking_resolved"),
-        ("search", "enqueued"),
-        ("search", "phase_finished"),
-        ("crawl", "phase_started"),
-        ("crawl", "visit_started"),
-        ("crawl", "fetched"),
-        ("crawl", "page_read"),
-        ("crawl", "llm_request"),
-        ("crawl", "llm_response"),
-        ("crawl", "assessed"),
-        ("crawl", "phase_finished"),
-        (None, "run_finished"),
+    assert [e["type"] for e in events] == [
+        "run_started",
+        "search_results",
+        "llm_request",
+        "llm_response",
+        "ranking_resolved",
+        "enqueued",
+        "visit_started",
+        "fetched",
+        "page_read",
+        "llm_request",
+        "llm_response",
+        "assessed",
+        "run_finished",
     ]
-    events = [e for e in events if not e["type"].startswith("phase_")]
     ranking_request, assess_request = events[2], events[9]
     assert ranking_request["tags"]["step"].endswith("priority.rank")
     sent = json.loads(ranking_request["messages"][1]["content"])

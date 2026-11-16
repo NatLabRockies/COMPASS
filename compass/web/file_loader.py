@@ -620,4 +620,3 @@ class COMPASSWebFileLoader(_WebFileLoader):
                 content, **self.pdf_read_kwargs
             )
         return doc
-
