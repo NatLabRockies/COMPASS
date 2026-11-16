@@ -35,6 +35,12 @@ def test_runtime_settings_accepts_positive_jurisdiction_concurrency(limit):
     assert settings.max_num_concurrent_jurisdictions == limit
 
 
+def test_event_logs_are_kept_by_default():
+    """Runs record event logs unless told not to"""
+    assert RuntimeSettings().keep_event_logs is True
+    assert RuntimeSettings(keep_event_logs=False).keep_event_logs is False
+
+
 @pytest.mark.parametrize(
     "request_class",
     [

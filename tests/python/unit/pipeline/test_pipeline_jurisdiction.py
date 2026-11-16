@@ -172,10 +172,10 @@ async def test_run_writes_jurisdiction_event_log(
 
 
 @pytest.mark.asyncio
-async def test_event_log_is_off_unless_requested(
+async def test_event_log_can_be_turned_off(
     monkeypatch, jurisdiction_run, tmp_path
 ):
-    """Without keep_event_logs, a run writes no event log"""
+    """With keep_event_logs off, a run writes no event log"""
 
     async def process():  # ruff:ignore[unused-async]
         return SimpleNamespace(ord_db_fp=None)

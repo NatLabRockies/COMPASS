@@ -278,10 +278,11 @@ class SingleJurisdictionRun:
     def _new_event_log(self, action):
         """Open the jurisdiction's event log for one pipeline action
 
-        Returns ``None`` unless event logs were requested
-        (``keep_event_logs``). The log sits next to the jurisdiction's
-        ``.log`` file and, like it, is added to by every step of a
-        workflow run as separate search, collect, and extract steps.
+        Returns ``None`` when event logs are turned off
+        (``keep_event_logs: false``). The log sits next to the
+        jurisdiction's ``.log`` file and, like it, is added to by every
+        step of a workflow run as separate search, collect, and extract
+        steps.
         """
         if not self.runtime.keep_event_logs:
             return None
