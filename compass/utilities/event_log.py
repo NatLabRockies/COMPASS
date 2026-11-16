@@ -15,6 +15,7 @@ the path a run took against every path that was possible.
 import json
 import math
 import time
+import traceback
 from contextlib import contextmanager, nullcontext
 from contextvars import ContextVar
 from pathlib import Path
@@ -184,6 +185,9 @@ def _existing_events(path):
     return last, runs
 
 
+_REPO = Path(__file__).resolve().parents[2]
+
+
 def error_details(error):
     """Event fields describing an exception and what caused it
 
@@ -206,10 +210,12 @@ def error_details(error):
     -------
     dict
         ``error``: the exception as ``"Type: message"``, followed by
-        the innermost cause when there is one. ``error_chain`` (only
-        when the exception has a cause): every exception in the chain,
-        outermost first, each with its full ``type`` name and
-        ``message``.
+        the innermost cause when there is one. ``error_chain`` (once
+        the exception was raised, or when it has a cause): every
+        exception in the chain, outermost first, each with its full
+        ``type`` name, ``message`` and, from its traceback, the
+        ``frames`` (``file``, ``line``, ``function``) it was raised
+        through; files in this repository are relative to its root.
     """
     chain, seen = [], set()
     while error is not None and id(error) not in seen:
@@ -217,14 +223,41 @@ def error_details(error):
         chain.append(error)
         error = error.__cause__ or error.__context__
     text = _error_text(chain[0])
-    if len(chain) == 1:
+    if len(chain) == 1 and chain[0].__traceback__ is None:
         return {"error": text}
-    return {
-        "error": f"{text} (caused by {_error_text(chain[-1])})",
-        "error_chain": [
-            {"type": _error_type(exc), "message": str(exc)} for exc in chain
-        ],
-    }
+    if len(chain) > 1:
+        text = f"{text} (caused by {_error_text(chain[-1])})"
+    return {"error": text, "error_chain": [_error_entry(exc) for exc in chain]}
+
+
+def _error_entry(error):
+    """Type, message, and (once raised) where an exception came from"""
+    entry = {"type": _error_type(error), "message": str(error)}
+    frames = traceback.extract_tb(error.__traceback__)
+    if frames:
+        entry["frames"] = [
+            {
+                "file": _source_path(f.filename),
+                "line": f.lineno,
+                "function": f.name,
+            }
+            for f in frames
+        ]
+    return entry
+
+
+def _source_path(filename):
+    """A frame's file relative to its package root or this repository"""
+    parts = Path(filename).parts
+    for i in reversed(range(len(parts))):
+        if parts[i] == "site-packages" or parts[i].startswith("python3."):
+            return "/".join(parts[i + 1 :])
+    path = Path(filename)
+    return (
+        path.relative_to(_REPO).as_posix()
+        if path.is_relative_to(_REPO)
+        else filename
+    )
 
 
 def _error_text(error):

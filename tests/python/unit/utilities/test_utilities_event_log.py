@@ -139,6 +139,25 @@ def test_error_details_follow_the_cause_chain():
     assert error_details(ValueError("boom")) == {"error": "ValueError: boom"}
 
 
+def test_error_details_record_where_the_error_was_raised():
+    """Each error in the chain lists the frames it was raised through"""
+
+    def fail():
+        raise ValueError("boom")
+
+    try:
+        fail()
+    except ValueError as error:
+        out = error_details(error)
+    frame = out["error_chain"][0]["frames"][-1]
+    assert (
+        frame["file"]
+        == "tests/python/unit/utilities/test_utilities_event_log.py"
+    )
+    assert frame["function"] == "fail"
+    assert frame["line"] == fail.__code__.co_firstlineno + 1
+
+
 async def test_failed_llm_call_records_the_underlying_error(tmp_path):
     """A call that finally fails logs why, not only that retries ran out"""
 
