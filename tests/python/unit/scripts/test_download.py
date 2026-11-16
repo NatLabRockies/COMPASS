@@ -332,7 +332,7 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_standard_search_records_search_and_download_phases(
+async def test_standard_search_records_search_and_download_steps(
     monkeypatch, tmp_path
 ):
     """Every result and the selected URLs are logged, by phase"""
@@ -375,12 +375,16 @@ async def test_standard_search_records_search_and_download_phases(
     by_type = {e["type"]: e for e in events}
     assert len(by_type["search_results"]["results"]) == 2
     assert by_type["search_selected"]["urls"] == [url]
-    assert by_type["search_selected"]["phase"] == "search"
-    assert by_type["download_marker"]["phase"] == "download"
+    assert by_type["search_selected"]["tags"]["step"] == (
+        "collect.search_engine.select"
+    )
+    assert by_type["download_marker"]["tags"]["step"] == (
+        "collect.search_engine.download"
+    )
 
 
 @pytest.mark.asyncio
-async def test_filter_stages_are_separate_phases(monkeypatch, tmp_path):
+async def test_filter_stages_are_separate_steps(monkeypatch, tmp_path):
     """Each filtering stage's events and results sit in its own phase"""
     keep = SimpleNamespace(
         attrs={"source": "https://county.gov/ord.pdf"}, text="ordinance"
@@ -420,16 +424,17 @@ async def test_filter_stages_are_separate_phases(monkeypatch, tmp_path):
             usage_tracker=None,
         )
     events = [json.loads(line) for line in log.path.read_text().splitlines()]
-    phases = {
-        e["type"] if e["type"] != "filter_stage" else e["stage"]: e["phase"]
+    steps = {
+        e["type"] if e["type"] != "filter_stage" else e["stage"]: e["tags"][
+            "step"
+        ]
         for e in events
-        if not e["type"].startswith("phase_")
     }
-    assert phases == {
-        "jurisdiction_marker": "jurisdiction check",
-        "jurisdiction": "jurisdiction check",
-        "relevance_marker": "relevance check",
-        "relevance": "relevance check",
+    assert steps == {
+        "jurisdiction_marker": "filter.jurisdiction",
+        "jurisdiction": "filter.jurisdiction",
+        "relevance_marker": "filter.relevance",
+        "relevance": "filter.relevance",
     }
 
 

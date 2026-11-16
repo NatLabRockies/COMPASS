@@ -2,7 +2,6 @@
 
 import os
 import asyncio
-import hashlib
 import logging
 from functools import partial
 from importlib import import_module
@@ -17,11 +16,9 @@ from elm.web.file_loader import (
 from elm.web.document import MDDocument
 from compass.services.threaded import TempFileCache
 from compass.utilities.event_log import (
-    body_preview,
-    document_summary,
-    emit_event,
-    error_details,
-    loggable_headers,
+    record_document_fetch,
+    record_http_error,
+    record_http_response,
 )
 
 
@@ -537,40 +534,6 @@ def _at_stage(hook, stage):
     return None if hook is None else partial(hook, stage=stage)
 
 
-async def _record_response(url, response, body):  # ruff:ignore[unused-async]
-    """ELM response hook: record each HTTP response as it arrives"""
-    emit_event("http_response", url=url, **http_exchange(response, body))
-
-
-async def _record_no_response(url, error):  # ruff:ignore[unused-async]
-    """ELM error hook: record why a URL gave no response at all"""
-    emit_event("http_error", url=url, **error_details(error))
-
-
-# ruff:ignore[unused-async]
-async def _record_fetch(source, doc, error, seconds, stage=None):
-    """ELM fetch hook: record what one document fetch produced"""
-    fields = {"seconds": round(seconds, 3)}
-    if stage:
-        fields["stage"] = stage
-    if error is not None:
-        emit_event(
-            "document_fetched",
-            source=source,
-            **error_details(error),
-            **fields,
-        )
-    else:
-        emit_event(
-            "document_fetched",
-            requested=source,
-            empty=doc.empty,
-            **fields,
-            **document_summary(doc),
-        )
-    logger.info("Document retrieval result: %s | empty=%s", source, doc.empty)
-
-
 class COMPASSWebFileLoader(_WebFileLoader):
     """The configured web file loader, recording each download
 
@@ -584,52 +547,7 @@ class COMPASSWebFileLoader(_WebFileLoader):
     def __init__(self, **kwargs):
         super().__init__(
             **kwargs,
-            on_fetch_hook=_record_fetch,
-            on_response_hook=_record_response,
-            on_error_hook=_record_no_response,
+            on_fetch_hook=record_document_fetch,
+            on_response_hook=record_http_response,
+            on_error_hook=record_http_error,
         )
-
-
-def http_exchange(response, body):
-    """Describe an HTTP exchange for the event log
-
-    Parameters
-    ----------
-    response : aiohttp.ClientResponse
-        Response received, as passed to ELM's ``on_response_hook``.
-    body : bytes
-        Content of the response.
-
-    Returns
-    -------
-    dict
-        The ``request`` (method, URL, headers) and the ``response``
-        (status, final URL, headers, redirect history, and the body's
-        size, hash, and opening text), with credentials redacted.
-    """
-    request = response.request_info
-    headers = loggable_headers(response.headers)
-    return {
-        "request": {
-            "method": request.method,
-            "url": str(request.url),
-            "headers": loggable_headers(request.headers),
-        },
-        "response": {
-            "status": response.status,
-            "reason": response.reason,
-            "url": str(response.url),
-            "headers": headers,
-            "history": [
-                {
-                    "status": hop.status,
-                    "url": str(hop.url),
-                    "location": hop.headers.get("Location"),
-                }
-                for hop in response.history
-            ],
-            "bytes": len(body),
-            "sha256": hashlib.sha256(body).hexdigest(),
-            "preview": body_preview(body, headers.get("content-type", "")),
-        },
-    }

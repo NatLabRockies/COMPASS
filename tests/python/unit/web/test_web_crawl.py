@@ -1427,27 +1427,20 @@ async def test_run_sorts_documents_and_resets_state(
 
 
 @pytest.mark.asyncio
-async def test_crawl_records_phase_and_skips(crawler_setup, tmp_path):
-    """A website crawl is logged in its own phase with skip reasons"""
+async def test_crawl_records_steps_and_skips(crawler_setup, tmp_path):
+    """A website crawl is logged under its crawler steps, with skip reasons"""
     crawler = crawler_setup["crawler"]
     crawler.url_filter = URLPartFilter(["blocked.example"])
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
         await crawler.run("https://blocked.example", crawl_timeout_s=10)
     events = [json.loads(x) for x in log.path.read_text().splitlines()]
-    assert [(e["phase"], e["type"]) for e in events] == [
-        ("crawl", "phase_started"),
-        ("crawl", "crawl_skipped"),
-        ("crawl", "crawl_finished"),
-        ("crawl", "phase_finished"),
-    ]
-    assert events[1]["reason"] == "blacklisted"
+    assert [e["type"] for e in events] == ["crawl_skipped", "crawl_finished"]
+    assert events[0]["reason"] == "blacklisted"
     # each event names the crawler node of the workflow map it belongs to
     assert [e["tags"]["step"] for e in events] == [
-        "collect.crawler",
         "collect.crawler.visit",
         "collect.crawler.done",
-        "collect.crawler",
     ]
 
 

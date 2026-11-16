@@ -35,7 +35,6 @@ from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.event_log import (
     emit_branch,
     emit_event,
-    event_phase,
     event_step,
     event_tags,
 )
@@ -789,7 +788,7 @@ async def filter_ordinance_docs(
         jurisdiction.full_name,
         description="Checking files for correct jurisdiction...",
     )
-    with event_step("filter.jurisdiction"), event_phase("jurisdiction check"):
+    with event_step("filter.jurisdiction"):
         before = list(docs)
         docs = await _down_select_docs_correct_jurisdiction(
             docs,
@@ -815,7 +814,7 @@ async def filter_ordinance_docs(
         jurisdiction.full_name,
         description="Checking files for extraction-relevant text...",
     )
-    with event_step("filter.relevance"), event_phase("relevance check"):
+    with event_step("filter.relevance"):
         before = list(docs)
         docs = await filter_documents(
             docs,
@@ -915,20 +914,19 @@ async def _docs_from_se_search(
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    with event_phase("search"):
-        with event_step("collect.search_engine.search"):
-            search_results = await search_single_jurisdiction(
-                query_templates,
-                jurisdiction,
-                num_urls,
-                search_semaphore,
-                url_ignore_substrings,
-                simple=simple_se_result_sort,
-                **kwargs,
-            )
-        ranked_results = await _rank_search_results(
-            search_results, jurisdiction, se_shard_out_dir
+    with event_step("collect.search_engine.search"):
+        search_results = await search_single_jurisdiction(
+            query_templates,
+            jurisdiction,
+            num_urls,
+            search_semaphore,
+            url_ignore_substrings,
+            simple=simple_se_result_sort,
+            **kwargs,
         )
+    ranked_results = await _rank_search_results(
+        search_results, jurisdiction, se_shard_out_dir
+    )
 
     return await _docs_from_ranked_results(
         ranked_results, browser_semaphore, jurisdiction, **kwargs
@@ -939,10 +937,9 @@ async def _docs_from_search_results(
     search_results, browser_semaphore, jurisdiction, se_shard_out_dir, **kwargs
 ):
     """Retrieve documents from search results"""
-    with event_phase("search"):
-        ranked_results = await _rank_search_results(
-            search_results, jurisdiction, se_shard_out_dir
-        )
+    ranked_results = await _rank_search_results(
+        search_results, jurisdiction, se_shard_out_dir
+    )
     return await _docs_from_ranked_results(
         ranked_results, browser_semaphore, jurisdiction, **kwargs
     )
@@ -979,10 +976,7 @@ async def _docs_from_ranked_results(
     if not urls:
         return []
 
-    with (
-        event_step("collect.search_engine.download"),
-        event_phase("download"),
-    ):
+    with event_step("collect.search_engine.download"):
         docs = await _docs_from_urls(
             urls, jurisdiction.full_name, browser_semaphore, **kwargs
         )

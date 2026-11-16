@@ -20,9 +20,11 @@ from compass.web.file_loader import (
     AsyncLocalDoclingFileLoader,
     COMPASSWebFileLoader,
     _at_stage,
-    _record_fetch,
-    _record_no_response,
-    _record_response,
+)
+from compass.utilities.event_log import (
+    record_document_fetch as _record_fetch,
+    record_http_error as _record_no_response,
+    record_http_response as _record_response,
 )
 
 
@@ -485,13 +487,11 @@ def _loader_returning(doc):
 
 
 @pytest.mark.parametrize("empty", [False, True])
-async def test_fetch_returns_the_backend_result(caplog, empty):
-    """Recording keeps the backend result and logs empty downloads."""
+async def test_fetch_returns_the_backend_result(empty):
+    """Recording leaves the backend's result as it is."""
     doc = _doc("https://city.gov/code", empty=empty)
-    with caplog.at_level("INFO"):
-        result = await _loader_returning(doc).fetch(doc.attrs["source"])
+    result = await _loader_returning(doc).fetch(doc.attrs["source"])
     assert result is doc
-    assert f"empty={empty}" in caplog.text
 
 
 async def test_fetch_records_document_event(tmp_path):
@@ -516,7 +516,8 @@ async def test_failed_fetch_records_why(tmp_path):
         doc = await loader.fetch("https://city.gov/code.pdf")
     assert doc.empty
     (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
-    assert event["source"] == "https://city.gov/code.pdf"
+    assert event["requested"] == "https://city.gov/code.pdf"
+    assert event["empty"] is True
     assert event["error"] == "ValueError: bad PDF"
 
 

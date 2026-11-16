@@ -5,12 +5,10 @@ from functools import cached_property
 
 from elm.web.document import BaseDocument
 
-from compass.utilities.timing import log_operation
 from compass.utilities.event_log import (
     document_summary,
     emit_branch,
     emit_event,
-    event_phase,
     event_step,
     event_tags,
 )
@@ -285,16 +283,8 @@ class DocumentCollection:
 
     async def _run_collection_step(self, step):
         """Run collection step and record results"""
-        with (
-            event_step(f"collect.{step.STEP_NAME}"),
-            event_phase("collect", step=str(step.STEP_NAME)),
-        ):
-            async with log_operation(
-                logger,
-                f"collection {step.STEP_NAME}",
-                self.workflow.jurisdiction.full_name,
-            ):
-                docs = await step.collect(self.workflow)
+        with event_step(f"collect.{step.STEP_NAME}"):
+            docs = await step.collect(self.workflow)
             emit_event(
                 "documents_collected",
                 step=str(step.STEP_NAME),

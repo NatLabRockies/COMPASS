@@ -5,12 +5,10 @@ import logging
 from compass.extraction.context import ExtractionContext
 from compass.services.threaded import OrdDBFileWriter
 from compass.pb import COMPASS_PB
-from compass.utilities.timing import log_operation
 from compass.utilities.event_log import (
     document_summary,
     emit_branch,
     emit_event,
-    event_phase,
     event_step,
 )
 
@@ -50,19 +48,14 @@ class DocumentExtraction:
 
         emit_branch("handoff", "yes")
         extraction_context = ExtractionContext(documents=docs)
-        with event_step("filter"), event_phase("filter"):
+        with event_step("filter"):
             emit_event(
                 "documents_in",
                 documents=[document_summary(doc) for doc in docs],
             )
-            async with log_operation(
-                logger,
-                "document filtering",
-                self.workflow.jurisdiction.full_name,
-            ):
-                extraction_context = await self.workflow.extractor.filter_docs(
-                    extraction_context, self.max_docs_to_parse
-                )
+            extraction_context = await self.workflow.extractor.filter_docs(
+                extraction_context, self.max_docs_to_parse
+            )
             with event_step("filter.order"):
                 emit_event(
                     "documents_kept",
@@ -89,25 +82,15 @@ class DocumentExtraction:
             self.workflow.jurisdiction.full_name,
             description="Extracting structured data...",
         )
-        with event_step("extract"), event_phase("extract"):
-            async with log_operation(
-                logger,
-                "structured extraction",
-                self.workflow.jurisdiction.full_name,
-            ):
-                context = await (
-                    self.workflow.extractor.parse_docs_for_structured_data(
-                        extraction_context
-                    )
+        with event_step("extract"):
+            context = await (
+                self.workflow.extractor.parse_docs_for_structured_data(
+                    extraction_context
                 )
+            )
             _emit_extracted_rows(extraction_context)
-        with event_step("save"), event_phase("save"):
-            async with log_operation(
-                logger,
-                "saving extraction",
-                self.workflow.jurisdiction.full_name,
-            ):
-                await self._write_out_structured_data(extraction_context)
+        with event_step("save"):
+            await self._write_out_structured_data(extraction_context)
             ord_db_fp = extraction_context.attrs.get("ord_db_fp")
             with event_step("save.write" if ord_db_fp else "save.skip"):
                 emit_event("saved", ord_db_fp=str(ord_db_fp))

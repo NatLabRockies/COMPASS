@@ -48,7 +48,7 @@
       each: "collection",
       about: "Runs the enabled collection steps one at a time, in the order shown. In a processing run, each step's documents go through filtering, extraction, and saving before the next step starts, and collection stops at the first step whose documents yield extracted data. Steps are enabled by the run configuration.",
       code: "compass/pipeline/collection/base.py:DocumentCollection.execute",
-      events: ["phase_started", "documents_collected"],
+      events: ["documents_collected"],
       next: "handoff",
     },
     {
@@ -285,7 +285,7 @@
       each: "page",
       about: "Shared by the seed crawl and the COMPASS website crawl. Visits pages depth-first, following the best-scored links, and treats PDFs and external pages as candidate documents.",
       code: "compass/web/website_crawl.py:COMPASSCrawler.run",
-      events: ["phase_started", "crawl_finished"],
+      events: ["crawl_finished"],
     },
     {
       id: "collect.crawler.visit",

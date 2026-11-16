@@ -100,7 +100,7 @@ async def test_nothing_kept_skips_extraction(run_extraction):
     ]
     (kept,) = [e for e in events if e["type"] == "documents_kept"]
     assert kept["tags"]["step"] == "filter.order"
-    assert not any(e.get("phase") == "extract" for e in events)
+    assert not any(e.get("tags", {}).get("step") == "extract" for e in events)
 
 
 @pytest.mark.asyncio

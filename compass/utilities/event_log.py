@@ -1,10 +1,10 @@
-"""Replayable, phase-organized event logs for one jurisdiction's run
+"""Replayable event logs for one jurisdiction's run
 
 An :class:`EventLog` appends one JSON object per line to a file as each
 step happens, so a run can be followed live and replayed afterwards.
-The log for the jurisdiction being processed, and the phase it is in,
-are tracked with context variables, so code anywhere in the pipeline can
-record events with :func:`emit_event` without passing the log around.
+The log for the jurisdiction being processed is tracked with a context
+variable, so code anywhere in the pipeline can record events with
+:func:`emit_event` without passing the log around.
 
 Events link to the workflow map (``compass/data/workflow.json5``): each
 names the step it happened in with :func:`event_step`, and each decision
@@ -12,21 +12,19 @@ records which way it went with :func:`emit_branch`, so a replay can draw
 the path a run took against every path that was possible.
 """
 
+import hashlib
 import json
 import logging
 import math
 import sys
 import time
 import traceback
-from contextlib import contextmanager, nullcontext
+from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
 
-from compass.utilities.costs import LLM_COST_REGISTRY, cost_for_model
-
 
 _CURRENT_LOG = ContextVar("compass_event_log", default=None)
-_CURRENT_PHASE = ContextVar("compass_event_phase", default=None)
 _CURRENT_TAGS = ContextVar("compass_event_tags", default=None)
 
 
@@ -63,12 +61,11 @@ class EventLog:
         self._started = time.monotonic()
 
     def emit(self, kind, **fields):
-        """Append one event, tagged with the current phase"""
+        """Append one event, with the current tags"""
         self._count += 1
         record = {
             "seq": self._count,
             "t": round(self._offset + time.monotonic() - self._started, 3),
-            "phase": _CURRENT_PHASE.get(),
             "type": kind,
         }
         tags = _CURRENT_TAGS.get()
@@ -137,30 +134,6 @@ class EventLog:
                 **description,
             )
         return self._graphs[key]
-
-    @contextmanager
-    def phase(self, name, **fields):
-        """Record a named phase and tag events emitted inside it"""
-        parent = _CURRENT_PHASE.get()
-        token = _CURRENT_PHASE.set(name)
-        started = time.monotonic()
-        self.emit("phase_started", parent_phase=parent, **fields)
-        try:
-            yield
-        except BaseException as exc:
-            self.emit(
-                "phase_finished",
-                seconds=round(time.monotonic() - started, 3),
-                **error_details(exc),
-            )
-            raise
-        else:
-            self.emit(
-                "phase_finished",
-                seconds=round(time.monotonic() - started, 3),
-            )
-        finally:
-            _CURRENT_PHASE.reset(token)
 
 
 def _existing_events(path):
@@ -409,12 +382,6 @@ def emit_event(kind, **fields):
         log.emit(kind, **fields)
 
 
-def event_phase(name, **fields):
-    """Context manager for a phase in the current event log, if any"""
-    log = _CURRENT_LOG.get()
-    return log.phase(name, **fields) if log is not None else nullcontext()
-
-
 _SECRET_HEADERS = frozenset(
     {"authorization", "proxy-authorization", "x-api-key", "api-key"}
 )
@@ -501,6 +468,75 @@ def document_summary(doc):
     }
 
 
+def http_exchange(response, body):
+    """Describe an HTTP exchange for the event log
+
+    Parameters
+    ----------
+    response : aiohttp.ClientResponse
+        Response received, as passed to ELM's ``on_response_hook``.
+    body : bytes
+        Content of the response.
+
+    Returns
+    -------
+    dict
+        The ``request`` (method, URL, headers) and the ``response``
+        (status, final URL, headers, redirect history, and the body's
+        size, hash, and opening text), with credentials redacted.
+    """
+    request = response.request_info
+    headers = loggable_headers(response.headers)
+    return {
+        "request": {
+            "method": request.method,
+            "url": str(request.url),
+            "headers": loggable_headers(request.headers),
+        },
+        "response": {
+            "status": response.status,
+            "reason": response.reason,
+            "url": str(response.url),
+            "headers": headers,
+            "history": [
+                {
+                    "status": hop.status,
+                    "url": str(hop.url),
+                    "location": hop.headers.get("Location"),
+                }
+                for hop in response.history
+            ],
+            "bytes": len(body),
+            "sha256": hashlib.sha256(body).hexdigest(),
+            "preview": body_preview(body, headers.get("content-type", "")),
+        },
+    }
+
+
+async def record_http_response(url, response, body):  # ruff:ignore[unused-async]
+    """ELM response hook: record each HTTP response as it arrives"""
+    emit_event("http_response", url=url, **http_exchange(response, body))
+
+
+async def record_http_error(url, error):  # ruff:ignore[unused-async]
+    """ELM error hook: record why a URL gave no response at all"""
+    emit_event("http_error", url=url, **error_details(error))
+
+
+# ruff:ignore[unused-async]
+async def record_document_fetch(source, doc, error, seconds, stage=None):
+    """ELM fetch hook: record what one document fetch produced"""
+    emit_event(
+        "document_fetched",
+        requested=source,
+        empty=doc.empty,
+        seconds=round(seconds, 3),
+        **({"stage": stage} if stage else {}),
+        **document_summary(doc),
+        **(error_details(error) if error else {}),
+    )
+
+
 class ResponseRecorder:
     """Usage tracker stand-in that remembers the API response metadata
 
@@ -538,28 +574,4 @@ def response_metadata(model, response):
         "finish_reason": getattr(choice, "finish_reason", None),
         **tokens,
         "content_chars": len(content),
-        **token_costs(model, **tokens),
-    }
-
-
-def token_costs(
-    model, prompt_tokens=None, completion_tokens=None, reasoning_tokens=None
-):
-    """Dollar cost of a call's tokens at the configured model rates
-
-    Reasoning tokens are billed as output and are already included in
-    the completion tokens, so ``reasoning_cost`` is part of
-    ``completion_cost``, not an addition to it. Costs are ``None`` when
-    the model has no configured rates.
-    """
-    if model not in LLM_COST_REGISTRY:
-        return dict.fromkeys(
-            ("prompt_cost", "completion_cost", "reasoning_cost", "total_cost")
-        )
-    prompt, completion = prompt_tokens or 0, completion_tokens or 0
-    return {
-        "prompt_cost": cost_for_model(model, prompt, 0),
-        "completion_cost": cost_for_model(model, 0, completion),
-        "reasoning_cost": cost_for_model(model, 0, reasoning_tokens or 0),
-        "total_cost": cost_for_model(model, prompt, completion),
     }

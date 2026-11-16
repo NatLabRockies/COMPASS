@@ -7,7 +7,6 @@ from urllib.parse import urlsplit, urlunsplit
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
 from compass.utilities.url import URLPartFilter
-from compass.utilities.timing import log_operation
 from compass.utilities.event_log import (
     current_event_log,
     error_details,
@@ -123,16 +122,15 @@ async def search_single_jurisdiction(
     run_meth = _run_simple_sort_search if simple else _run_holistic_sort_search
 
     try:
-        async with log_operation(logger, "web search", jurisdiction.full_name):
-            out = await run_meth(
-                queries,
-                num_urls,
-                url_ignore_substrings,
-                url_keep_substrings,
-                browser_semaphore,
-                jurisdiction.full_name,
-                **se_kwargs,
-            )
+        out = await run_meth(
+            queries,
+            num_urls,
+            url_ignore_substrings,
+            url_keep_substrings,
+            browser_semaphore,
+            jurisdiction.full_name,
+            **se_kwargs,
+        )
 
     except Exception as exc:
         logger.exception("Search failed for %s", jurisdiction.full_name)
