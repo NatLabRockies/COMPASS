@@ -236,6 +236,23 @@ async def test_retries_are_recorded_with_their_call(tmp_path):
     assert retry["error"] == "ReadError"
 
 
+def test_retries_outside_llm_calls_are_download_retries(tmp_path):
+    """Retries outside an LLM call (e.g. downloads) are not LLM retries"""
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        try:
+            raise httpx.ReadError("")
+        except httpx.ReadError as error:
+            logging.getLogger("elm.utilities.retry").info(
+                "Error: %s. Retrying in %.2f seconds.", error, 4.0
+            )
+    (retry,) = [
+        e for e in read_events(log.path) if e["type"].endswith("retry")
+    ]
+    assert retry["type"] == "download_retry"
+    assert retry["delay"] == pytest.approx(4.0)
+
+
 def test_phase_records_errors(tmp_path):
     """A failing phase is recorded before the error propagates"""
     log = EventLog(tmp_path / "events.jsonl")

@@ -304,12 +304,14 @@ def _json_safe(value):
 
 
 class _RetryEvents(logging.Handler):
-    """Record the retries LLM clients make without raising an error
+    """Record the retries clients make without raising an error
 
-    The OpenAI client, and the retry wrapper COMPASS calls it through,
-    retry failed requests on their own: a call that succeeds in the end
-    shows only as a slow one. Both log each retry from inside the
-    ``except`` block that caught the failure, so the error is at hand.
+    The OpenAI client, and ELM's retry wrapper (used for LLM calls and
+    for downloads), retry failed requests on their own: a request that
+    succeeds in the end shows only as a slow one. Both log each retry
+    from inside the ``except`` block that caught the failure, so the
+    error is at hand. Retries inside an LLM call (tagged with its
+    ``call``) are ``llm_retry`` events; others are ``download_retry``.
     """
 
     def emit(self, record):  # ruff:ignore[no-self-use]
@@ -317,8 +319,9 @@ class _RetryEvents(logging.Handler):
             return
         error = sys.exception()
         delay = record.args[-1] if record.args else None
+        in_llm_call = "call" in (_CURRENT_TAGS.get() or {})
         emit_event(
-            "llm_retry",
+            "llm_retry" if in_llm_call else "download_retry",
             by="openai client"
             if record.name.startswith("openai")
             else "retry wrapper",
@@ -328,7 +331,7 @@ class _RetryEvents(logging.Handler):
 
 
 def _record_retries():
-    """Turn retry log records from the LLM clients into events"""
+    """Turn the LLM and web clients' retry log records into events"""
     for name, text in (
         ("openai._base_client", "Retrying request"),
         ("elm.utilities.retry", "Retrying in"),
