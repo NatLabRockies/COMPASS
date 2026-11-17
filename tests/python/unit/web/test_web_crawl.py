@@ -1,5 +1,6 @@
 """COMPASS web crawling tests"""
 
+import json
 import asyncio
 import logging
 import types
@@ -9,6 +10,7 @@ from pathlib import Path
 import pytest
 from crawl4ai.models import Link as TestLink
 
+from compass.utilities.event_log import EventLog, use_event_log
 from compass.scripts import download
 from compass.web import website_crawl
 from compass.utilities.url import (
@@ -1422,6 +1424,24 @@ async def test_run_sorts_documents_and_resets_state(
 
     assert docs == [html_doc, pdf_doc]
     assert crawler._should_stop is None
+
+
+@pytest.mark.asyncio
+async def test_crawl_records_steps_and_skips(crawler_setup, tmp_path):
+    """A website crawl is logged under its crawler steps, with skip reasons"""
+    crawler = crawler_setup["crawler"]
+    crawler.url_filter = URLPartFilter(["blocked.example"])
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await crawler.run("https://blocked.example", crawl_timeout_s=10)
+    events = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert [e["type"] for e in events] == ["crawl_skipped", "crawl_finished"]
+    assert events[0]["reason"] == "blacklisted"
+    # each event names the crawler node of the workflow map it belongs to
+    assert [e["tags"]["step"] for e in events] == [
+        "collect.crawler.visit",
+        "collect.crawler.done",
+    ]
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 """COMPASS ordinance plugin tests"""
 
 import asyncio
+import json
 from collections import UserList
 from pathlib import Path
 from types import SimpleNamespace
@@ -42,6 +43,7 @@ from compass.services.threaded import (
     _compile_doc_info,
     _compute_sha256,
 )
+from compass.utilities.event_log import EventLog, use_event_log
 
 
 class MergePlugin(OrdinanceExtractionPlugin):
@@ -988,3 +990,71 @@ async def test_merge_candidates_keeps_first_feature_and_marks_sources():
 
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
+
+
+class SingleDocPlugin(OrdinanceExtractionPlugin):
+    """Plugin whose documents yield preset data, one at a time"""
+
+    TEXT_COLLECTORS = []
+    TEXT_EXTRACTORS = []
+    PARSERS = []
+
+    IDENTIFIER = "test"
+    WEBSITE_KEYWORDS = ["test"]
+    QUERY_TEMPLATES = ["test"]
+    HEURISTIC = None
+    OUTPUT_COLUMNS = []
+
+    async def parse_for_structured_data(self, source):
+        await asyncio.sleep(0)
+        return source.attrs.get("structured_data")
+
+
+def _branch_events(log):
+    events = [json.loads(x) for x in log.path.read_text().splitlines()]
+    return [
+        (e["tags"].get("document"), e["tags"]["step"], e["outcome"])
+        for e in events
+        if e["type"] == "branch"
+    ]
+
+
+@pytest.mark.asyncio
+async def test_single_doc_extraction_records_each_document_tried(tmp_path):
+    """Each document says whether it yielded values; the first wins"""
+    plugin = SingleDocPlugin(None, None, None)
+    plugin.jurisdiction = SimpleNamespace(full_name="Test County")
+    values = _data_df({"feature": "setback", "value": 100, "summary": "s"})
+    context = FakeExtractionContext(
+        [
+            FakeDoc("empty.pdf"),
+            FakeDoc("good.pdf", structured_data=values),
+            FakeDoc("never-tried.pdf", structured_data=values),
+        ]
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        assert await plugin.parse_docs_for_structured_data(context)
+    assert _branch_events(log) == [
+        (None, "extract.mode", "yes"),
+        ("empty.pdf", "extract.doc.qualifies", "no"),
+        ("good.pdf", "extract.doc.qualifies", "yes"),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_single_doc_extraction_runs_out_of_documents(tmp_path):
+    """No document yields values: the loop says so"""
+    plugin = SingleDocPlugin(None, None, None)
+    plugin.jurisdiction = SimpleNamespace(full_name="Test County")
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        out = await plugin.parse_docs_for_structured_data(
+            FakeExtractionContext([FakeDoc("empty.pdf")])
+        )
+    assert out is None
+    assert _branch_events(log)[-1] == (
+        None,
+        "extract.doc.no_data",
+        "no documents left",
+    )

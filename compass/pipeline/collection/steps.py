@@ -18,6 +18,13 @@ from compass.scripts.download import (
     load_known_docs,
 )
 from compass.utilities.enums import COMPASSDocumentCollectionStep
+from compass.utilities.event_log import (
+    document_summary,
+    emit_branch,
+    emit_event,
+    error_details,
+    event_step,
+)
 from compass.utilities.parsing import is_pdf_doc
 from compass.utilities.url import base_website_url
 from compass.pb import COMPASS_PB
@@ -215,7 +222,21 @@ class SearchResultsCrawlStep(CollectionStep):
         if not workflow.perform_search_based_crawl:
             return []
 
-        candidates = _get_search_crawl_candidates(workflow)
+        excluded = []
+        candidates = _get_search_crawl_candidates(workflow, excluded)
+        with event_step("collect.search_results_crawl.seeds"):
+            emit_event(
+                "search_crawl_seeds",
+                num_search_results_to_crawl=(
+                    workflow.num_search_results_to_crawl
+                ),
+                seeds=candidates,
+                excluded=excluded,
+            )
+        emit_branch(
+            "collect.search_results_crawl.has_seeds",
+            "yes" if candidates else "no",
+        )
         if not candidates:
             return []
 
@@ -223,18 +244,12 @@ class SearchResultsCrawlStep(CollectionStep):
         keyword_points = await workflow.extractor.get_website_keywords()
         docs_by_source = {}
         for candidate in candidates:
-            try:
-                docs = await _crawl_search_candidate(
+            with event_step("collect.search_results_crawl.crawl"):
+                docs = await _crawl_seed_and_record(
                     workflow, candidate, heuristic, keyword_points
                 )
-            except Exception:
-                logger.exception(
-                    "Error crawling search result seed %s",
-                    candidate.get("url"),
-                )
-                continue
-
-            _merge_search_crawl_docs(docs_by_source, docs, candidate)
+            if docs is not None:
+                _merge_search_crawl_docs(docs_by_source, docs, candidate)
 
         docs = list(docs_by_source.values())
         for doc in docs:
@@ -285,7 +300,8 @@ class ElmWebsiteCrawlStep(CollectionStep):
         if not workflow.perform_website_search:
             return []
 
-        await _resolve_jurisdiction_website(workflow)
+        with event_step("collect.website_search_elm.website"):
+            await _resolve_jurisdiction_website(workflow)
         if not workflow.jurisdiction_website:
             logger.debug(
                 "No jurisdiction website found for %r; skipping "
@@ -303,17 +319,18 @@ class ElmWebsiteCrawlStep(CollectionStep):
         )
         try:
             async with workflow.runtime.crawl_semaphore:
-                out = await download_jurisdiction_ordinances_from_website(
-                    workflow.jurisdiction_website,
-                    heuristic=await workflow.extractor.get_heuristic(),
-                    keyword_points=(
-                        await workflow.extractor.get_website_keywords()
-                    ),
-                    file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-                    pb_jurisdiction_name=workflow.jurisdiction.full_name,
-                    return_c4ai_results=True,
-                    timeout_seconds=crawl_timeout_s,
-                )
+                with event_step("collect.website_search_elm.crawl"):
+                    out = await download_jurisdiction_ordinances_from_website(
+                        workflow.jurisdiction_website,
+                        heuristic=await workflow.extractor.get_heuristic(),
+                        keyword_points=(
+                            await workflow.extractor.get_website_keywords()
+                        ),
+                        file_loader_kwargs=workflow.runtime.file_loader_kwargs,
+                        pb_jurisdiction_name=workflow.jurisdiction.full_name,
+                        return_c4ai_results=True,
+                        timeout_seconds=crawl_timeout_s,
+                    )
         except Exception:
             logger.exception(
                 "Error collecting documents using ELM web crawl for %s",
@@ -373,7 +390,8 @@ class CompassWebsiteCrawlStep(CollectionStep):
         if not workflow.perform_website_search:
             return []
 
-        await _resolve_jurisdiction_website(workflow)
+        with event_step("collect.website_search_compass.website"):
+            await _resolve_jurisdiction_website(workflow)
         if not workflow.jurisdiction_website:
             logger.debug(
                 "No jurisdiction website found for %r; skipping "
@@ -396,23 +414,24 @@ class CompassWebsiteCrawlStep(CollectionStep):
         func = download_jurisdiction_ordinances_from_website_compass_crawl
         try:
             async with workflow.runtime.crawl_semaphore:
-                docs = await func(
-                    workflow.jurisdiction_website,
-                    heuristic=await workflow.extractor.get_heuristic(),
-                    keyword_points=(
-                        await workflow.extractor.get_website_keywords()
-                    ),
-                    file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-                    already_visited=checked_urls,
-                    pb_jurisdiction_name=workflow.jurisdiction.full_name,
-                    timeout_seconds=crawl_timeout_s,
-                    url_ignore_substrings=(
-                        workflow.runtime.search_params.url_ignore_substrings
-                    ),
-                    url_keep_substrings=(
-                        workflow.runtime.search_params.url_keep_substrings
-                    ),
-                )
+                with event_step("collect.website_search_compass.crawl"):
+                    docs = await func(
+                        workflow.jurisdiction_website,
+                        heuristic=await workflow.extractor.get_heuristic(),
+                        keyword_points=(
+                            await workflow.extractor.get_website_keywords()
+                        ),
+                        file_loader_kwargs=workflow.runtime.file_loader_kwargs,
+                        already_visited=checked_urls,
+                        pb_jurisdiction_name=workflow.jurisdiction.full_name,
+                        timeout_seconds=crawl_timeout_s,
+                        url_ignore_substrings=(
+                            workflow.runtime.search_params.url_ignore_substrings
+                        ),
+                        url_keep_substrings=(
+                            workflow.runtime.search_params.url_keep_substrings
+                        ),
+                    )
         except Exception:
             logger.exception(
                 "Error collecting documents using COMPASS web crawl for %s",
@@ -427,8 +446,12 @@ class CompassWebsiteCrawlStep(CollectionStep):
         return docs
 
 
-def _get_search_crawl_candidates(workflow):
-    """Select collected HTML search docs using the saved rank cutoff"""
+def _get_search_crawl_candidates(workflow, excluded=None):
+    """Select collected HTML search docs using the saved rank cutoff
+
+    Search-engine documents that are not selected are appended to
+    `excluded`, if given, with the reason they were left out.
+    """
     candidates = []
     for info in workflow.collection.de_duplicator.values():
         if COMPASSDocumentCollectionStep.SEARCH_ENGINE not in info.from_steps:
@@ -436,14 +459,13 @@ def _get_search_crawl_candidates(workflow):
 
         attrs = info.doc.attrs
         rank = attrs.get("collection_step_rank")
-        if _exceeds_rank_cutoff(rank, workflow):
-            continue
-
-        if not _is_html_page(info):
-            continue
-
         source = attrs.get("source")
-        if _is_local_filepath(source):
+        reason = _search_crawl_exclusion(info, rank, source, workflow)
+        if reason:
+            if excluded is not None:
+                excluded.append(
+                    {"url": source, "rank": rank, "reason": reason}
+                )
             continue
 
         candidates.append(
@@ -454,8 +476,18 @@ def _get_search_crawl_candidates(workflow):
                 "doc_type": "html",
             }
         )
-
     return sorted(candidates, key=itemgetter("overall_rank"))
+
+
+def _search_crawl_exclusion(info, rank, source, workflow):
+    """Reason a search-engine document is not used as a crawl seed"""
+    if _exceeds_rank_cutoff(rank, workflow):
+        return "beyond rank cutoff"
+    if not _is_html_page(info):
+        return "not an HTML page"
+    if _is_local_filepath(source):
+        return "local file"
+    return None
 
 
 def _exceeds_rank_cutoff(rank, workflow):
@@ -479,6 +511,36 @@ def _is_local_filepath(source):
     parsed_source = urlsplit(str(source or ""))
     scheme_not_web = parsed_source.scheme not in {"http", "https"}
     return scheme_not_web or not parsed_source.netloc
+
+
+async def _crawl_seed_and_record(
+    workflow, candidate, heuristic, keyword_points
+):
+    """Crawl one search-result seed, recording how it finished
+
+    Returns the documents found, or ``None`` if the crawl failed.
+    """
+    try:
+        docs = await _crawl_search_candidate(
+            workflow, candidate, heuristic, keyword_points
+        )
+    except Exception as exc:
+        logger.exception(
+            "Error crawling search result seed %s", candidate.get("url")
+        )
+        emit_event(
+            "search_crawl_seed_finished",
+            url=candidate.get("url"),
+            **error_details(exc),
+        )
+        return None
+
+    emit_event(
+        "search_crawl_seed_finished",
+        url=candidate.get("url"),
+        documents=[document_summary(doc) for doc in docs],
+    )
+    return docs
 
 
 async def _download_docs_using_se(workflow):
@@ -570,9 +632,14 @@ async def _resolve_jurisdiction_website(workflow):
 
     # only try to find a website if we don't have one and we have LLMs
     # we can use for validation
-    if workflow.jurisdiction_website or not workflow.runtime.models:
+    if workflow.jurisdiction_website:
+        emit_branch("collect.website.known", "yes")
+        return
+    if not workflow.runtime.models:
+        emit_branch("collect.website.known", "no, and no LLM to check")
         return
 
+    emit_branch("collect.website.known", "no")
     if website := await _find_jurisdiction_website_for_workflow(workflow):
         workflow.jurisdiction_website = await _get_base_website(website)
 
