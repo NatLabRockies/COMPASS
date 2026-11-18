@@ -43,10 +43,7 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  # TEMPORARY: ELM branch adding the keep_raw_html loader option
-  # (NatLabRockies/elm#97). Replace with a version pin once it is
-  # released; PyPI rejects packages with a direct URL dependency.
-  "nlr-elm @ git+https://github.com/NatLabRockies/elm.git@6075b2850c520898aad435375f2e3c59e2dda01d",
+  "nlr-elm>=0.0.54,<1",
   "numpy>=2.4.3,<3",
   "openai>=2.34.0",
   "pandas>=2.2.3,<3",
