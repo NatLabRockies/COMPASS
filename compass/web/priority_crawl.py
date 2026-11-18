@@ -7,6 +7,8 @@ import logging
 import re
 import time
 from html import unescape
+from pathlib import Path
+from tempfile import TemporaryDirectory
 from typing import Literal, NamedTuple
 from urllib.parse import parse_qs, urljoin, urlsplit
 
@@ -39,6 +41,7 @@ class PriorityCrawler:
         self,
         caller,
         loader,
+        pdf_loader,
         context,
         *,
         max_pages=15,
@@ -52,6 +55,7 @@ class PriorityCrawler:
     ):
         self.caller = caller
         self.loader = loader
+        self.pdf_loader = pdf_loader
         self.context = context
         self.max_pages = max_pages
         self.max_depth = max_depth
@@ -586,11 +590,19 @@ class PriorityCrawler:
             doc.attrs["date"] = (date.year, date.month, date.day)
         self.documents[entry["url"]] = doc
 
+    async def _read_pdf(self, content):
+        """Read downloaded PDF bytes with the local document loader"""
+        with TemporaryDirectory() as folder:
+            pdf_fp = Path(folder) / "document.pdf"
+            pdf_fp.write_bytes(content)
+            doc = await self.pdf_loader.fetch(str(pdf_fp))
+        # the file is gone; the page's URL is recorded as the source
+        doc.attrs.pop("source_fp", None)
+        return doc
+
     async def _read(self, page, pdf):
         if pdf:
-            doc = await self.loader.read_pdf(
-                page.content, page.url, page.headers
-            )
+            doc = await self._read_pdf(page.content)
             links = []
             for url in dict.fromkeys(
                 re.findall(r'https?://[^\s<>"\)]+', doc.text)

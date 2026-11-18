@@ -340,31 +340,6 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
         return out_docs + elm_docs
 
-    async def read_pdf(self, content, url, headers=None):
-        """Read PDF content that was already downloaded, using Docling
-
-        Parameters
-        ----------
-        content : bytes
-            Content of the PDF.
-        url : str
-            URL the content was downloaded from.
-        headers : mapping, optional
-            Response headers received with the content.
-            By default, ``None``.
-
-        Returns
-        -------
-        elm.web.document.MDDocument
-            The converted document, empty if Docling could not read it
-            or ran out of time.
-        """
-        doc = await self._read_content(content, url, headers or {})
-        if not doc.empty:
-            doc.WRITE_KWARGS = {"mode": "wb"}
-            doc.FILE_EXTENSION = doc.attrs["doc_type"]
-        return doc
-
     async def _read_content(self, raw_content, url, headers):
         """Convert downloaded content to a document with Docling"""
         docling = import_module("compass.services.docling")
@@ -588,35 +563,3 @@ class COMPASSWebFileLoader(_WebFileLoader):
         renders a page itself rather than fetching a whole document.
         """
         return getattr(self.html_loader, "_html_loader", self.html_loader)
-
-    async def read_pdf(self, content, url, headers=None):
-        """Read PDF content that was already downloaded
-
-        The configured backend does the reading: Docling when it is
-        selected, otherwise the ELM PDF reader with its OCR reader as a
-        fallback for scanned documents.
-
-        Parameters
-        ----------
-        content : bytes
-            Content of the PDF.
-        url : str
-            URL the content was downloaded from.
-        headers : mapping, optional
-            Response headers received with the content.
-            By default, ``None``.
-
-        Returns
-        -------
-        elm.web.document.BaseDocument
-            The document read, empty if it could not be read.
-        """
-        backend_read = getattr(super(), "read_pdf", None)
-        if backend_read is not None:
-            return await backend_read(content, url, headers)
-        doc = await self.pdf_read_coroutine(content, **self.pdf_read_kwargs)
-        if doc.empty and self.pdf_ocr_read_coroutine:
-            doc = await self.pdf_ocr_read_coroutine(
-                content, **self.pdf_read_kwargs
-            )
-        return doc

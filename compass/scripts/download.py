@@ -585,6 +585,7 @@ async def download_prioritized_ordinances(workflow):
     crawler = PriorityCrawler(
         caller,
         loader,
+        COMPASSLocalFileLoader(**runtime.local_file_loader_kwargs),
         {
             "technology": runtime.tech.replace("_", " "),
             "jurisdiction": workflow.jurisdiction.full_name,

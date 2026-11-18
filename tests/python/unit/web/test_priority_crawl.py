@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import json
 from itertools import pairwise
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -147,15 +148,24 @@ def loader(monkeypatch):
         ),
     )
 
-    async def read_pdf(content, _url, _headers=None):
-        # as the ELM backend reads a PDF: text first, then OCR
+    async def read_pdf_file(pdf_fp):
+        # as the ELM local loader reads a PDF: text first, then OCR
+        content = Path(pdf_fp).read_bytes()
         doc = await loader.pdf_read_coroutine(content)
         if doc.empty and loader.pdf_ocr_read_coroutine:
             doc = await loader.pdf_ocr_read_coroutine(content)
+        doc.attrs["source_fp"] = pdf_fp
         return doc
 
-    loader.read_pdf = read_pdf
+    loader.pdf_loader = SimpleNamespace(fetch=read_pdf_file)
     return loader
+
+
+def _crawler(caller, loader, context, **kwargs):
+    """A crawler reading PDFs with the fixture's local loader"""
+    return crawl.PriorityCrawler(
+        caller, loader, loader.pdf_loader, context, **kwargs
+    )
 
 
 @pytest.fixture
@@ -189,7 +199,7 @@ async def test_new_link_preempts_seeds_and_high_score_still_explores(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller,
         loader,
         {"technology": "data centers"},
@@ -200,6 +210,8 @@ async def test_new_link_preempts_seeds_and_high_score_still_explores(
     assert visited == [topic, pdf, other]
     assert docs[0].attrs["source"] == pdf
     assert docs[0].attrs["discovery"]["document_score"] == 10
+    # read from a temporary file, which is not kept as the source
+    assert "source_fp" not in docs[0].attrs
     assert runner.entries[other]["state"] == "failed"
     assert "document_score" not in runner.entries[other]
     assert runner.entries[pdf]["parents"] == [topic]
@@ -216,9 +228,7 @@ async def test_crawl_runs_without_an_event_log(web, loader):
     caller = SimpleNamespace(
         call=AsyncMock(side_effect=[{"links": [rating(0, 9)]}, assessment(10)])
     )
-    runner = crawl.PriorityCrawler(
-        caller, loader, {"technology": "data centers"}
-    )
+    runner = _crawler(caller, loader, {"technology": "data centers"})
     docs = await runner.run([{"url": page}])
     assert [doc.attrs["source"] for doc in docs] == [page]
 
@@ -238,7 +248,7 @@ async def test_unanswered_request_is_retried_in_a_browser(
     caller = SimpleNamespace(
         call=AsyncMock(side_effect=[{"links": [rating(0, 9)]}, assessment(10)])
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": page}])
@@ -261,7 +271,7 @@ async def test_failed_connection_logs_its_reason(web, loader, tmp_path):
     caller = SimpleNamespace(
         call=AsyncMock(return_value={"links": [rating(0, 9)]})
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert await runner.run([{"url": page}]) == []
@@ -291,7 +301,7 @@ async def test_excluded_links_are_never_queued(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller,
         loader,
         {"technology": "data centers"},
@@ -321,7 +331,7 @@ async def test_unexpected_page_error_keeps_earlier_candidates(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": good}, {"url": bad}])
@@ -375,7 +385,7 @@ async def test_oversized_input_drops_parent_evidence_first(
 
     monkeypatch.setattr(crawl, "_as_llm_input", measured)
     monkeypatch.setattr(crawl, "_MAX_INPUT_CHARS", 5_700)
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": home}])
@@ -402,7 +412,7 @@ async def test_cycle_duplicate_bytes_and_invalid_link(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": a}, {"url": b}])
@@ -428,7 +438,7 @@ async def test_page_limit_retains_queue(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller,
         loader,
         {"technology": "data centers"},
@@ -458,7 +468,7 @@ async def test_scanned_pdf_uses_ocr(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert len(await runner.run([{"url": url}])) == 1
@@ -524,7 +534,7 @@ async def test_depth_limit_and_cycle(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller,
         loader,
         {"technology": "data centers"},
@@ -575,7 +585,7 @@ async def test_unreadable_pdf_is_unassessed(web, loader, tmp_path):
     caller = SimpleNamespace(
         call=AsyncMock(return_value={"links": [rating(0, 10)]})
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert not await runner.run([{"url": url}])
@@ -599,7 +609,7 @@ async def test_pdf_that_takes_too_long_to_read_failed_to_load(
     caller = SimpleNamespace(
         call=AsyncMock(return_value={"links": [rating(0, 10)]})
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert not await runner.run([{"url": url}])
@@ -627,7 +637,7 @@ async def test_ranking_tolerates_omitted_and_invented_links(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": a}, {"url": b}])
@@ -653,7 +663,7 @@ async def test_failed_ranking_falls_back_to_search_order(
     caller = SimpleNamespace(
         call=AsyncMock(side_effect=[{}, assessment(8), assessment(9)])
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     seeds = [
@@ -679,7 +689,7 @@ async def test_events_replay_the_full_search(web, loader, tmp_path):
     caller = SchemaOutputLLMCaller(
         _Service({"links": [rating(0, 9)]}, assessment(8))
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     await runner.run([{"url": a, "sources": [{"query": "q"}]}])
@@ -739,7 +749,7 @@ async def test_empty_ranking_falls_back_to_search_order(
     a = "https://city.gov/a.pdf"
     bodies[a] = b"%PDF-a"
     caller = SimpleNamespace(call=AsyncMock(side_effect=[{}, assessment(8)]))
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     await runner.run([{"url": a}])
@@ -771,7 +781,7 @@ async def test_only_top_ranked_links_are_queued(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller,
         loader,
         {"technology": "data centers"},
@@ -806,7 +816,7 @@ async def test_crawl_stops_once_a_document_reaches_stop_score(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": a}, {"url": b}])
@@ -834,7 +844,7 @@ async def test_blocked_page_is_retried_in_a_browser(web, loader, tmp_path):
             side_effect=[{"links": [rating(0, 10)]}, assessment(10)]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": page}])
@@ -860,7 +870,7 @@ async def test_blocked_pdf_is_not_retried(web, loader, tmp_path):
     caller = SimpleNamespace(
         call=AsyncMock(return_value={"links": [rating(0, 9)]})
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert await runner.run([{"url": pdf}]) == []
@@ -884,7 +894,7 @@ async def test_resolutions_and_moratoria_become_candidates(
             side_effect=[{"links": [rating(0, 10)]}, assessment(8, kind)]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": pdf}])
@@ -916,7 +926,7 @@ async def test_candidates_carry_dates_and_later_ones_rank_first(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": url} for url in urls])
@@ -941,7 +951,7 @@ async def test_stop_count_keeps_crawling_for_more_finds(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller,
         loader,
         {"technology": "data centers"},
@@ -1028,7 +1038,7 @@ async def test_adopted_legal_text_skips_the_legal_check(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     (doc,) = await runner.run([{"url": pdf}])
@@ -1057,7 +1067,7 @@ async def test_blocked_download_records_the_whole_exchange(
     caller = SimpleNamespace(
         call=AsyncMock(return_value={"links": [rating(0, 10)]})
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert await runner.run([{"url": page}]) == []
@@ -1103,7 +1113,7 @@ async def test_duplicate_page_is_recorded_as_a_decision(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     await runner.run([{"url": a}, {"url": b}])
@@ -1169,7 +1179,7 @@ async def test_page_with_no_text_is_judged_by_what_it_frames(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": topic}])
@@ -1223,7 +1233,7 @@ async def test_browser_retry_that_renders_only_a_frame_is_read(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": viewer}])
@@ -1247,7 +1257,7 @@ async def test_page_with_no_text_and_nothing_to_follow_is_skipped(
     caller = SimpleNamespace(
         call=AsyncMock(return_value={"links": [rating(0, 10)]})
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert await runner.run([{"url": page}]) == []
@@ -1290,7 +1300,7 @@ async def test_failed_browser_load_is_retried_once(web, loader, tmp_path):
             side_effect=[{"links": [rating(0, 10)]}, assessment(10)]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert len(await runner.run([{"url": page}])) == 1
@@ -1346,7 +1356,7 @@ async def test_google_drive_link_is_fetched_as_its_file(web, loader, tmp_path):
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": page}])
@@ -1383,7 +1393,7 @@ async def test_pages_sharing_a_script_skeleton_are_rendered(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": home}])
@@ -1413,7 +1423,7 @@ async def test_pages_rendering_to_the_same_content_are_duplicates(
             ]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     docs = await runner.run([{"url": a}, {"url": b}])
@@ -1435,7 +1445,7 @@ async def test_single_project_approvals_are_not_candidates(
             side_effect=[{"links": [rating(0, 10)]}, assessment(3, "project")]
         )
     )
-    runner = crawl.PriorityCrawler(
+    runner = _crawler(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert await runner.run([{"url": pdf}]) == []
