@@ -14,7 +14,6 @@ from elm.web.document import PDFDocument, HTMLDocument
 
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.web import priority_crawl as crawl
-from compass.web.search import search_ordinance_candidates
 from compass.utilities.event_log import EventLog
 from compass.utilities.url import URLPartFilter, sanitize_url
 
@@ -507,53 +506,6 @@ def test_links_preserve_pdf_urls_and_resolve_relative_paths():
     )
 
 
-async def test_search_merges_both_engines_and_preserves_snippets(monkeypatch):
-    """Merge queries and engines without losing distinct documents."""
-    call = AsyncMock(
-        return_value=[
-            [
-                [
-                    {
-                        "url": "https://city.gov/law.pdf?utm_source=g",
-                        "search_engine": "Google",
-                        "attrs": {
-                            "title": "Code",
-                            "snippet": "Adopted data center rules",
-                        },
-                    }
-                ],
-                [{"url": "https://city.gov/zoning.pdf", "query": "zoning"}],
-            ],
-            [
-                [
-                    {
-                        "url": "https://city.gov/law.pdf",
-                        "search_engine": "DuckDuckGo",
-                    }
-                ]
-            ],
-        ]
-    )
-    monkeypatch.setattr("compass.web.search.search_all_se", call)
-    queries = [
-        "Example City data center ordinance",
-        "Example City zoning ordinance",
-    ]
-    out = await search_ordinance_candidates(queries)
-    assert len(out) == 2
-    assert out[1]["url"] == "https://city.gov/zoning.pdf"
-    assert call.call_args.args == (queries,)
-    assert len(out[0]["sources"]) == 2
-    assert (
-        out[0]["sources"][0]["attrs"]["snippet"] == "Adopted data center rules"
-    )
-    assert call.call_args.kwargs["num_urls"] == 10
-    assert call.call_args.kwargs["search_engines"] == [
-        "SerpAPIGoogleSearch",
-        "SerpAPIDuckDuckGoSearch",
-    ]
-
-
 async def test_depth_limit_and_cycle(web, loader, tmp_path):
     """The last permitted depth is assessed without expanding its links."""
     bodies, visited = web
@@ -839,63 +791,6 @@ async def test_only_top_ranked_links_are_queued(web, loader, tmp_path):
     assert [x["url"] for x in queued[0]["items"]] == [urls[1], urls[2]]
 
 
-async def test_search_keeps_top_results_per_engine(monkeypatch):
-    """Each engine contributes its top unique, unblocked URLs by rank."""
-
-    def hits(engine, query, urls):
-        return [
-            {
-                "url": url,
-                "search_engine": engine,
-                "query": query,
-                "query_rank": i,
-            }
-            for i, url in enumerate(urls, 1)
-        ]
-
-    call = AsyncMock(
-        return_value=[
-            [
-                hits(
-                    "G",
-                    "q1",
-                    [
-                        "https://a.gov/1",
-                        "https://facebook.com/x",
-                        "https://a.gov/2",
-                    ],
-                ),
-                hits(
-                    "G",
-                    "q2",
-                    ["https://b.gov/1", "https://a.gov/1", "https://b.gov/2"],
-                ),
-            ],
-            [hits("D", "q1", ["https://c.gov/1", "https://a.gov/1"])],
-        ]
-    )
-    monkeypatch.setattr("compass.web.search.search_all_se", call)
-    out = await search_ordinance_candidates(
-        ["q1", "q2"],
-        results_per_engine=3,
-        url_ignore_substrings=["facebook.com"],
-    )
-    urls = [c["url"] for c in out]
-    assert urls == [
-        "https://a.gov/1",
-        "https://b.gov/1",
-        "https://a.gov/2",
-        "https://c.gov/1",
-    ]
-    by_url = {c["url"]: c for c in out}
-    assert [
-        s["search_engine"] for s in by_url["https://a.gov/1"]["sources"]
-    ] == [
-        "G",
-        "D",
-    ]
-
-
 async def test_crawl_stops_once_a_document_reaches_stop_score(
     web, loader, tmp_path
 ):
@@ -971,19 +866,6 @@ async def test_blocked_pdf_is_not_retried(web, loader, tmp_path):
     assert await runner.run([{"url": pdf}]) == []
     loader.render.assert_not_awaited()
     assert runner.entries[pdf]["state"] == "failed"
-
-
-async def test_search_uses_configured_engines(monkeypatch):
-    """A run's search_engines setting overrides the default pair."""
-    call = AsyncMock(return_value=[[[{"url": "https://ddg.example/a"}]]])
-    monkeypatch.setattr("compass.web.search.search_all_se", call)
-    out = await search_ordinance_candidates(
-        ["q"], search_engines=["SerpAPIDuckDuckGoSearch"]
-    )
-    assert call.call_args.kwargs["search_engines"] == [
-        "SerpAPIDuckDuckGoSearch"
-    ]
-    assert [c["url"] for c in out] == ["https://ddg.example/a"]
 
 
 @pytest.mark.parametrize(

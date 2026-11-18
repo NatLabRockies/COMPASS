@@ -17,7 +17,6 @@ from elm.web.utilities import filter_documents
 from compass.web.search import (
     record_search_attempt,
     search_single_jurisdiction,
-    search_ordinance_candidates,
     format_queries,
 )
 from compass.llm.calling import SchemaOutputLLMCaller
@@ -564,13 +563,10 @@ async def download_prioritized_ordinances(workflow):
     templates = await workflow.extractor.get_query_templates()
     queries = format_queries(workflow.jurisdiction, templates)
     options = dict(runtime.search_params.priority_search)
-    results_per_engine = options.pop("results_per_engine", 10)
-    if workflow.known_se_results is not None:
-        seeds = _saved_search_seeds(workflow.known_se_results)
-    else:
-        seeds = await _priority_search_seeds(
-            runtime, queries, results_per_engine
-        )
+    num_search_results = options.pop("num_search_results", 10)
+    seeds = await _priority_search_seeds(
+        workflow, templates, num_search_results
+    )
     model = runtime.models[LLMTasks.DEFAULT]
     call_kwargs = dict(model.llm_call_kwargs)
     # Reasoning tokens count toward this cap. A long reasoning pass with
@@ -608,48 +604,56 @@ async def download_prioritized_ordinances(workflow):
     return docs
 
 
-def _saved_search_seeds(saved):
-    """Turn saved search results into seeds, instead of searching again
+async def _priority_search_seeds(workflow, query_templates, num_urls):
+    """Search results to start the crawl from, one seed per URL
 
-    Results the saved search filtered out are left out, and a URL found
-    by several queries or engines becomes one seed listing each result
-    as a source, as a live priority search would give.
+    The standard search is used, or the saved search results when the
+    run has them. A URL found by several queries or engines becomes one
+    seed listing each of those results as a source.
     """
-    seeds = {}
-    for result in saved.get("results", []):
-        if result.get("filtered_reason") is not None or not result.get("url"):
-            continue
-        url = sanitize_url(result["url"])
-        seeds.setdefault(url, {"url": url, "sources": []})["sources"].append(
-            result
-        )
+    params = workflow.runtime.search_params
     with event_step("collect.search_engine.priority.search"):
-        emit_event(
-            "search_queries",
-            queries=saved.get("queries", []),
-            source="saved search results",
-            seeds=len(seeds),
-        )
-    return list(seeds.values())
+        if workflow.known_se_results is not None:
+            found = workflow.known_se_results
+            emit_event(
+                "search_queries",
+                queries=found.get("queries", []),
+                source="saved search results",
+            )
+        else:
+            found = await search_single_jurisdiction(
+                query_templates,
+                workflow.jurisdiction,
+                num_urls,
+                workflow.runtime.search_engine_semaphore,
+                params.url_ignore_substrings,
+                params.url_keep_substrings,
+                simple=False,
+                **params.se_kwargs,
+            )
+    return _search_seeds(found.get("results", []))
 
 
-async def _priority_search_seeds(runtime, queries, results_per_engine):
-    """Search both engines and keep each engine's top results"""
-    params = runtime.search_params
-    with event_step("collect.search_engine.priority.search"):
-        emit_event(
-            "search_queries",
-            queries=queries,
-            results_per_engine=results_per_engine,
-        )
-        return await search_ordinance_candidates(
-            queries,
-            results_per_engine=results_per_engine,
-            url_ignore_substrings=params.url_ignore_substrings,
-            url_keep_substrings=params.url_keep_substrings,
-            browser_semaphore=runtime.search_engine_semaphore,
-            **params.se_kwargs,
-        )
+def _search_seeds(results):
+    """Group search results by URL, leaving out those filtered away
+
+    A result marked as a duplicate of a kept one is listed with it, so
+    the seed shows every query and engine that found the page.
+    """
+    results = [result for result in results if result.get("url")]
+    seeds = {
+        sanitize_url(result["url"]): []
+        for result in results
+        if result.get("filtered_reason") is None
+    }
+    for result in results:
+        sources = seeds.get(sanitize_url(result["url"]))
+        if sources is not None and result.get("filtered_reason") in {
+            None,
+            "duplicate",
+        }:
+            sources.append(result)
+    return [{"url": url, "sources": found} for url, found in seeds.items()]
 
 
 async def download_jurisdiction_ordinance_using_search_engine(

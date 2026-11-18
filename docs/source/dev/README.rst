@@ -419,38 +419,15 @@ run only when ``priority_search`` is an options object.
         }]
     }
 
-This mode formats every plugin ``query_templates`` entry for the
-jurisdiction and sends each query to both SerpAPI engines. It merges up
-to ten results per query and engine, without a combined top-ten cutoff.
-The configured default LLM ranks those results, then assesses fetched
-pages and their observed outgoing
-links. Newly discovered links compete with search results in the same
-queue. Document scores and link priorities are separate. Links can be
-followed at any document score, including across domains. No hosted LLM
-web-search tool or personal OpenAI key is required with the Azure config.
+Priority search starts from the same search as the standard path, keeping
+``num_search_results`` results (10 by default). An LLM ranks them, then
+assesses each fetched page and picks which of its links to follow, so links
+found along the way compete with the search results in one queue. The other
+options and their defaults are listed under ``priority_search`` in
+:class:`~compass.pipeline.data_classes.ProcessRequest`.
 
-The search saves candidate documents with scores and adoption evidence;
-it does not treat a high score as proof or replace downstream validation.
-PDF assessment samples opening, closing, and technology-matching pages.
-Scanned PDFs use the configured OCR reader. Unreadable pages and failed
-fetches remain unassessed. Duplicate content avoids another LLM call.
-
-With ``keep_event_logs`` enabled, the search is recorded in the
-jurisdiction's event log, ``<log_dir>/<jurisdiction>_events.jsonl``: search
-results, visits, HTTP exchanges, scores, parent links, limits, assessment
-inputs, model responses, token details, the ranked candidates, and the
-remaining queue. No other files are written; fetched pages are kept only
-for the documents the pipeline keeps, in ``ordinance_files``.
-The SerpAPI subscription price is not allocated to individual searches.
-Model costs are estimates using configured ``llm_costs``; missing rates
-remain unknown in the per-call metrics.
-
-The limits apply per jurisdiction. A document found at the final depth
-is still assessed, but its links are not added. The crawler continues
-after finding a strong candidate so that amendments can also be found.
-Set ``perform_website_search`` to ``false`` to avoid running the separate
-legacy website-crawl steps after this bounded search. Omitting
-``priority_search`` preserves the existing collection behavior.
+The documents it finds still go through the usual jurisdiction and
+relevance checks.
 
 
 Releases

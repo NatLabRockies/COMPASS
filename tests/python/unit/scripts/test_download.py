@@ -331,8 +331,8 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     assert crawler_kwargs["url_keep_substrings"] is url_keep_substrings
 
 
-def test_saved_search_results_become_priority_seeds():
-    """Priority search can start from a saved search instead of a new one"""
+def test_search_results_become_priority_seeds():
+    """Search results become one seed per kept URL, with its sources"""
     saved = {
         "queries": ["Example County data center ordinance"],
         "results": [
@@ -350,14 +350,73 @@ def test_saved_search_results_become_priority_seeds():
                 "query_rank": 3,
                 "filtered_reason": None,
             },
+            {
+                "url": "https://example.gov/law.pdf",
+                "query": "q3",
+                "search_engine": "C",
+                "query_rank": 2,
+                "filtered_reason": "duplicate",
+            },
             {"url": "https://x.com/post", "filtered_reason": "blacklist:x"},
+            {
+                "url": "https://example.gov/far.pdf",
+                "filtered_reason": "beyond_top_n",
+            },
+            {
+                "url": "https://example.gov/far.pdf",
+                "filtered_reason": "duplicate",
+            },
             {"url": None, "filtered_reason": None},
         ],
     }
-    seeds = download_module._saved_search_seeds(saved)
+    seeds = download_module._search_seeds(saved["results"])
 
     assert [seed["url"] for seed in seeds] == ["https://example.gov/law.pdf"]
-    assert [x["search_engine"] for x in seeds[0]["sources"]] == ["A", "B"]
+    # a duplicate of a kept result still shows who else found the page
+    assert [x["search_engine"] for x in seeds[0]["sources"]] == ["A", "B", "C"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("saved", [False, True])
+async def test_priority_seeds_come_from_the_standard_search(
+    monkeypatch, saved
+):
+    """Priority search reuses the standard search or its saved results"""
+    found = {
+        "queries": ["q"],
+        "results": [{"url": "https://a.gov/law.pdf", "filtered_reason": None}],
+    }
+    calls = []
+
+    async def fake_search(*args, **kwargs):  # ruff:ignore[unused-async]
+        calls.append((args, kwargs))
+        return found
+
+    monkeypatch.setattr(
+        download_module, "search_single_jurisdiction", fake_search
+    )
+    workflow = SimpleNamespace(
+        jurisdiction="Example County",
+        known_se_results=found if saved else None,
+        runtime=SimpleNamespace(
+            search_engine_semaphore=None,
+            search_params=SimpleNamespace(
+                url_ignore_substrings=["x.com"],
+                url_keep_substrings=None,
+                se_kwargs={"search_engines": ["E"]},
+            ),
+        ),
+    )
+
+    seeds = await download_module._priority_search_seeds(workflow, ["t"], 25)
+
+    assert [seed["url"] for seed in seeds] == ["https://a.gov/law.pdf"]
+    if saved:
+        assert calls == []
+        return
+    ((args, kwargs),) = calls
+    assert args[:3] == (["t"], "Example County", 25)
+    assert kwargs == {"simple": False, "search_engines": ["E"]}
 
 
 @pytest.mark.asyncio

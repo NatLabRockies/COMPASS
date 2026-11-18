@@ -312,7 +312,7 @@ class WebSearchParams:
         priority_search : dict, optional
             Disabled by default (None). Pass a dict to opt into
             LLM-ranked search and link traversal. Options (defaults)
-            are results_per_engine (10), max_ranked_links (10),
+            are num_search_results (10), max_ranked_links (10),
             max_pages (15), max_depth (3), max_links (3),
             stop_score (10; ``None`` crawls until a limit is hit), and
             stop_count (1; how many documents must reach stop_score
@@ -662,7 +662,7 @@ class BaseRequest:
         priority_search : dict, optional
             Disabled by default (None). Pass a dict to opt into
             LLM-ranked search and link traversal. Options (defaults)
-            are results_per_engine (10), max_ranked_links (10),
+            are num_search_results (10), max_ranked_links (10),
             max_pages (15), max_depth (3), max_links (3),
             stop_score (10; ``None`` crawls until a limit is hit), and
             stop_count (1; how many documents must reach stop_score
@@ -1231,7 +1231,7 @@ class CollectionRequest(BaseRequest):
         priority_search : dict, optional
             Disabled by default (None). Pass a dict to opt into
             LLM-ranked search and link traversal. Options (defaults)
-            are results_per_engine (10), max_ranked_links (10),
+            are num_search_results (10), max_ranked_links (10),
             max_pages (15), max_depth (3), max_links (3),
             stop_score (10; ``None`` crawls until a limit is hit), and
             stop_count (1; how many documents must reach stop_score
