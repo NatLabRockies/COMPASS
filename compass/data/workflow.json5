@@ -72,6 +72,7 @@
       label: "3. Search engines",
       about: "Searches for ordinance documents and downloads the top results.",
       code: "compass/pipeline/collection/steps.py:SearchEngineDocumentsStep",
+      events: ["search_failed"],
     },
     {
       id: "collect.search_engine.mode",
@@ -131,7 +132,7 @@
       each: "page",
       about: "Searches every engine, has an LLM rank the results, then visits pages one at a time in priority order: each page is fetched, assessed as an ordinance document, and its best links are queued. It stops once enough candidates reach the stopping score, the queue runs out, or the page limit is hit.",
       code: "compass/web/priority_crawl.py:PriorityCrawler.run",
-      events: ["run_started"],
+      events: ["run_started", "search_failed"],
     },
     {
       id: "collect.search_engine.priority.search",

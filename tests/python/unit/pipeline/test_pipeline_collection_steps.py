@@ -779,7 +779,7 @@ async def test_priority_search_replaces_standard_search(
 
 
 async def test_priority_search_failure_returns_no_documents(
-    monkeypatch, caplog
+    monkeypatch, caplog, tmp_path
 ):
     """Priority search errors are logged without failing the jurisdiction"""
     workflow = _build_workflow()
@@ -791,10 +791,17 @@ async def test_priority_search_failure_returns_no_documents(
         AsyncMock(side_effect=TypeError("not JSON serializable")),
     )
 
-    docs = await steps_module.SearchEngineDocumentsStep().collect(workflow)
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        docs = await steps_module.SearchEngineDocumentsStep().collect(workflow)
 
     assert docs == []
     assert "Error collecting documents using priority search" in caplog.text
+    events = [json.loads(x) for x in log.path.read_text().splitlines()]
+    failed = [e for e in events if e["type"] == "search_failed"]
+    assert len(failed) == 1
+    assert "not JSON serializable" in failed[0]["error"]
+    assert failed[0]["tags"]["step"] == "collect.search_engine.priority"
 
 
 @pytest.mark.parametrize("settings", [{}, {"priority_search": None}])

@@ -16,7 +16,11 @@ from elm.web.document import PDFDocument, HTMLDocument
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.web import priority_crawl as crawl
 from compass.utilities.event_log import EventLog
-from compass.utilities.url import URLPartFilter, sanitize_url
+from compass.utilities.url import (
+    URLPartFilter,
+    sanitize_url,
+    unwrap_document_viewer_url,
+)
 
 
 def assessment(
@@ -1312,7 +1316,7 @@ def test_pages_with_no_text_offer_documents_named_in_their_html():
 )
 def test_google_drive_viewer_links_become_downloads(link, expected):
     """Drive's viewer shows only menus; the download is the file."""
-    assert crawl._unwrap_document_viewer_url(link) == expected
+    assert unwrap_document_viewer_url(link) == expected
 
 
 async def test_google_drive_link_is_fetched_as_its_file(web, loader, tmp_path):
@@ -1428,7 +1432,7 @@ async def test_single_project_approvals_are_not_candidates(
         caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
     )
     assert await runner.run([{"url": pdf}]) == []
-    assert "single project" in crawl._assessment_prompt(3)
+    assert "single project" in crawl._ASSESSMENT_PROMPT.format(max_links=3)
 
 
 def test_assessment_ignores_stray_fields():

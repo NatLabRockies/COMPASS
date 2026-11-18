@@ -201,11 +201,13 @@ class SearchEngineDocumentsStep(CollectionStep):
             try:
                 with event_step("collect.search_engine.priority"):
                     return await download_prioritized_ordinances(workflow)
-            except Exception:
+            except Exception as exc:
                 logger.exception(
                     "Error collecting documents using priority search for %s",
                     workflow.jurisdiction.full_name,
                 )
+                with event_step("collect.search_engine.priority"):
+                    emit_event("search_failed", **error_details(exc))
                 return []
         logger.info("Search path: standard retrieval")
         try:
@@ -213,11 +215,13 @@ class SearchEngineDocumentsStep(CollectionStep):
                 docs = await _download_docs_using_se_results(workflow)
             else:
                 docs = await _download_docs_using_se(workflow)
-        except Exception:
+        except Exception as exc:
             logger.exception(
                 "Error collecting documents using a search engine for %s",
                 workflow.jurisdiction.full_name,
             )
+            with event_step("collect.search_engine"):
+                emit_event("search_failed", **error_details(exc))
             return []
 
         for doc in docs:
