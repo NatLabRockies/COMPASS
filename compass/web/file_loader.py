@@ -340,19 +340,25 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
         return out_docs + elm_docs
 
-    async def _read_content(self, raw_content, url, headers):
-        """Convert downloaded content to a document with Docling"""
+    async def _fetch_doc(self, url):
+        """Fetch a doc using Docling"""
         docling = import_module("compass.services.docling")
 
         # ruff:ignore[import-outside-top-level]
         from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
+        out = await self.content_fetcher.fetch(url)
+        if out is None:
+            return MDDocument(pages=[]), None
+
+        logger.debug("Got content from %r", url)
+        raw_content, __, __, headers = out
         resolved_filename = resolve_remote_filename(
             http_url=AnyHttpUrl(url), response_headers=dict(headers)
         )
         logger.debug("Docling is starting content read from %r", url)
         try:
-            return await docling.read_docling_web_file(
+            doc = await docling.read_docling_web_file(
                 raw_content,
                 url=resolved_filename,
                 source_uri=url,
@@ -362,17 +368,8 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             )
         except TimeoutError:
             logger.info("Docling parsing timed out for %r", url)
-            return MDDocument(pages=[])
-
-    async def _fetch_doc(self, url):
-        """Fetch a doc using Docling"""
-        out = await self.content_fetcher.fetch(url)
-        if out is None:
             return MDDocument(pages=[]), None
 
-        logger.debug("Got content from %r", url)
-        raw_content, __, __, headers = out
-        doc = await self._read_content(raw_content, url, headers)
         if doc.empty:
             logger.info("Docling could not parse content from %s", url)
             return doc, None
