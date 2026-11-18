@@ -582,10 +582,18 @@ async def download_prioritized_ordinances(workflow):
         browser_semaphore=runtime.browser_semaphore,
         **runtime.file_loader_kwargs,
     )
+    # Renders pages in a browser and keeps their HTML, so a page with
+    # no readable text can still be searched for links and frames
+    html_loader = AsyncWebFileLoader(
+        browser_semaphore=runtime.browser_semaphore,
+        keep_raw_html=True,
+        **runtime.file_loader_kwargs,
+    ).html_loader
     crawler = PriorityCrawler(
         caller,
         loader,
         COMPASSLocalFileLoader(**runtime.local_file_loader_kwargs),
+        html_loader,
         {
             "technology": runtime.tech.replace("_", " "),
             "jurisdiction": workflow.jurisdiction.full_name,

@@ -120,14 +120,13 @@ def _aiohttp_response(response):
 
 
 @pytest.fixture
-def loader(monkeypatch):
+def loader():
     """Provide readers without external services.
 
     ``render`` stands in for the browser: it returns the HTML a page
     renders to, empty by default.
     """
     render = AsyncMock(return_value="")
-    monkeypatch.setattr(crawl, "load_html_with_pw", render)
     loader = SimpleNamespace(
         render=render,
         content_fetcher=_FakeFetcher(),
@@ -140,12 +139,6 @@ def loader(monkeypatch):
         ),
         pdf_read_kwargs={},
         pdf_ocr_read_coroutine=None,
-        browser_loader=SimpleNamespace(
-            browser_semaphore=None,
-            PAGE_LOAD_TIMEOUT=1_000,
-            uss=False,
-            pw_launch_kwargs={},
-        ),
     )
 
     async def read_pdf_file(pdf_fp):
@@ -157,14 +150,24 @@ def loader(monkeypatch):
         doc.attrs["source_fp"] = pdf_fp
         return doc
 
+    async def render_page(url):
+        # as ELM's HTML loader with keep_raw_html: empty, HTML attached
+        return HTMLDocument([], attrs={"raw_html": await render(url)})
+
     loader.pdf_loader = SimpleNamespace(fetch=read_pdf_file)
+    loader.html_loader = SimpleNamespace(fetch=render_page)
     return loader
 
 
 def _crawler(caller, loader, context, **kwargs):
     """A crawler reading PDFs with the fixture's local loader"""
     return crawl.PriorityCrawler(
-        caller, loader, loader.pdf_loader, context, **kwargs
+        caller,
+        loader,
+        loader.pdf_loader,
+        loader.html_loader,
+        context,
+        **kwargs,
     )
 
 
@@ -1284,30 +1287,6 @@ def test_pages_with_no_text_offer_documents_named_in_their_html():
     doc, links = crawl._html_document(text + html, "https://city.gov/viewer")
     assert doc.text.strip()
     assert links == []
-
-
-async def test_failed_browser_load_is_retried_once(web, loader, tmp_path):
-    """A load that returns nothing gets a second, quicker attempt"""
-    bodies, _ = web
-    page = "https://code.example/enactments/Ord-2"
-    bodies[page] = (403, {})
-    loader.render.side_effect = [
-        "",
-        f"<p>{'Data center ordinance text. ' * 20}</p>",
-    ]
-    caller = SimpleNamespace(
-        call=AsyncMock(
-            side_effect=[{"links": [rating(0, 10)]}, assessment(10)]
-        )
-    )
-    runner = _crawler(
-        caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
-    )
-    assert len(await runner.run([{"url": page}])) == 1
-    states = [
-        call.kwargs["load_state"] for call in loader.render.await_args_list
-    ]
-    assert states == ["networkidle", "domcontentloaded"]
 
 
 @pytest.mark.parametrize(

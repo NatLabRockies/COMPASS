@@ -554,12 +554,3 @@ class COMPASSWebFileLoader(_WebFileLoader):
             on_response_hook=record_http_response,
             on_error_hook=record_http_error,
         )
-
-    @property
-    def browser_loader(self):
-        """elm.web.file_loader.AsyncHTMLLoader: Browser page renderer
-
-        The same object whichever backend is configured, for code that
-        renders a page itself rather than fetching a whole document.
-        """
-        return getattr(self.html_loader, "_html_loader", self.html_loader)

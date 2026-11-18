@@ -14,7 +14,6 @@ from urllib.parse import parse_qs, urljoin, urlsplit
 
 from bs4 import BeautifulSoup
 from elm.web.document import HTMLDocument
-from elm.web.html_pw import load_html_with_pw
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from compass.utilities.event_log import (
@@ -42,6 +41,7 @@ class PriorityCrawler:
         caller,
         loader,
         pdf_loader,
+        html_loader,
         context,
         *,
         max_pages=15,
@@ -56,6 +56,7 @@ class PriorityCrawler:
         self.caller = caller
         self.loader = loader
         self.pdf_loader = pdf_loader
+        self.html_loader = html_loader
         self.context = context
         self.max_pages = max_pages
         self.max_depth = max_depth
@@ -368,9 +369,7 @@ class PriorityCrawler:
         )
         started = time.monotonic()
         try:
-            html = await asyncio.wait_for(
-                _render_html(self.loader.browser_loader, url), 120
-            )
+            html = await asyncio.wait_for(self._render(url), 120)
         except Exception as exc:
             emit_event(
                 "fetched",
@@ -590,6 +589,11 @@ class PriorityCrawler:
             doc.attrs["date"] = (date.year, date.month, date.day)
         self.documents[entry["url"]] = doc
 
+    async def _render(self, url):
+        """HTML of a page as a browser renders it, even with no text"""
+        doc = await self.html_loader.fetch(url)
+        return doc.attrs.get("raw_html", "")
+
     async def _read_pdf(self, content):
         """Read downloaded PDF bytes with the local document loader"""
         with TemporaryDirectory() as folder:
@@ -616,7 +620,7 @@ class PriorityCrawler:
         text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
         if len(text) < minimum_page_chars:
             used_browser = True
-            rendered = await _render_html(self.loader.browser_loader, page.url)
+            rendered = await self._render(page.url)
             if rendered.strip():
                 html = rendered
         doc, links = _html_document(html, page.url)
@@ -1121,30 +1125,6 @@ _ADOPTION_DATE = re.compile(
     re.IGNORECASE | re.DOTALL,
 )
 """Adoption wording followed closely by a date"""
-
-
-async def _render_html(html_loader, url):
-    """HTML of a page as a browser renders it, even with no text
-
-    elm's ``AsyncHTMLLoader.fetch`` returns an empty document for a page
-    without visible text, discarding HTML whose links or frames lead to
-    the content, such as a viewer whose PDF sits in an iframe. The
-    browser is set up from the loader's settings instead, and one more
-    attempt is made when the first load fails.
-    """
-    html = ""
-    for load_state in ("networkidle", "domcontentloaded"):
-        html = await load_html_with_pw(
-            url,
-            html_loader.browser_semaphore,
-            timeout=html_loader.PAGE_LOAD_TIMEOUT,
-            use_scrapling_stealth=html_loader.uss,
-            load_state=load_state,
-            **html_loader.pw_launch_kwargs,
-        )
-        if html.strip():
-            break
-    return html
 
 
 def _html_document(html, base_url):
