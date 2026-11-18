@@ -7,6 +7,7 @@ from elm.web.utilities import clean_json_escaped_url
 
 _PATH_SAFE_CHARS = "/:@-._~!$&'()*+,;=%"
 _QUERY_SAFE_CHARS = "=&;%:@-._~!$&'()*+,;/?"
+_TRACKING_PARAMETERS = {"gclid", "fbclid"}
 
 
 class URLPartFilter:
@@ -65,7 +66,11 @@ class URLPartFilter:
 
 
 def sanitize_url(url):
-    """Encode unsafe URL characters while preserving URL semantics
+    """Encode unsafe URL characters and drop what does not identify it
+
+    Two links to the same page give the same result, so it can be used
+    both to fetch a page and to tell whether it was already seen.
+    Sanitizing a URL a second time changes nothing.
 
     Parameters
     ----------
@@ -75,45 +80,36 @@ def sanitize_url(url):
     Returns
     -------
     str
-        URL with path, query, and fragment percent-encoded.
+        URL with its path, query, and fragment percent-encoded, its
+        scheme and host in lower case, and tracking parameters
+        (``utm_*``, ``gclid``, ``fbclid``) removed. The fragment of a
+        PDF link, such as ``#page=3``, is dropped. Other fragments are
+        kept, since code libraries use them to address a page
+        (``#/county/zoning``).
     """
-    url = clean_json_escaped_url(url)
-    parsed = urlsplit(url)
+    parsed = urlsplit(clean_json_escaped_url(url.strip()))
     path = quote(parsed.path, safe=_PATH_SAFE_CHARS)
-    query = quote(parsed.query, safe=_QUERY_SAFE_CHARS)
-    fragment = quote(parsed.fragment, safe="")
-    return urlunsplit((parsed.scheme, parsed.netloc, path, query, fragment))
-
-
-def canonical_url(url):
-    """Remove tracking parameters, preserving document identifiers
-
-    The result is stable: canonicalizing it again changes nothing. That
-    includes URLs whose route is in the fragment (``#/county/zoning``),
-    which code libraries use to address a page.
-    """
-    url = url.strip()
-    parsed = urlsplit(sanitize_url(url))
     query = "&".join(
         part
-        for part in parsed.query.split("&")
-        if not unquote(part.split("=", 1)[0]).lower().startswith("utm_")
-        and unquote(part.split("=", 1)[0]).lower() not in {"gclid", "fbclid"}
+        for part in quote(parsed.query, safe=_QUERY_SAFE_CHARS).split("&")
+        if not _is_tracking_parameter(part)
     )
     # Decoded before it is encoded, so an escaped fragment is not
     # escaped a second time, and its "/" separators stay readable
-    fragment = quote(unquote(urlsplit(url).fragment), safe=_QUERY_SAFE_CHARS)
-    if parsed.path.lower().endswith(".pdf"):
+    fragment = quote(unquote(parsed.fragment), safe=_QUERY_SAFE_CHARS)
+    if path.lower().endswith(".pdf"):
         fragment = ""
+    if parsed.netloc and not path:
+        path = "/"
     return urlunsplit(
-        (
-            parsed.scheme.lower(),
-            parsed.netloc.lower(),
-            parsed.path or "/",
-            query,
-            fragment,
-        )
+        (parsed.scheme.lower(), parsed.netloc.lower(), path, query, fragment)
     )
+
+
+def _is_tracking_parameter(part):
+    """Whether a ``name=value`` query part only tracks a visit"""
+    name = unquote(part.split("=", 1)[0]).lower()
+    return name.startswith("utm_") or name in _TRACKING_PARAMETERS
 
 
 def base_website_url(url):

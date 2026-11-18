@@ -16,7 +16,7 @@ from compass.llm.calling import SchemaOutputLLMCaller
 from compass.web import priority_crawl as crawl
 from compass.web.search import search_ordinance_candidates
 from compass.utilities.event_log import EventLog
-from compass.utilities.url import URLPartFilter, canonical_url
+from compass.utilities.url import URLPartFilter, sanitize_url
 
 
 def assessment(
@@ -334,16 +334,16 @@ async def test_unexpected_page_error_keeps_earlier_candidates(
     assert "service unavailable" in failed["error"]
 
 
-def test_canonical_url_is_stable_for_fragment_routes():
-    """Canonicalizing twice gives the same URL, hash routes included"""
+def test_sanitize_url_is_stable_for_fragment_routes():
+    """Sanitizing twice gives the same URL, hash routes included"""
     for url in (
         "https://code.example/#/county/zoning",
         "https://x.gov/a%20b?q=a%2Fb#%2Froute",
         "https://x.gov/p?nodeId=A_B#sec 2",
     ):
-        once = canonical_url(url)
-        assert canonical_url(once) == once
-    assert canonical_url("https://code.example/#/county/zoning") == (
+        once = sanitize_url(url)
+        assert sanitize_url(once) == once
+    assert sanitize_url("https://code.example/#/county/zoning") == (
         "https://code.example/#/county/zoning"
     )
 
@@ -496,13 +496,13 @@ def test_links_preserve_pdf_urls_and_resolve_relative_paths():
         "https://city.gov/viewer?documentId=123",
     ]
     assert (
-        canonical_url("https://CITY.gov/Law A.pdf?id=5&utm_source=g#page=3")
+        sanitize_url("https://CITY.gov/Law A.pdf?id=5&utm_source=g#page=3")
         == "https://city.gov/Law%20A.pdf?id=5"
     )
-    assert canonical_url("https://city.gov/A+B.pdf") != canonical_url(
+    assert sanitize_url("https://city.gov/A+B.pdf") != sanitize_url(
         "https://city.gov/A%20B.pdf"
     )
-    assert canonical_url("https://city.gov/A.pdf") != canonical_url(
+    assert sanitize_url("https://city.gov/A.pdf") != sanitize_url(
         "https://city.gov/a.pdf"
     )
 
@@ -1195,11 +1195,11 @@ async def test_blocked_download_records_the_whole_exchange(
     assert browser["via"] == "browser"
     assert browser["empty"] is True
     (failed,) = [e for e in events if e["type"] == "visit_failed"]
-    assert failed["url"] == canonical_url(page)
+    assert failed["url"] == sanitize_url(page)
     assert failed["priority"] == 10
     assert failed["stage"] == "load"
     assert failed["tags"]["step"].endswith(".failed")
-    assert failed["tags"]["document"] == canonical_url(page)
+    assert failed["tags"]["document"] == sanitize_url(page)
     branches = [
         (e["tags"]["step"].rsplit(".", 1)[1], e["outcome"])
         for e in events

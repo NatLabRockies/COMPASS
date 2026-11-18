@@ -38,7 +38,6 @@ from compass.web.priority_crawl import PriorityCrawler
 from compass.utilities.url import (
     URLPartFilter,
     base_website_url,
-    canonical_url,
     sanitize_url,
 )
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
@@ -620,7 +619,7 @@ def _saved_search_seeds(saved):
     for result in saved.get("results", []):
         if result.get("filtered_reason") is not None or not result.get("url"):
             continue
-        url = canonical_url(result["url"])
+        url = sanitize_url(result["url"])
         seeds.setdefault(url, {"url": url, "sources": []})["sources"].append(
             result
         )

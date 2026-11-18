@@ -26,7 +26,7 @@ from compass.utilities.event_log import (
     use_event_log,
 )
 from compass.utilities.parsing import is_pdf_doc
-from compass.utilities.url import canonical_url
+from compass.utilities.url import sanitize_url
 
 
 logger = logging.getLogger(__name__)
@@ -292,7 +292,7 @@ class PriorityCrawler:
         response = exchange["response"]
         entry.update(
             http_status=response["status"],
-            final_url=canonical_url(response["url"]),
+            final_url=sanitize_url(response["url"]),
             content_type=response["headers"].get("content-type", ""),
             redirects=[hop["url"] for hop in response["history"]],
         )
@@ -395,7 +395,7 @@ class PriorityCrawler:
             )
             msg = f"{reason}; browser retry returned no content"
             raise ValueError(msg)
-        entry.update(final_url=canonical_url(url), fetched_with="browser")
+        entry.update(final_url=sanitize_url(url), fetched_with="browser")
         fetched = {
             "entry_id": entry["id"],
             "final_url": entry["final_url"],
@@ -671,7 +671,7 @@ class PriorityCrawler:
 
     def _enqueue(self, link, rating, depth, parent):
         """Add or update one queue entry and return what changed"""
-        url = canonical_url(_unwrap_document_viewer_url(link["url"]))
+        url = sanitize_url(_unwrap_document_viewer_url(link["url"]))
         if urlsplit(url).scheme not in {"http", "https"}:
             return None
         if (
@@ -1161,7 +1161,7 @@ def _with_named_documents(links, html, base_url):
         url = urljoin(base_url, href)
         if urlsplit(url).scheme not in {"http", "https"}:
             continue
-        url = canonical_url(_unwrap_document_viewer_url(url))
+        url = sanitize_url(_unwrap_document_viewer_url(url))
         if url not in known:
             known.add(url)
             title = "Document named in the page's HTML"
@@ -1183,7 +1183,7 @@ def _priority_page_links(soup, base_url):
         url = urljoin(base_url, href)
         if urlsplit(url).scheme not in {"http", "https"}:
             continue
-        url = canonical_url(_unwrap_document_viewer_url(url))
+        url = sanitize_url(_unwrap_document_viewer_url(url))
         title = tag.get_text(" ", strip=True) or tag.get("title") or url
         links.setdefault(url, {"title": title[:250], "url": url})
     return [dict(id=i, **link) for i, link in enumerate(links.values())]

@@ -7,7 +7,7 @@ from urllib.parse import urlsplit, urlunsplit
 
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
-from compass.utilities.url import URLPartFilter, canonical_url
+from compass.utilities.url import URLPartFilter, sanitize_url
 from compass.utilities.event_log import (
     current_event_log,
     error_details,
@@ -59,7 +59,7 @@ async def search_ordinance_candidates(
         for result in _top_engine_results(
             engine_results, results_per_engine, url_filter
         ):
-            url = canonical_url(result["url"])
+            url = sanitize_url(result["url"])
             entry = candidates.setdefault(url, {"url": url, "sources": []})
             entry["sources"].append(result)
     return list(candidates.values())
@@ -70,7 +70,7 @@ def _top_engine_results(engine_results, limit, url_filter):
     selected, seen = [], set()
     for same_rank in zip_longest(*engine_results):
         for result in filter(None, same_rank):
-            url = canonical_url(result["url"])
+            url = sanitize_url(result["url"])
             if url in seen or url_filter.blacklist_match(url) is not None:
                 continue
             if len(selected) == limit:
