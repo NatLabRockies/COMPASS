@@ -201,7 +201,7 @@
         "description": "Zoning districts in which a data center is permitted as an accessory or secondary use to a principal use rather than as a principal use in its own right. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names, or the ordinance's own phrasing where it permits the accessory use across all zones. UNITS: null. IGNORE: districts where the use is permitted as a principal use."
       },
       "prohibited use districts": {
-        "description": "Zoning districts in which data centers are prohibited outright by a prohibition currently in effect. VALUE: array of district names or codes, or the ordinance's own phrasing where a district list is stated as having no pathway. UNITS: null. IGNORE: jurisdiction-wide bans, moratoria, and use removals, which belong under 'prohibitions/moratorium'."
+        "description": "Zoning districts in which data centers are prohibited outright by a prohibition currently in effect. VALUE: array of district names or codes. UNITS: null. IGNORE: jurisdiction-wide bans, moratoria, and use removals, which belong under 'prohibitions/moratorium'."
       },
       "prohibitions/moratorium": {
         "description": "Temporary moratorium, permanent prohibition, or removal of data centers as an allowed use, applying to the jurisdiction as a whole rather than to a list of districts. VALUE: null; the substance belongs in the summary. UNITS: null. SUMMARY: state the instrument, what it bars, and the effective and expiration dates where given, along with any carve-out such as a limited accessory allowance. IGNORE: district-level prohibitions, which belong under 'prohibited use districts'."
