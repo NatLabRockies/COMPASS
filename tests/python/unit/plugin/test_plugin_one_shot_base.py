@@ -8,6 +8,7 @@ import pytest
 import pandas as pd
 import pyjson5
 
+import compass.plugin.one_shot.base as one_shot_base
 from compass.plugin.one_shot.base import (
     _out_cols_from_config,
     create_schema_based_one_shot_extraction_plugin,
@@ -231,6 +232,37 @@ async def test_one_shot_plugin_loads_tiered_website_keywords(tmp_path):
         "wind+energy": 2,
         "ordinance": 1,
     }
+
+
+_KEYWORD_LISTS = {
+    "not_tech_words": ["community center"],
+    "good_tech_keywords": ["datacenter", "hyperscale"],
+    "good_tech_acronyms": ["PUE"],
+    "good_tech_phrases": ["data center", "server farm"],
+}
+
+
+def test_heuristic_keywords_accept_a_match_threshold():
+    """A plugin may set how many distinct entries text must match"""
+    with pytest.warns(COMPASSPluginConfigurationWarning):
+        out = one_shot_base._normalize_heuristic_keywords(
+            {**_KEYWORD_LISTS, "min_matches": 1}
+        )
+        default = one_shot_base._normalize_heuristic_keywords(_KEYWORD_LISTS)
+    assert out["MIN_MATCHES"] == 1
+    assert out["GOOD_TECH_PHRASES"] == default["GOOD_TECH_PHRASES"]
+    assert "MIN_MATCHES" not in default
+
+
+@pytest.mark.parametrize("value", [0, -1, 1.5, "2", True])
+def test_heuristic_match_threshold_must_be_a_positive_integer(value):
+    """An unusable threshold is rejected when the plugin is loaded"""
+    with pytest.raises(
+        one_shot_base.COMPASSPluginConfigurationError, match="min_matches"
+    ):
+        one_shot_base._normalize_heuristic_keywords(
+            {**_KEYWORD_LISTS, "min_matches": value}
+        )
 
 
 if __name__ == "__main__":

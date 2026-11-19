@@ -584,6 +584,36 @@ def test_save_db_labels_qualitative_units(tmp_path):
     assert set(qual["feature"]) == {"Decommissioning", "Signage"}
 
 
+def test_save_db_keeps_a_supplied_qualitative_value(tmp_path):
+    """A qualitative value the model supplied is not overwritten"""
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, value, summary):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            feature=feature,
+            quantitative=False,
+            value=value,
+            summary=summary,
+            ordinance_text="quoted text",
+        )
+        return row
+
+    df = pd.DataFrame(
+        [
+            _row("Glare", "Verbatim rule text.", "Paraphrase."),
+            _row("Color", "  ", "Neutral colors."),
+            _row("Signage", None, "Warning signs only."),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+    assert out.loc["Glare", "value"] == "Verbatim rule text."
+    assert out.loc["Color", "value"] == "Neutral colors."
+    assert out.loc["Signage", "value"] == "Warning signs only."
+
+
 def test_save_db_mirrors_summary_into_value_for_qualitative(tmp_path):
     """Copy summary into value on qualitative rows"""
 

@@ -40,6 +40,8 @@ from compass.warn import COMPASSPluginConfigurationWarning
 
 logger = logging.getLogger(__name__)
 _SCHEMA_DIR = importlib.resources.files("compass.plugin.one_shot.schemas")
+_MIN_MATCHES = "MIN_MATCHES"
+"""Heuristic keywords entry holding the plugin's match threshold"""
 _QT_SEMAPHORE = Semaphore(1)
 _WK_SEMAPHORE = Semaphore(1)
 _HK_SEMAPHORE = Semaphore(1)
@@ -99,7 +101,11 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
               lists used by the heuristic document filter. The
               dictionary must include ``not_tech_words``,
               ``good_tech_keywords``, ``good_tech_acronyms``, and
-              ``good_tech_phrases`` keys. Alternatively, this input can
+              ``good_tech_phrases`` keys. It may also set
+              ``min_matches``, the number of distinct entries that must
+              appear for text to pass (default ``2``); use ``1`` only
+              when every entry is specific to the technology, so one
+              mention is enough. Alternatively, this input can
               simply be ``True``, in which case the LLM will be used to
               generate heuristic keyword lists based on the schema
               input. If ``False``, ``None``, or not provided, a `NoOp`
@@ -291,6 +297,9 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                 GOOD_TECH_KEYWORDS = hk["GOOD_TECH_KEYWORDS"]
                 GOOD_TECH_ACRONYMS = hk["GOOD_TECH_ACRONYMS"]
                 GOOD_TECH_PHRASES = hk["GOOD_TECH_PHRASES"]
+                MIN_DEFAULT_MATCHES = hk.get(
+                    _MIN_MATCHES, KeywordBasedHeuristic.MIN_DEFAULT_MATCHES
+                )
 
             self.__class__.HEURISTIC_KEYWORDS = hk
             self.__class__.HEURISTIC = SchemaBasedHeuristic
@@ -614,6 +623,7 @@ def _normalize_heuristic_keywords(raw):
         "GOOD_TECH_PHRASES",
     }
 
+    raw, min_matches = _split_min_matches(raw)
     normalized = _normalize_input_kw(raw, expected_keys)
 
     _verify_expected_kw_are_not_missing(normalized, expected_keys)
@@ -621,7 +631,28 @@ def _normalize_heuristic_keywords(raw):
     _verify_min_number_of_kw_provided(normalized)
     _warn_if_not_enough_kw_provided(normalized)
 
+    if min_matches is not None:
+        normalized[_MIN_MATCHES] = min_matches
     return normalized
+
+
+def _split_min_matches(raw):
+    """Separate the optional match threshold from the keyword lists"""
+    lists, min_matches = {}, None
+    for key, value in raw.items():
+        if isinstance(key, str) and key.strip().upper() == _MIN_MATCHES:
+            min_matches = value
+        else:
+            lists[key] = value
+    if min_matches is None:
+        return lists, None
+    if isinstance(min_matches, bool) or not isinstance(min_matches, int):
+        msg = "Heuristic `min_matches` must be a positive integer."
+        raise COMPASSPluginConfigurationError(msg)
+    if min_matches < 1:
+        msg = "Heuristic `min_matches` must be a positive integer."
+        raise COMPASSPluginConfigurationError(msg)
+    return lists, min_matches
 
 
 def _normalize_input_kw(raw, expected_keys):
