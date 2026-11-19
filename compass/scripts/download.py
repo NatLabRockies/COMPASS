@@ -17,7 +17,6 @@ from elm.web.utilities import filter_documents
 from compass.web.search import (
     record_search_attempt,
     search_single_jurisdiction,
-    format_queries,
 )
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.extraction import check_for_relevant_text, extract_date
@@ -561,12 +560,10 @@ async def download_prioritized_ordinances(workflow):
     """Search both engines and follow one queue per jurisdiction."""
     runtime = workflow.runtime
     templates = await workflow.extractor.get_query_templates()
-    queries = format_queries(workflow.jurisdiction, templates)
     options = dict(runtime.search_params.priority_search)
     num_search_results = options.pop("num_search_results", 10)
-    seeds = await _priority_search_seeds(
-        workflow, templates, num_search_results
-    )
+    found = await _priority_search(workflow, templates, num_search_results)
+    seeds = _search_seeds(found.get("results", []))
     model = runtime.models[LLMTasks.DEFAULT]
     call_kwargs = dict(model.llm_call_kwargs)
     # Reasoning tokens count toward this cap. A long reasoning pass with
@@ -598,7 +595,7 @@ async def download_prioritized_ordinances(workflow):
             "technology": runtime.tech.replace("_", " "),
             "jurisdiction": workflow.jurisdiction.full_name,
             "as_of": date.today().isoformat(),
-            "queries": queries,
+            "queries": found.get("queries", []),
         },
         url_filter=URLPartFilter(
             runtime.search_params.url_ignore_substrings,
@@ -613,12 +610,11 @@ async def download_prioritized_ordinances(workflow):
     return docs
 
 
-async def _priority_search_seeds(workflow, query_templates, num_urls):
-    """Search results to start the crawl from, one seed per URL
+async def _priority_search(workflow, query_templates, num_urls):
+    """Search results to start the crawl from
 
     The standard search is used, or the saved search results when the
-    run has them. A URL found by several queries or engines becomes one
-    seed listing each of those results as a source.
+    run has them.
     """
     params = workflow.runtime.search_params
     with event_step("collect.search_engine.priority.search"):
@@ -640,7 +636,7 @@ async def _priority_search_seeds(workflow, query_templates, num_urls):
                 simple=False,
                 **params.se_kwargs,
             )
-    return _search_seeds(found.get("results", []))
+    return found
 
 
 def _search_seeds(results):

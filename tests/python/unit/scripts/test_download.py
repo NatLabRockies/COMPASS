@@ -378,9 +378,7 @@ def test_search_results_become_priority_seeds():
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("saved", [False, True])
-async def test_priority_seeds_come_from_the_standard_search(
-    monkeypatch, saved
-):
+async def test_priority_search_uses_the_standard_search(monkeypatch, saved):
     """Priority search reuses the standard search or its saved results"""
     found = {
         "queries": ["q"],
@@ -408,9 +406,9 @@ async def test_priority_seeds_come_from_the_standard_search(
         ),
     )
 
-    seeds = await download_module._priority_search_seeds(workflow, ["t"], 25)
+    out = await download_module._priority_search(workflow, ["t"], 25)
 
-    assert [seed["url"] for seed in seeds] == ["https://a.gov/law.pdf"]
+    assert out is found
     if saved:
         assert calls == []
         return

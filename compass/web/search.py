@@ -95,7 +95,7 @@ async def search_single_jurisdiction(
 
     """
 
-    queries = format_queries(jurisdiction, query_templates)
+    queries = _format_queries(jurisdiction, query_templates)
     for query in queries:
         logger.info("Search query: %s", query)
     emit_event("search_queries", queries=queries, num_urls=num_urls)
@@ -146,7 +146,7 @@ async def search_single_jurisdiction(
     return base
 
 
-def format_queries(jurisdiction, query_templates):
+def _format_queries(jurisdiction, query_templates):
     """Format query templates for a given jurisdiction"""
     jurisdiction_website = _format_jurisdiction_website(jurisdiction)
     return [
