@@ -1,6 +1,6 @@
 {
   "title": "Data Center Ordinance Extraction Schema",
-  "description": "One-shot extraction schema for local data center siting ordinances. Feature IDs mirror the controlled vocabulary used in the COMPASS data center ordinance research workbook, so extracted rows can be compared directly against the hand-coded reference set. The output is a sparse long-form table where each object is one row.",
+  "description": "Single-shot structured extraction schema for local data center siting ordinances. This schema guides an LLM to extract all relevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
   "version": "2.0.0",
   "type": "object",
   "required": [
@@ -11,7 +11,7 @@
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table. Emit a row only for a feature with an explicit, enacted requirement. Emit at most one row per (feature, data_center_type) pair; no two rows may share both. Where an ordinance sets a different standard for each class of data center, emit one row per data_center_type rather than collapsing them all.",
+      "description": "Sparse long-form extraction table. Emit a row only for a feature with an explicit, enacted requirement. Emit at most one row per (feature, data_center_type) pair. Where an ordinance sets a different standard for each class of data center, emit one row per data_center_type rather than collapsing them all.",
       "items": {
         "type": "object",
         "required": [
@@ -84,7 +84,7 @@
             ]
           },
           "value": {
-            "description": "The extracted requirement. For a numeric feature, a single number: the most restrictive value the ordinance sets for this feature and data center class, chosen by the rules in $instructions.numeric_prioritization. Never combine several numbers into one value; the other values belong in summary. Array of district names/codes for district features, boolean true where a requirement exists but is not numeric, or null where the feature is qualitative and the substance lives in the summary.",
+            "description": "The extracted requirement. For a numeric feature, a single number: the most restrictive value the ordinance sets for this feature and data_center_type, chosen by the rules in $instructions.numeric_prioritization. Never combine several numbers into one value; the other values belong in summary. Array of district names/codes for district features, boolean true where a requirement exists but is not numeric, or null where the feature is qualitative and the substance lives in the summary.",
             "anyOf": [
               {
                 "type": "number"
@@ -164,7 +164,7 @@
         "description": "Minimum separation between a data center or data center campus and another data center. VALUE: the largest minimum distance. UNITS: a distance unit from $instructions.units, such as 'feet'. IGNORE: aggregation rules that define when adjacent buildings count as one campus without imposing a separation distance."
       },
       "setback for mechanical equipment": {
-        "description": "Minimum setback applying to ancillary mechanical or electrical equipment such as generators, transformers, substations, chillers, cooling and ventilation equipment, or battery storage, rather than to the data center building. Code this feature only where the ordinance holds equipment to a different standard than the building; where one distance covers both, record the row under the applicable reference-object setback feature instead. VALUE: the largest minimum distance. UNITS: a distance unit from $instructions.units, such as 'feet'. SUMMARY: name the equipment and the receptor the distance is measured to. IGNORE: screening and enclosure requirements for the same equipment, which belong under 'equipment screening/enclosure'."
+        "description": "Minimum setback applying to ancillary mechanical or electrical equipment such as generators, transformers, substations, chillers, cooling and ventilation equipment, or battery storage, rather than to the data center building. Code this feature only where the ordinance holds equipment to a different standard than the building; where one distance covers both, record the row under the setback feature for what the distance is measured to instead. VALUE: the largest minimum distance. UNITS: a distance unit from $instructions.units, such as 'feet'. SUMMARY: name the equipment and the receptor the distance is measured to. IGNORE: screening and enclosure requirements for the same equipment, which belong under 'equipment screening/enclosure'."
       }
     },
     "site_dimensions": {
@@ -181,7 +181,7 @@
         "description": "Maximum permitted height of a data center structure, expressed in feet, in stories, or in both, and often differing by zoning district. VALUE: the lowest maximum height, in feet where the ordinance states feet. UNITS: 'feet', or 'stories' where the ordinance states only stories. SUMMARY: list any story limit and the heights that apply in other districts. IGNORE: height-triggered setback increases, which belong on the applicable setback feature."
       },
       "maximum building size": {
-        "description": "Maximum permitted data center building size, expressed as gross floor area or as square feet per floor. VALUE: the lowest maximum. UNITS: an area unit from $instructions.units, such as 'acres' or 'sq ft'. SUMMARY: state whether the cap is on gross floor area or per floor. IGNORE: floor area thresholds that merely trigger a permit pathway rather than capping building size, and share-of-project caps, which belong under 'data center floor-area share cap'."
+        "description": "Maximum permitted data center building size, expressed as gross floor area or as square feet per floor. VALUE: the lowest maximum. UNITS: an area unit from $instructions.units, such as 'sq ft'. SUMMARY: state whether the cap is on gross floor area or per floor. IGNORE: floor area thresholds that merely trigger a permit pathway rather than capping building size, and share-of-project caps, which belong under 'data center floor-area share cap'."
       },
       "data center floor-area share cap": {
         "description": "Maximum data center share of total project floor area, including any occupancy-sequencing condition imposed on the project's other uses. VALUE: the lowest maximum share. UNITS: 'percent'. SUMMARY: any occupancy-sequencing condition. IGNORE: absolute floor area caps, which belong under 'maximum building size'."
@@ -192,7 +192,7 @@
     },
     "districts_and_permitting": {
       "primary use districts": {
-        "description": "Zoning districts in which data centers are permitted as a primary use, that is without special conditions or discretionary approval. Following the COMPASS wind and solar convention, overlay districts are treated as primary use districts. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names where the ordinance uses one. UNITS: null. SUMMARY: any stated threshold that conditions the by-right pathway. IGNORE: districts where the use requires discretionary approval, which belong under 'special use districts'."
+        "description": "Zoning districts in which data centers are permitted as a primary use, that is without special conditions or discretionary approval. Overlay districts are treated as primary use districts. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names where the ordinance uses one. UNITS: null. SUMMARY: any stated threshold that conditions the by-right pathway. IGNORE: districts where the use requires discretionary approval, which belong under 'special use districts'."
       },
       "special use districts": {
         "description": "Zoning districts in which data centers are permitted only with discretionary approval, whether by special use permit, special exception, conditional use, provisional use permit, special land use permit, development agreement, or an equivalent. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names. UNITS: null. SUMMARY: the approval pathway, naming the reviewing bodies where the ordinance does. IGNORE: generic permit administration and fee schedules not tied to data centers."
@@ -201,7 +201,7 @@
         "description": "Zoning districts in which a data center is permitted as an accessory or secondary use to a principal use rather than as a principal use in its own right. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names, or the ordinance's own phrasing where it permits the accessory use across all zones. UNITS: null. IGNORE: districts where the use is permitted as a principal use."
       },
       "prohibited use districts": {
-        "description": "Zoning districts in which data centers are prohibited outright. VALUE: array of district names or codes, or the ordinance's own phrasing where a district list is stated as having no pathway. UNITS: null. IGNORE: jurisdiction-wide bans, moratoria, and use removals, which belong under 'prohibitions/moratorium'."
+        "description": "Zoning districts in which data centers are prohibited outright by a prohibition currently in effect. VALUE: array of district names or codes, or the ordinance's own phrasing where a district list is stated as having no pathway. UNITS: null. IGNORE: jurisdiction-wide bans, moratoria, and use removals, which belong under 'prohibitions/moratorium'."
       },
       "prohibitions/moratorium": {
         "description": "Temporary moratorium, permanent prohibition, or removal of data centers as an allowed use, applying to the jurisdiction as a whole rather than to a list of districts. VALUE: null; the substance belongs in the summary. UNITS: null. SUMMARY: state the instrument, what it bars, and the effective and expiration dates where given, along with any carve-out such as a limited accessory allowance. IGNORE: district-level prohibitions, which belong under 'prohibited use districts'."
@@ -289,7 +289,7 @@
     "setbacks": [
       "Setbacks are minimum separation distances. A setback row carries a single numeric distance and its unit.",
       "Decide between 'setback - residential' and 'setback - property line' by what the rule is for: a rule whose subject is separation from a residential or protected receptor is residential, while a generic district yard standard that merely steps up next to a residential district is a property line setback.",
-      "Where a setback applies to ancillary mechanical or electrical equipment under a different standard than the building, record it under 'setback for mechanical equipment'; where one distance covers both, keep it on the reference-object feature."
+      "Where a setback applies to ancillary mechanical or electrical equipment under a different standard than the building, record it under 'setback for mechanical equipment'; where one distance covers both, keep it on the setback feature for what the distance is measured to."
     ],
     "numeric_prioritization": [
       "A numeric feature gets one row per data_center_type, and its value is a single number: the most restrictive value the ordinance sets for that feature and type.",
@@ -305,17 +305,12 @@
       "Units hold the unit alone. Measurement points, time periods, receiving uses, approval pathways, and qualifiers such as 'maximum' or 'up to' belong in summary."
     ],
     "district_specific": [
-      "For primary use districts, extract an array of district names or codes and treat overlay districts as primary use.",
-      "For special use districts, include districts where the use requires a special use permit, special exception, conditional use, or an equivalent discretionary approval.",
-      "For accessory use districts, include districts where a data center is allowed only as accessory or secondary to a principal use.",
-      "For prohibited use districts, include only districts where the use is barred outright and the prohibition is currently in effect.",
-      "Carry the jurisdiction's own permit abbreviation alongside the district names, and use district names and codes exactly as they appear in the ordinance."
-    ],
-    "null_handling": "Use sparse output. Emit rows only for features explicitly addressed by the source. Do not emit placeholder rows for missing features. Use a null value where a present feature is qualitative and the substance belongs in the summary."
+      "Use district names and codes exactly as they appear in the ordinance."
+    ]
   },
   "$qa_checklist": [
     "All output rows use only the 35 allowed feature IDs.",
-    "Every row includes a non-empty ordinance_text excerpt and an explanation linking that evidence to the feature and facility class.",
+    "Every row includes a non-empty ordinance_text excerpt and an explanation linking that evidence to the feature and data_center_type.",
     "Every data_center_type is one of the standard values or null. No two rows share both feature and data_center_type. Generic requirements have null, tiered standards have one row per type, and each row with a non-null type names the jurisdiction's own class or classes at the start of summary. Distinctions other than size or accessory use appear only as conditions in summary.",
     "Numeric setbacks, lot standards, and building size rows carry numeric values and non-null units.",
     "Numeric rows carry a single number, the most restrictive value, with a plain unit, and summary lists the other values with their conditions.",

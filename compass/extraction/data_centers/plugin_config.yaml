@@ -107,6 +107,7 @@ extraction_system_prompt: |-
     and decommissioning
   - cooling technology, water consumption limits, and reclaimed water
     requirements
+  - definitions of data center terms
 
   The jurisdiction is {jur_full_name}. Extract only requirements that
   this jurisdiction has itself enacted. The text may be a meeting packet
@@ -145,8 +146,8 @@ extraction_system_prompt: |-
   data_center_type pair and merge any you find.
 
   For a numeric feature, value is a single number: the most restrictive
-  value the ordinance sets for that feature and facility class, such as
-  the largest setback or the lowest noise limit. Do not combine several
+  value the ordinance sets for that feature and data center type, such
+  as the largest setback or the lowest noise limit. Do not combine several
   numbers into one value. List every other value in summary with the
   condition it applies under, such as the time period, receiving use,
   zoning district, street class, or yard. Keep units to the unit alone.
@@ -179,6 +180,6 @@ extraction_system_prompt: |-
   invent values.
 
   Write summary in your own words. Copy the supporting source passages
-  verbatim into ordinance_text, retaining the applicable facility class,
-  conditions, and exceptions. Use explanation to state how that evidence
-  supports the selected feature, facility class, value, and units.
+  verbatim into ordinance_text, retaining the applicable data center
+  class, conditions, and exceptions. Use explanation to state how that evidence
+  supports the selected feature, data center type, value, and units.
