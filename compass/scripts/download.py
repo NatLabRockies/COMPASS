@@ -2,6 +2,7 @@
 
 import pprint
 import logging
+from datetime import date
 from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
@@ -17,6 +18,7 @@ from compass.web.search import (
     record_search_attempt,
     search_single_jurisdiction,
 )
+from compass.llm.calling import SchemaOutputLLMCaller
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.pipeline.search.persistence import write_search_manifest_shard
@@ -30,7 +32,12 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.utilities.url import base_website_url, sanitize_url
+from compass.web.priority_crawl import PriorityCrawler
+from compass.utilities.url import (
+    URLPartFilter,
+    base_website_url,
+    sanitize_url,
+)
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.event_log import (
     emit_branch,
@@ -547,6 +554,111 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         return await crawler.run(
             website, crawl_timeout_s=timeout_seconds, on_new_page_visit_hook=ch
         )
+
+
+async def download_prioritized_ordinances(workflow):
+    """Search both engines and follow one queue per jurisdiction."""
+    runtime = workflow.runtime
+    templates = await workflow.extractor.get_query_templates()
+    options = dict(runtime.search_params.priority_search)
+    num_search_results = options.pop("num_search_results", 10)
+    found = await _priority_search(workflow, templates, num_search_results)
+    seeds = _search_seeds(found.get("results", []))
+    model = runtime.models[LLMTasks.DEFAULT]
+    call_kwargs = dict(model.llm_call_kwargs)
+    # Reasoning tokens count toward this cap. A long reasoning pass with
+    # a small cap leaves no room for the answer and returns no content.
+    call_kwargs.update(max_completion_tokens=16_000)
+    caller = SchemaOutputLLMCaller(
+        model.llm_service,
+        usage_tracker=workflow.usage_tracker,
+        **call_kwargs,
+    )
+    # The configured backend (ELM or Docling) reads the documents
+    loader = COMPASSWebFileLoader(
+        browser_semaphore=runtime.browser_semaphore,
+        **runtime.file_loader_kwargs,
+    )
+    # Renders pages in a browser and keeps their HTML, so a page with
+    # no readable text can still be searched for links and frames
+    html_loader = AsyncWebFileLoader(
+        browser_semaphore=runtime.browser_semaphore,
+        keep_raw_html=True,
+        **runtime.file_loader_kwargs,
+    ).html_loader
+    crawler = PriorityCrawler(
+        caller,
+        loader,
+        COMPASSLocalFileLoader(**runtime.local_file_loader_kwargs),
+        html_loader,
+        {
+            "technology": runtime.tech.replace("_", " "),
+            "jurisdiction": workflow.jurisdiction.full_name,
+            "as_of": date.today().isoformat(),
+            "queries": found.get("queries", []),
+        },
+        url_filter=URLPartFilter(
+            runtime.search_params.url_ignore_substrings,
+            runtime.search_params.url_keep_substrings,
+        ),
+        **options,
+    )
+    docs = await crawler.run(seeds)
+    for doc in docs:
+        content = doc.attrs.pop("raw_pdf", doc.text)
+        doc.attrs["cache_fn"] = await TempFileCache.call(doc, content)
+    return docs
+
+
+async def _priority_search(workflow, query_templates, num_urls):
+    """Search results to start the crawl from
+
+    The standard search is used, or the saved search results when the
+    run has them.
+    """
+    params = workflow.runtime.search_params
+    with event_step("collect.search_engine.priority.search"):
+        if workflow.known_se_results is not None:
+            found = workflow.known_se_results
+            emit_event(
+                "search_queries",
+                queries=found.get("queries", []),
+                source="saved search results",
+            )
+        else:
+            found = await search_single_jurisdiction(
+                query_templates,
+                workflow.jurisdiction,
+                num_urls,
+                workflow.runtime.search_engine_semaphore,
+                params.url_ignore_substrings,
+                params.url_keep_substrings,
+                simple=False,
+                **params.se_kwargs,
+            )
+    return found
+
+
+def _search_seeds(results):
+    """Group search results by URL, leaving out those filtered away
+
+    A result marked as a duplicate of a kept one is listed with it, so
+    the seed shows every query and engine that found the page.
+    """
+    results = [result for result in results if result.get("url")]
+    seeds = {
+        sanitize_url(result["url"]): []
+        for result in results
+        if result.get("filtered_reason") is None
+    }
+    for result in results:
+        sources = seeds.get(sanitize_url(result["url"]))
+        if sources is not None and result.get("filtered_reason") in {
+            None,
+            "duplicate",
+        }:
+            sources.append(result)
+    return [{"url": url, "sources": found} for url, found in seeds.items()]
 
 
 async def download_jurisdiction_ordinance_using_search_engine(

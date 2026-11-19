@@ -8,7 +8,7 @@ import httpx
 import pytest
 
 import compass.web.search as search_module
-from compass.utilities.event_log import EventLog, use_event_log
+from compass.utilities.event_log import EventLog, event_step, use_event_log
 from compass.utilities.jurisdictions import Jurisdiction
 
 
@@ -150,7 +150,7 @@ async def test_search_records_the_queries_it_runs(monkeypatch, tmp_path):
     )
     jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
     log = EventLog(tmp_path / "events.jsonl")
-    with use_event_log(log):
+    with use_event_log(log), event_step("collect.search_engine.search"):
         await search_module.search_single_jurisdiction(
             [_JURISDICTION_QUERY_TEMPLATE], jurisdiction, num_urls=7
         )
@@ -158,7 +158,8 @@ async def test_search_records_the_queries_it_runs(monkeypatch, tmp_path):
     assert event["type"] == "search_queries"
     assert event["queries"] == ["Adams County, Colorado zoning ordinance"]
     assert event["num_urls"] == 7
-    assert event["tags"]["step"] == "collect.search_engine.queries"
+    # recorded under whichever step the caller is in
+    assert event["tags"]["step"] == "collect.search_engine.search"
 
 
 @pytest.mark.asyncio

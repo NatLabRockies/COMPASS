@@ -389,6 +389,47 @@ Again, if you don't get any critical errors (poppler errors are ok) and you see 
 variable, then you are good to go.
 
 
+Priority document search
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+Standard search and document retrieval are used by default. Priority search
+is optional: omit ``priority_search`` or set it to ``null`` to keep the
+standard path. Set it to an options object to enable LLM-ranked collection
+with the process or collect command. An empty object uses the default limits.
+
+The standard search-engine step downloads the selected search-result URLs
+without crawling their outgoing links. ``perform_website_search`` controls
+the separate website-crawl steps. LLM ranking and priority-queue traversal
+run only when ``priority_search`` is an options object.
+
+.. code-block:: json
+
+    {
+        "priority_search": {"max_pages": 15, "max_depth": 3, "max_links": 3},
+        "perform_website_search": false,
+        "search_engines": [
+            {"se_name": "SerpAPIGoogleSearch"},
+            {"se_name": "SerpAPIDuckDuckGoSearch"}
+        ],
+        "model": [{
+            "name": "compassop-gpt-5.4",
+            "client_type": "azure",
+            "tasks": ["default"],
+            "llm_call_kwargs": {"reasoning_effort": "medium"}
+        }]
+    }
+
+Priority search starts from the same search as the standard path, keeping
+``num_search_results`` results (10 by default). An LLM ranks them, then
+assesses each fetched page and picks which of its links to follow, so links
+found along the way compete with the search results in one queue. The other
+options and their defaults are listed under ``priority_search`` in
+:class:`~compass.pipeline.data_classes.ProcessRequest`.
+
+The documents it finds still go through the usual jurisdiction and
+relevance checks.
+
+
 Releases
 ^^^^^^^^
 

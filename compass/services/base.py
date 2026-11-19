@@ -100,10 +100,14 @@ class Service(ABC):
         try:
             response = await self.process(*args, **kwargs)
         except Exception as e:  # ruff:ignore[blind-except]
-            fut.set_exception(e)
+            if not fut.done():
+                fut.set_exception(e)
             return
 
-        fut.set_result(response)
+        # The caller may have stopped waiting (e.g. it timed out), which
+        # cancels the future; the result is then no longer wanted
+        if not fut.done():
+            fut.set_result(response)
 
     def acquire_resources(self):  # ruff:ignore[empty-method-without-abstract-decorator]
         """Use this method to allocate resources, if needed"""

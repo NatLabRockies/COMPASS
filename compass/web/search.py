@@ -11,7 +11,6 @@ from compass.utilities.event_log import (
     current_event_log,
     error_details,
     emit_event,
-    event_step,
 )
 
 
@@ -99,8 +98,7 @@ async def search_single_jurisdiction(
     queries = _format_queries(jurisdiction, query_templates)
     for query in queries:
         logger.info("Search query: %s", query)
-    with event_step("collect.search_engine.queries"):
-        emit_event("search_queries", queries=queries, num_urls=num_urls)
+    emit_event("search_queries", queries=queries, num_urls=num_urls)
     base = {
         "full_name": jurisdiction.full_name,
         "state": jurisdiction.state,
