@@ -11,6 +11,9 @@ query_templates:
   - "filetype:pdf {jurisdiction} data center ordinance"
   - "site:{jurisdiction_website} data center"
   - "{jurisdiction} zoning ordinance"
+  # A moratorium, ban, or removal of the use is often a standalone
+  # resolution that never uses the word "ordinance".
+  - "{jurisdiction} data center moratorium OR ban OR prohibition"
 
 website_keywords:
   pdf: 92160
