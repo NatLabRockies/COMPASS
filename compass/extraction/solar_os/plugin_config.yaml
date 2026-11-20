@@ -168,3 +168,6 @@ extraction_system_prompt: |-
   Before finalizing, perform a feature-coverage check against the schema enum and ensure each explicitly supported large, commercial, utility-scale ground-mounted photovoltaic solar energy system feature is captured exactly once.
   If there is no data to extract for large, commercial, utility-scale ground-mounted photovoltaic solar energy systems, return an empty array for the "outputs" array. Do not fabricate or infer any data. If a feature is not explicitly stated in the ordinance, leave it out of the output.
   Pay extra attention to any descriptions, instructions, examples, definitions, and solar-specific decision tree logic in the schema, and be sure to follow all schema instructions carefully.
+
+  SCHEMA AND EXTRACTION GUIDANCE:
+  {schema}
