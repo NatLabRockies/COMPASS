@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -659,6 +660,156 @@ def test_save_db_mirrors_summary_into_value_for_qualitative(tmp_path):
     # neither column is left blank
     assert out["value"].notna().all()
     assert out["summary"].notna().all()
+
+
+def test_save_db_keeps_llm_value_for_qualitative(tmp_path):
+    """Keep a non-null LLM value on qualitative rows"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, value, summary):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": False,
+                "value": value,
+                "summary": summary,
+                "ordinance_text": "quoted text",
+            }
+        )
+        return row
+
+    grantees = ["Dixie Electric Membership Corporation", "Louisiana P&L"]
+    df = pd.DataFrame(
+        [
+            _row("Franchise", grantees, "Electric franchises granted."),
+            _row("Signage", None, "Warning signs only."),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+
+    assert out.loc["Franchise", "value"] == str(grantees)
+    assert out.loc["Franchise", "summary"] == "Electric franchises granted."
+    assert out.loc["Signage", "value"] == "Warning signs only."
+
+
+def test_save_db_handles_blank_string_values(tmp_path):
+    """Blank strings in value are converted to empty; only filled if
+    summary is not blank"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, value, summary, quantitative=False):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": quantitative,
+                "value": value,
+                "summary": summary,
+                "ordinance_text": "quoted text",
+            }
+        )
+        return row
+
+    df = pd.DataFrame(
+        [
+            _row("Both blank qual", "  ", " "),
+            _row("Value blank, summary filled qual", "", "Real content"),
+            _row("Value filled, summary blank qual", "Real value", "  "),
+            _row("Both blank quant", "  ", " ", quantitative=True),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+
+    assert pd.isna(out.loc["Both blank qual", "value"])
+    assert out.loc["Value blank, summary filled qual", "value"] == "Real content"
+    assert out.loc["Value filled, summary blank qual", "value"] == "Real value"
+    assert pd.isna(out.loc["Both blank quant", "value"])
+
+
+def test_save_db_blank_handling_edge_cases(tmp_path):
+    """Whitespace and special values are handled correctly"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, value, summary):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": False,
+                "value": value,
+                "summary": summary,
+                "ordinance_text": "quoted text",
+            }
+        )
+        return row
+
+    df = pd.DataFrame(
+        [
+            _row("Tab only", "\t", "Tab summary"),
+            _row("Newline only", "\n", "Newline summary"),
+            _row("Mixed whitespace", " \t\n ", "Mixed summary"),
+            _row("Zero value", 0, "Zero summary"),
+            _row("False value", False, "False summary"),
+            _row("Empty list", [], "List summary"),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+
+    # Whitespace-only values are filled from summary
+    assert out.loc["Tab only", "value"] == "Tab summary"
+    assert out.loc["Newline only", "value"] == "Newline summary"
+    assert out.loc["Mixed whitespace", "value"] == "Mixed summary"
+    # Falsy non-string values are kept
+    assert out.loc["Zero value", "value"] == "0"
+    assert out.loc["False value", "value"] == "False"
+    assert out.loc["Empty list", "value"] == "[]"
+
+
+def test_save_db_does_not_copy_numeric_summary(tmp_path):
+    """Non-string values in summary are treated as not-blank and are
+    copied to value when value is empty"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, value, summary):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": False,
+                "value": value,
+                "summary": summary,
+                "ordinance_text": "quoted text",
+            }
+        )
+        return row
+
+    df = pd.DataFrame(
+        [
+            _row("Zero summary", None, 0),
+            _row("False summary", None, False),
+            _row("NaN summary", None, np.nan),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+
+    # Numeric/non-string summaries are copied (they're not "blank")
+    assert out.loc["Zero summary", "value"] == "0"
+    assert out.loc["False summary", "value"] == "False"
+    # Only actual NaN in summary results in no fill
+    assert pd.isna(out.loc["NaN summary", "value"])
 
 
 def test_save_db_trims_long_ordinance_text(tmp_path):
