@@ -1292,11 +1292,11 @@ def _ord_doc_sorting_key(doc):
     )
     shortest_text_length = -1 * len(doc.text)
     return (
+        latest_year or _NEG_INF,
         num_collection_steps_found_doc,
         best_step,
         most_confident_collection,
         best_docs_from_website,
-        latest_year or _NEG_INF,
         prefer_pdf_files,
         highest_jurisdiction_score,
         shortest_text_length,
