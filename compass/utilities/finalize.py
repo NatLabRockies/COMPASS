@@ -324,12 +324,14 @@ def _normalize_qualitative_rows(db):
     they share a single output file and the ``quantitative`` flag is
     not published.
 
-    Their ``summary`` is also copied into ``value`` where the value is
-    empty. The schemas ask the LLM for a summary and a null value on
-    most of these rows, so filling the value here means the model only
-    ever writes the requirement once, while readers still find it in
-    the column they expect. A value the model did supply (such as the
-    verbatim text of a definition) is kept.
+    For qualitative rows, blank strings in ``value`` (including
+    whitespace-only) are cleared to null. If ``value`` is then null
+    and ``summary`` is not blank, ``summary`` is copied into ``value``.
+    The schemas ask the LLM for a summary and a null value on most of
+    these rows, so filling the value here means the model only ever
+    writes the requirement once, while readers still find it in the
+    column they expect. A value the model did supply (such as a list
+    of entities or the verbatim text of a definition) is kept as-is.
     """
     qualitative = ~db["quantitative"]
     db.loc[qualitative, "units"] = QUALITATIVE_UNITS
@@ -337,12 +339,19 @@ def _normalize_qualitative_rows(db):
     # a numeric-only "value" column is float-typed, so it has to be
     # widened before qualitative text can be written into it
     db["value"] = db["value"].astype(object)
-    empty = db["value"].isna() | ~db["value"].astype(str).str.strip().astype(
-        bool
+    empty_value = db["value"].isna() | db["value"].map(
+        lambda v: isinstance(v, str) and not v.strip()
     )
-    db.loc[qualitative & empty, "value"] = db.loc[
-        qualitative & empty, "summary"
-    ]
+    db.loc[empty_value, "value"] = None
+
+    # Check summary without modifying it; convert to object to handle
+    # both numeric NaN and string blanks uniformly
+    summary_obj = db["summary"].astype(object)
+    empty_summary = summary_obj.isna() | summary_obj.map(
+        lambda v: isinstance(v, str) and not v.strip()
+    )
+    fill = qualitative & db["value"].isna() & ~empty_summary
+    db.loc[fill, "value"] = db.loc[fill, "summary"]
     return db
 
 
