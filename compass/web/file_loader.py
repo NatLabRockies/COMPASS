@@ -3,6 +3,7 @@
 import os
 import asyncio
 import logging
+from functools import partial
 from importlib import import_module
 
 from elm.web.file_loader import (
@@ -14,6 +15,11 @@ from elm.web.file_loader import (
 )
 from elm.web.document import MDDocument
 from compass.services.threaded import TempFileCache
+from compass.utilities.event_log import (
+    record_document_fetch,
+    record_http_error,
+    record_http_response,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -30,6 +36,7 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
         browser_semaphore=None,
         use_scrapling_stealth=False,
         num_pw_html_retries=3,
+        on_fetch_hook=None,
         **__,  # consume any extra kwargs
     ):
         """
@@ -64,8 +71,15 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
             attempts and retrieval success. Note that the minimum number
             of attempts will always be 2, even if the user provides a
             value smaller than this. By default, ``3``.
+        on_fetch_hook : callable, optional
+            ELM loader hook awaited after every fetch. See
+            :class:`elm.web.file_loader.BaseAsyncFileLoader`.
+            By default, ``None``.
         """
-        super().__init__(file_cache_coroutine=TempFileCache.call)
+        super().__init__(
+            file_cache_coroutine=TempFileCache.call,
+            on_fetch_hook=on_fetch_hook,
+        )
         self._html_loader = AsyncHTMLLoader(
             pw_launch_kwargs=pw_launch_kwargs,
             html_read_kwargs=html_read_kwargs,
@@ -100,6 +114,9 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         to_md_kwargs=None,
         pdf_pipeline_options=None,
         re_fetch_failed_with_elm=False,
+        on_fetch_hook=None,
+        on_response_hook=None,
+        on_error_hook=None,
         **extra,
     ):
         """
@@ -182,12 +199,28 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 disabled for the ELM fallback.
 
             By default, ``False``.
+        on_fetch_hook : callable, optional
+            ELM loader hook awaited after every fetch. It also observes
+            the loaders this one falls back on, called with
+            ``stage="browser render"`` or ``stage="ELM fallback"``.
+            See :class:`elm.web.file_loader.BaseAsyncFileLoader`.
+            By default, ``None``.
+        on_response_hook, on_error_hook : callable, optional
+            ELM fetcher hooks, awaited on every HTTP response and when a
+            request gets no response. See
+            :class:`elm.web.file_loader.AsyncFetchWithRetry`.
+            By default, ``None``.
         """
-        super().__init__(file_cache_coroutine=file_cache_coroutine)
+        super().__init__(
+            file_cache_coroutine=file_cache_coroutine,
+            on_fetch_hook=on_fetch_hook,
+        )
         self.content_fetcher = AsyncFetchWithRetry(
             header_template=header_template,
             verify_ssl=verify_ssl,
             aget_kwargs=aget_kwargs,
+            on_response_hook=on_response_hook,
+            on_error_hook=on_error_hook,
         )
         self.html_loader = _AsyncHTMLOnlyLoader(
             pw_launch_kwargs=pw_launch_kwargs,
@@ -196,6 +229,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             browser_semaphore=browser_semaphore,
             use_scrapling_stealth=use_scrapling_stealth,
             num_pw_html_retries=num_pw_html_retries,
+            on_fetch_hook=_at_stage(on_fetch_hook, "browser render"),
         )
         self.to_md_kwargs = to_md_kwargs or {}
         self.pdf_pipeline_options = pdf_pipeline_options
@@ -216,6 +250,9 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 browser_semaphore=browser_semaphore,
                 use_scrapling_stealth=use_scrapling_stealth,
                 num_pw_html_retries=num_pw_html_retries,
+                on_fetch_hook=_at_stage(on_fetch_hook, "ELM fallback"),
+                on_response_hook=on_response_hook,
+                on_error_hook=on_error_hook,
             )
 
     async def fetch_all(self, *sources):
@@ -485,8 +522,32 @@ def _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source):
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
     import_module("compass.services.docling")
-    COMPASSWebFileLoader = AsyncDoclingWebFileLoader
+    _WebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
-    COMPASSWebFileLoader = AsyncWebFileLoader
+    _WebFileLoader = AsyncWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalFileLoader
+
+
+def _at_stage(hook, stage):
+    """A fetch hook for a fallback loader, labelled with its stage"""
+    return None if hook is None else partial(hook, stage=stage)
+
+
+class COMPASSWebFileLoader(_WebFileLoader):
+    """The configured web file loader, recording each download
+
+    Every fetch, and each HTTP response behind it, is recorded in the
+    event log through ELM's loader hooks. With the Docling backend, so
+    are the loaders it falls back on (a browser render for HTML, and ELM
+    for sources Docling could not parse), so a document recovered by a
+    fallback is not left looking like a failed download.
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(
+            **kwargs,
+            on_fetch_hook=record_document_fetch,
+            on_response_hook=record_http_response,
+            on_error_hook=record_http_error,
+        )

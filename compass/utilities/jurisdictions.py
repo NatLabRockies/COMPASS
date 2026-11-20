@@ -130,6 +130,26 @@ class Jurisdiction:
         return self.full_name
 
     @cached_property
+    def quoted_full_name(self):
+        """str: Comma-separated jurisdiction display name"""
+        subdivision_name = self.quoted_full_subdivision_phrase
+        if subdivision_name:
+            name_parts = [
+                subdivision_name,
+                self.full_county_phrase,
+                self.state,
+            ]
+
+            return ", ".join(filter(None, name_parts))
+
+        county = self.quoted_full_county_phrase
+        if county:
+            name_parts = [county, self.state]
+            return ", ".join(filter(None, name_parts))
+
+        return f'"{self.state}"'
+
+    @cached_property
     def short_name_with_state(self):
         """str: Comma-separated short jurisdiction name"""
         if self.subdivision_name:
@@ -180,6 +200,28 @@ class Jurisdiction:
             return f"{self.county} {self.type}"
 
         return f"{self.county} County"
+
+    @cached_property
+    def quoted_full_subdivision_phrase(self):
+        """str: Subdivision phrase for the jurisdiction or empty str"""
+        if not self.subdivision_name:
+            return ""
+
+        if self.type.casefold() in _JURISDICTION_TYPES_AS_PREFIXES:
+            return f'{self.type} of "{self.subdivision_name}"'
+
+        return f'"{self.subdivision_name}" {self.type}'
+
+    @cached_property
+    def quoted_full_county_phrase(self):
+        """str: County phrase for the jurisdiction or empty str"""
+        if not self.county:
+            return ""
+
+        if not self.subdivision_name:
+            return f'"{self.county}" {self.type}'
+
+        return f'"{self.county}" County'
 
     def __repr__(self):
         return str(self)

@@ -27,6 +27,7 @@ from compass.plugin.interface import (
 from compass.services.threaded import CLEANED_FP_REGISTRY
 from compass.extraction import extract_ordinance_values
 from compass.utilities.enums import LLMTasks, LLMUsageCategory
+from compass.utilities.event_log import emit_branch, event_step, event_tags
 from compass.utilities.ngrams import convert_text_to_sentence_ngrams
 from compass.utilities.parsing import (
     clean_backticks_from_llm_response,
@@ -59,6 +60,8 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
     "primary use districts",
     "special use districts",
     "accessory use districts",
+    # a definitions chapter defines terms but regulates nothing
+    "definition",
 }
 
 
@@ -767,12 +770,25 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        match DocSelectionMethod.normalize(self.DOC_SELECTION_METHOD):
-            case DocSelectionMethod.SINGLE_DOC:
-                return await self.parse_single_doc_for_structured_data(
-                    extraction_context
-                )
+        method = DocSelectionMethod.normalize(self.DOC_SELECTION_METHOD)
+        if method == DocSelectionMethod.SINGLE_DOC:
+            emit_branch("extract.mode", "yes", method=str(method))
+            return await self.parse_single_doc_for_structured_data(
+                extraction_context
+            )
 
+        emit_branch("extract.mode", "no", method=str(method))
+        with event_step("extract.multi"):
+            context = await self._parse_multi_doc(method, extraction_context)
+        emit_branch(
+            "extract.multi",
+            "none found" if context is None else "values found",
+        )
+        return context
+
+    async def _parse_multi_doc(self, method, extraction_context):
+        """Parse documents together, as the multi-doc `method` says"""
+        match method:
             case DocSelectionMethod.MULTI_DOC_CONTEXT:
                 return await self.parse_multi_doc_context_for_structured_data(
                     extraction_context
@@ -820,8 +836,16 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
         for doc_for_extraction in extraction_context:
-            data_df = await self.parse_for_structured_data(doc_for_extraction)
-            row_count = self.get_structured_data_row_count(data_df)
+            with event_tags(document=doc_for_extraction.attrs.get("source")):
+                data_df = await self.parse_for_structured_data(
+                    doc_for_extraction
+                )
+                row_count = self.get_structured_data_row_count(data_df)
+                emit_branch(
+                    "extract.doc.qualifies",
+                    "yes" if row_count > 0 else "no",
+                    rows=row_count,
+                )
             if row_count > 0:
                 data_df["source"] = doc_for_extraction.attrs.get("source")
                 data_df["year"] = extract_year_from_doc_attrs(
@@ -841,6 +865,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
                 )
                 return extraction_context
 
+        emit_branch("extract.doc.no_data", "no documents left")
         logger.debug(
             "No ordinances found; searched %d docs",
             extraction_context.num_documents,
@@ -888,7 +913,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             )
             return None
 
-        data_df = await _fill_out_multi_file_sources(
+        data_df, num_source_docs = await _fill_out_multi_file_sources(
             data_df,
             extraction_context,
             out_fn_stem=self.jurisdiction.full_name,
@@ -898,9 +923,11 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         n_feats = num_ordinances_dataframe(data_df)
         extraction_context.attrs["num_features_extracted"] = n_feats
         logger.info(
-            "%d ordinance value(s) found for %s in %d docs. ",
+            "%d ordinance value(s) found for %s from %s docs "
+            "(%d docs provided in extraction context).",
             n_feats,
             self.jurisdiction.full_name,
+            num_source_docs,
             extraction_context.num_documents,
         )
         return extraction_context
@@ -1090,9 +1117,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         """Apply a single extractor and parser to legal text"""
 
         if parser_class.IN_LABEL not in doc_for_extraction.attrs:
-            await self._run_text_extractors(
-                doc_for_extraction, parser_class, sub_progress
-            )
+            with event_step("extract.doc.text"):
+                await self._run_text_extractors(
+                    doc_for_extraction, parser_class, sub_progress
+                )
 
         model_config = self._get_model_config(
             parser_class.TASK_ID,
@@ -1359,9 +1387,10 @@ async def _fill_out_multi_file_sources(
             data_df, extraction_context.num_documents
         )
     except COMPASSRuntimeError:
-        return await _fill_in_all_sources(
+        filled_df = await _fill_in_all_sources(
             data_df, extraction_context, out_fn_stem
         )
+        return filled_df, extraction_context.num_documents
 
     year_map = {}
     source_map = {}
@@ -1384,7 +1413,7 @@ async def _fill_out_multi_file_sources(
             source_map.get(int(source_ind)) if pd.notna(source_ind) else None
         )
     )
-    return data_df
+    return data_df, len(source_inds)
 
 
 def _get_source_inds(data_df, num_docs):

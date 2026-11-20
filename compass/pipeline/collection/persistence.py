@@ -55,11 +55,7 @@ def validate_collection_targets(targets):
     dict
         Supported metric names mapped to shard value accessors.
     """
-    metrics = {
-        "num_docs": lambda record: record.get(
-            "num_docs", len(record.get("results", []))
-        )
-    }
+    metrics = {"num_docs": lambda record: record.get("num_docs", -1)}
     for step in COMPASSDocumentCollectionStep:
         metrics[f"completed_step_document_counts.{step}"] = partial(
             _collection_step_document_count, step=str(step)
@@ -365,7 +361,7 @@ async def load_collected_docs(collection_info, *, task_name):
 
 def _collection_step_document_count(record, step):
     """Read a completed step count, treating absent steps as zero"""
-    return record.get("completed_step_document_counts", {}).get(step, 0)
+    return record.get("completed_step_document_counts", {}).get(step, -1)
 
 
 async def _load_jur_manifests(manifest_fp, expected_tech):

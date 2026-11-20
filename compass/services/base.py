@@ -1,6 +1,7 @@
 """COMPASS abstract Service class"""
 
 import asyncio
+import contextvars
 import logging
 from abc import ABC, abstractmethod
 
@@ -70,7 +71,9 @@ class Service(ABC):
         """
         fut = asyncio.Future()
         outer_task_name = asyncio.current_task().get_name()
-        await cls._queue().put((fut, outer_task_name, args, kwargs))
+        await cls._queue().put(
+            (fut, outer_task_name, contextvars.copy_context(), args, kwargs)
+        )
         return await fut
 
     @property
@@ -97,10 +100,14 @@ class Service(ABC):
         try:
             response = await self.process(*args, **kwargs)
         except Exception as e:  # ruff:ignore[blind-except]
-            fut.set_exception(e)
+            if not fut.done():
+                fut.set_exception(e)
             return
 
-        fut.set_result(response)
+        # The caller may have stopped waiting (e.g. it timed out), which
+        # cancels the future; the result is then no longer wanted
+        if not fut.done():
+            fut.set_result(response)
 
     def acquire_resources(self):  # ruff:ignore[empty-method-without-abstract-decorator]
         """Use this method to allocate resources, if needed"""
@@ -199,5 +206,7 @@ class LLMService(Service):
         """
         fut = asyncio.Future()
         outer_task_name = asyncio.current_task().get_name()
-        await self._queue().put((fut, outer_task_name, args, kwargs))
+        await self._queue().put(
+            (fut, outer_task_name, contextvars.copy_context(), args, kwargs)
+        )
         return await fut

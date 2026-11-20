@@ -25,6 +25,9 @@ LLM_COST_REGISTRY = {
     "gpt-6-luna": {"prompt": 0.1, "response": 0.5},
     "gpt-6-sol": {"prompt": 2, "response": 10},
     "gpt-6-astra": {"prompt": 10, "response": 50},
+    "gpt-6.1-sol": {"prompt": 2, "response": 10},
+    "gemini-3.8-flash": {"prompt": 0.75, "response": 3.75},
+    "claude-haiku-5-5": {"prompt": 0.11, "response": 0.55},
     "text-embedding-ada-002": {"prompt": 0.10},
 }
 """LLM Costs registry
