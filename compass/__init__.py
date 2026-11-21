@@ -11,12 +11,16 @@ from .extraction import (
     COMPASSDataCentersExtractor,
     COMPASSGeoHeatPumpExtractor,
     COMPASSGeoElectricityExtractor,
+    COMPASSNaturalGasExtractor,
     COMPASSNaturalGasPipelinesExtractor,
     COMPASSOilGasWellsExtractor,
     COMPASSGeoRMPExtractor,
     COMPASSSmallWindExtractor,
     COMPASSSolarExtractor,
+    COMPASSSolarOneShotExtractor,
+    COMPASSTransmissionExtractor,
     COMPASSWindExtractor,
+    COMPASSWindOneShotExtractor,
     TexasWaterRightsExtractor,
 )
 

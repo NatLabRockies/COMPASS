@@ -113,9 +113,6 @@ summarizer or writer.
 no paraphrasing or rewriting.**
 - The output must consist **only** of contiguous or discontiguous verbatim \
 blocks copied from the input.
-- The only allowed change is to remove irrelevant sections of text. You can \
-remove irrelevant text from within sections, but you cannot add any new text \
-or modify the text you keep in any way.
 - If **no relevant text** is found, return null.
 
 # TEXT #
