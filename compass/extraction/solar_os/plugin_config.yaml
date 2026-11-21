@@ -125,13 +125,9 @@ text_extraction_prompts:
     out_fn: "{jurisdiction} Utility Scale Solar Ordinance.txt"
     prompt: |-
       # CONTEXT #
-      We want to reduce the provided excerpt to only contain information about
-      **solar energy systems**. The extracted text will be used for structured data
-      extraction, so it must be both **comprehensive** (retaining all relevant
-      details) and **focused** (excluding unrelated content), with **zero rewriting
-      or paraphrasing**. Ensure that all retained information is **directly
-      applicable to solar energy systems** while preserving full context and
-      accuracy.
+      The next step extracts structured requirements from the passages you
+      retain. Copy the solar provisions and the text needed to read them
+      correctly, verbatim and in source order.
 
       # OBJECTIVE #
       Extract all text **pertaining to solar energy systems** from the provided
@@ -141,7 +137,7 @@ text_extraction_prompts:
       Follow these guidelines carefully:
 
       1. ## Scope of Extraction ##:
-      - Include **all** text that pertains to** solar energy systems**, even if
+      - Include **all** text that pertains to **solar energy systems**, even if
       they are referred to by different names such as:
       Solar panels, solar energy conversion systems (secs), solar energy
       facilities (sef), solar energy farms (sef), solar farms (sf),
@@ -153,9 +149,20 @@ text_extraction_prompts:
       energy systems.
       - Explicitly include any text related to the adoption or enactment date of
       the ordinance (if any).
+      - Supporting text need not repeat the word "solar". If a solar provision
+      uses a defined term, incorporates a district schedule, or is qualified by
+      an exception, retain the applicable definition, schedule, or exception
+      when it is present in the excerpt. Keep the section identifiers and the
+      wording that links the provisions.
+      - Copy a table containing a solar use or governing a solar provision in
+      full, with its caption, column headers, row labels, units, blank cells,
+      legend and footnotes as supplied. Keep a separately printed key or note
+      with the table it explains; do not shift cells or decode symbols.
 
       2. ## Exclusions ##:
-      - Do **not** include text that does not pertain to solar energy systems.
+      - Exclude unrelated prose, definitions and schedules. Proximity to a
+      solar provision is not enough. If a cited passage or table is missing,
+      copy the reference as written; do not reconstruct the missing content.
 
       3. {FORMATTING_PROMPT}
 
