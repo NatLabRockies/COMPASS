@@ -96,7 +96,7 @@
   "$scope": "Currently enacted provisions governing large, commercial, utility-scale ground-mounted photovoltaic solar energy farms and their associated components. Aliases include solar panels, solar farms (SF), solar energy conversion systems (SECS), solar energy facilities/farms (SEF), solar energy systems (SES), utility-scale solar energy systems (USES), commercial solar energy systems (CSES), ground-mounted solar energy systems (GSES), alternate energy systems (AES), and commercial energy production systems (CEPCS), where definitions or context explicitly establish solar applicability. Determine scope from the ordinance's own definitions, size classes, rated capacity (often 1MW+), land area, offsite generation/sale criteria, and/or section context. Exclude provisions applying only to small, private, residential, onsite-only, rooftop/building-mounted, solar thermal, or concentrated solar power (CSP) systems and unrelated technologies. Generic solar provisions applying to all sizes are in scope when they also govern the selected utility-scale class.",
   "$core_principles": {
     "strict_evidence_gate": {
-      "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. Chapter titles, section titles, captions, parenthetical aliases, tables of contents, navigation lists, cross-reference lists, and purpose/intent/applicability statements are not valid evidence by themselves unless they also quote or restate the operative requirement, definition, or prohibition. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
+      "description": "Extract a feature only when the supplied ordinance text explicitly states a requirement, operative definition, or prohibition for that same feature, or an explicit waiver or statement of nonregulation where the feature allows one. If a definition, table key, or incorporated schedule establishes how the operative clause applies, quote both passages. Do not infer a rule from a heading, alias, navigation entry, purpose statement, or nearby provision, or import a value from a source not supplied. Advice and thresholds that only trigger a study or review are not binding numerical limits."
     },
     "data_omission": {
       "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units=null only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
@@ -109,7 +109,7 @@
     "1_system_classification": [
       "Determine whether the ordinance distinguishes multiple ground-mounted solar farm sizes. If so, list the classes internally in increasing size, including numerical qualifiers, and identify which classes the ordinance actually regulates.",
       "Select the largest regulated ground-mounted farm class, not the largest class merely mentioned or explicitly excluded from regulation. Check whether it is explicitly large, commercial, utility-scale, or equivalent.",
-      "If that label is absent, use explicit purpose and applicability evidence such as offsite electricity generation or sale to determine whether the selected class is commercial/utility-scale. Do not assume every ground-mounted system is large.",
+      "If that label is absent, require evidence of a commercial or utility-scale purpose, such as generation for offsite sale. Being the largest locally regulated class or producing more than is consumed onsite does not by itself establish that purpose.",
       "If the largest regulated class is only small/noncommercial, return outputs=[]. If there is no size distinction, evaluate generic provisions using $scope rather than assuming they concern only small systems.",
       "Apply requirements for the selected class and any general provisions explicitly covering it. Preserve class thresholds and applicability in summaries where needed; do not mix smaller-class limits into selected-class rows. An enacted ban on the in-scope class remains extractable even if no installations are allowed."
     ],
@@ -118,7 +118,7 @@
       "For other features independently, find an explicit enacted requirement. A provision in a definitions section counts if it imposes the requirement; a label or descriptive class boundary such as a heading, intent statement, reference, nearby requirement, etc. alone does not.",
       "Extract only setbacks that apply to solar collectors (panels). Treat a general solar facility setback as applying to the panels when no component is specified; never infer a panel setback from a rule limited to power inverters or other non-panel equipment.",
       "A clause naming several receptors with a shared setback supports each explicitly named receptor, but never cross-apply an unmentioned receptor. Distinguish buildings from parcel boundaries and wetlands from conservation lands.",
-      "For roads, verify that the provision actually concerns a road or road right-of-way and is not merely a property-line setback. Keep centerline versus right-of-way measurement origins in summary.",
+      "For roads, require a facility setback from a road or road right-of-way. Ensure it is **NOT** inferred from a property-line setback. A rule covering all rights-of-way qualifies if the supplied definition expressly includes streets; quote it and preserve the broader scope. Neither an unspecified easement nor a highway used only to delineate an ineligible geographic area establishes a facility setback. Keep the measurement origin in summary.",
       "If no requirement is found, check whether the text directly states that this particular feature is not regulated. Only an explicit, verified nonregulation statement for an extra restriction may produce value='ENR', units=null, with nonempty summary, ordinance_text, and explanation. Silence is never ENR. Otherwise omit the feature."
     ],
     "3_owner_split": [
@@ -138,7 +138,8 @@
     "5_extra_restrictions": [
       "Separate numerical restrictions from qualitative obligations. Numerical restrictions require an explicit threshold and the feature-specific dimensional check; qualitative features retain operative text with null value and units.",
       "For other secs, verify that separation is between full existing/planned solar farms, not panels or components within one farm. For coverage reject absolute area values; require a percentage or fraction. For land density require capacity per unit area, not coverage or an area-only restriction.",
-      "For minimum/maximum lot size require area, not width, frontage, or a distance. For maximum project size require a capacity or installation-count cap, not area or a definition/classification threshold. Reject a purported cap that can be bypassed by applying for a permit.",
+      "For lot size, check both ends of a binding parcel-area range for the selected class, including a range imposed in a definition. Emit each stated bound under its own feature; preserve the class and whether each endpoint is included in summary. Exclude descriptive size tiers, acreage that merely triggers review, and illustrative coverage calculations.",
+      "For maximum project size require a capacity or installation-count cap, not area or a definition/classification threshold. Reject a purported cap that can be bypassed by applying for a permit.",
       "For panel spacing require an explicit minimum between individual panels; do not derive it from perimeter or property-line setbacks. Do not infer land density from setbacks or coverage.",
       "Choose the largest minimum for other secs, minimum lot size, and panel spacing. Choose the smallest maximum for noise, maximum height, maximum project size, maximum lot size, land density, and coverage. Compare only equivalent measurement bases and applicability; retain conditional or incomparable alternatives in summary without pretending they are one comparable number.",
       "For prohibitions verify that the restriction is enacted, currently effective, and unconditional jurisdiction-wide. An effective temporary moratorium qualifies while active; a proposed, future, expired, district-only, distance-dependent, or approval-dependent restriction does not. District-specific unconditional bans belong in prohibited use districts instead. Where any approval route remains, do not label that scope as unconditionally banned."
@@ -152,7 +153,7 @@
   },
   "$definitions": {
     "setback_features": {
-      "description": "All setbacks follow steps 2 through 4, including owner-specific applicability and compound-expression preservation. Never transfer a rule between receptors unless the operative text explicitly names both.",
+      "description": "All setbacks follow steps 2 through 4, including owner-specific applicability and compound-expression preservation. Extract only receptors expressly covered by the clause or its applicable definition in the supplied text.",
       "properties": {
         "structures (participating)": {
           "description": "Minimum solar setback from participating owners' occupied dwellings, buildings, structures, or residences. VALUE: numeric distance or height coefficient, complete compound formula string, or null for an explicit unrestricted waiver/reduction. Require an explicit ownership distinction. UNITS: original distance unit (feet, meters, miles, etc.), 'structure-height-multiplier' for a pure coefficient, or null for a compound formula or waiver. IGNORE: property/lot boundaries, roads, railroads, transmission, water, and conservation land setbacks. A dwelling is not a property line."
@@ -199,10 +200,10 @@
           "description": "Maximum solar capacity or installation count allowed without an approval route to exceed the limit. VALUE: numeric capacity or maximum number of systems/panels, choosing the lowest comparable maximum. UNITS: original capacity unit (MW, kW, etc.), 'systems', or 'panels'. IGNORE: area-only limits, coverage, lot size, lower bounds defining a large class, upper bounds defining smaller classes, and thresholds that merely trigger a permit allowing larger projects. Preserve independent capacity/count limits in summary without ranking their raw numbers."
         },
         "minimum lot size": {
-          "description": "Minimum lot, parcel, or tract area required for solar. VALUE: numeric area, choosing the largest comparable minimum. UNITS: explicit area unit such as acres, hectares, square feet, or square meters. IGNORE: frontage, width, setbacks, capacity, coverage percentages, and maximum area limits."
+          "description": "Minimum lot, parcel, or tract area required for the selected solar class. VALUE: numeric lower endpoint, choosing the largest comparable minimum; retain 'more than' versus 'at least' in summary. UNITS: stated area unit, e.g. acres, hectares, square feet, or square meters. IGNORE: linear dimensions, capacity, and coverage; report a binding upper endpoint separately as maximum lot size."
         },
         "maximum lot size": {
-          "description": "Maximum lot, parcel, or tract area allowed for solar. VALUE: numeric area, choosing the smallest comparable maximum. UNITS: explicit area unit such as acres, hectares, square feet, or square meters. IGNORE: linear dimensions, capacity/count limits, coverage percentages, and minimum lot requirements."
+          "description": "Maximum lot, parcel, or tract area allowed for the selected solar class. VALUE: numeric upper endpoint, choosing the smallest comparable maximum; retain 'less than' versus 'at most' in summary. UNITS: stated area unit, e.g. acres, hectares, square feet, or square meters. IGNORE: linear dimensions, capacity/count limits, and coverage; report a binding lower endpoint separately as minimum lot size."
         },
         "panel spacing": {
           "description": "Minimum spacing explicitly required between individual solar panels. VALUE: numeric minimum distance or panel-height multiplier, choosing the largest comparable minimum. UNITS: feet, meters, another explicit distance unit, or 'height-multiplier' for a pure panel-height coefficient; a compound formula follows step 4 with null units. IGNORE: inter-farm separation and property-line/perimeter setbacks. Do not derive spacing from land density or coverage."
@@ -228,7 +229,7 @@
           "description": "Explicit solar glare/reflection controls, studies, mitigation, or receptor protections. VALUE: null; retain any quantitative glare criteria in summary. UNITS: null. IGNORE: generic visual-impact assessments or screening provisions that do not explicitly govern glare."
         },
         "visual impact": {
-          "description": "Explicit requirement to assess solar visual impacts. VALUE: null; quote assessment/study obligations and conditions in summary. UNITS: null. IGNORE: glare restrictions, generic aesthetic aspirations, and screening alone without a visual-impact assessment requirement."
+          "description": "Explicit requirement to assess a solar facility's visual impact. VALUE: null; quote the assessment requirement and conditions in summary. UNITS: null. IGNORE: aesthetic goals and mitigation measures (such as blending materials with surroundings, following natural contours, glare control, or screening) unless the ordinance also requires an assessment of visual impact."
         },
         "repowering": {
           "description": "Requirements specifically governing solar repowering or qualifying equipment replacement/upgrades. VALUE: null; preserve approval triggers and exceptions in summary. UNITS: null. IGNORE: routine maintenance, initial construction, or decommissioning unless explicitly applied to repowering."
@@ -257,10 +258,10 @@
       "description": "Apply step 6. Use arrays of exact district names/codes, not inferred district types. Omit unsupported use types instead of returning null or empty district lists.",
       "properties": {
         "primary use districts": {
-          "description": "Districts expressly allowing the selected solar class as primary/by-right use, plus explicitly applicable solar overlays. VALUE: array of all supported district names/codes. UNITS: null. IGNORE: accessory-only and special/conditional-only districts except solar overlays, whose conditions must remain in summary."
+          "description": "Districts expressly allowing the selected solar class as a primary use by right, plus solar overlays that expressly authorize it under step 6. VALUE: array of supported district names/codes. UNITS: null. IGNORE: the word 'principal' alone, accessory-only or conditional-only base districts, and overlays that only impose extra review."
         },
         "special use districts": {
-          "description": "Districts expressly allowing the selected solar class through special use, conditional use, special exception, or comparable approval. VALUE: array of supported district names/codes. UNITS: null. IGNORE: solar overlays classified as primary, by-right districts, and permits for small systems only."
+          "description": "Districts expressly allowing the selected solar class through a special, conditional, or comparable discretionary land-use approval. VALUE: array of supported district names/codes; retain the permit type in summary. UNITS: null. IGNORE: ancillary reviews that do not grant land-use permission, solar overlays classified as primary, by-right permissions, and permits for small systems only."
         },
         "accessory use districts": {
           "description": "Districts expressly allowing the selected utility-scale solar class as secondary/accessory to another land use. VALUE: array of supported district names/codes. UNITS: null. IGNORE: residential/rooftop-only accessory systems, primary use permissions, and solar overlays classified as primary."
@@ -361,14 +362,13 @@
     "general": [
       "Extract ordinance requirements ONLY for large, commercial, or utility-scale solar energy systems (typically intended for offsite electricity generation or sale, often 1MW+ or above specified thresholds). Do NOT extract requirements that apply only to small, micro, private, personal, onsite, or residential systems, or to meteorological towers.",
       "Use direct text excerpts and quotes in the summary field as much as possible. If multiple options exist and you make a selection, list all other options and their conditions in the summary.",
-      "Only extract explicit requirements that have been enacted. Do not extract definitions unless they also constitute requirements.",
+      "Extract only from enacted text. Except for the mention-based feature in step 2, do not extract definitions unless they also constitute requirements.",
       "Pay careful attention to clarifying text in parentheses, footnotes, and cross-references.",
       "When multiple values are mentioned for the same feature, select the most restrictive value (largest minimum, lowest maximum, etc.) and note the other options in the summary.",
       "Ensure units are expressed using standard, conventional names (e.g., 'feet', 'meters', 'dBA', 'hr/year', 'tip-height-multiplier').",
       "Every row must include an ordinance_text holding the complete relevant excerpt for the ordinance being extracted, copy-pasted verbatim from the source document. Its first sentence must be the start of the ordinance text for this extraction, reproduced in full; after that first sentence an ellipsis ('...') may be used to drop irrelevant passages. ordinance_text is never paraphrased or normalized — every character outside the ellipses appears exactly as written in the source.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
-      "For features where no requirement exists, set value, units, and summary to null (omit the feature from the array entirely, or include it with null values).",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
       "Tables, table footnotes, and labeled graphics count as valid ordinance evidence when they state the controlling requirement; preserve the relevant table cell or footnote context in summary.",
       "If ordinance text shows an amended or superseding requirement, extract the current operative requirement as written rather than a superseded historical value unless the ordinance text clearly keeps both rules active.",
@@ -387,7 +387,7 @@
       "For numerical solar restrictions: Extract the numerical value and units specified by the feature definition. If multiple comparable values exist, select the most restrictive and retain other values and their conditions in summary.",
       "For maximum height: Extract the maximum solar panel or structure height, preserving the measurement origin and any panel-angle condition. Exclude minimum ground clearance, fencing heights, rooftop-only limits, and system-class definition thresholds.",
       "For maximum project size: Specify in summary whether the limit is capacity-based (MW, kW, etc.) or count-based (systems or panels). Exclude area-only limits and thresholds that merely trigger approval for larger projects; retain independent capacity and count limits without comparing their raw numbers.",
-      "For minimum/maximum lot size: Extract solar lot, parcel, or tract area limits, not linear dimensions, coverage percentages, or capacity limits.",
+      "For minimum/maximum lot size: Apply step 5 to both ends of a binding lot, parcel, or tract area range, not linear dimensions, coverage percentages, or capacity limits.",
       "For panel spacing: Only extract explicit minimum spacing between individual solar panels. Do not infer spacing from setbacks, land density, or coverage, and do not classify it as separation between solar farms.",
       "For land density: Only extract explicit maximum solar capacity per unit land area, preserving the stated capacity/area units. Exclude inverse density (area per capacity), absolute capacity or area limits, and density inferred from setbacks.",
       "For coverage: Extract the maximum land coverage percentage or fraction as stated. Do not infer coverage from lot area, capacity, or land density.",
@@ -395,8 +395,7 @@
       "For prohibitions: Only extract enacted, currently effective, unconditional jurisdiction-wide solar bans or moratoria. If solar is allowed through an approval route, this is not a prohibition. Classify district-only bans under prohibited use districts."
     ],
     "district_specific": [
-      "For permitted use districts: Extract array of district names/codes. Consider overlay districts as primary use.",
-      "For special use districts: Include districts requiring board approval, special permits, or conditional use permits.",
+      "For primary and special use districts: Apply step 6 to the permission route for the selected class. Only an expressly authorizing solar overlay qualifies for the primary-use exception.",
       "For accessory use districts: Include districts where solar is only allowed as accessory/secondary to another use.",
       "For prohibited use districts: Only include districts with unconditional prohibitions currently in effect.",
       "Use the exact district names/codes as they appear in the ordinance text."
