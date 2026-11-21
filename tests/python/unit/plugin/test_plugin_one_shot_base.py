@@ -117,19 +117,10 @@ def test_schema_summary_and_evidence_survive_export(
             assert saved.loc[row["feature"], field] == row[field]
 
 
-@pytest.mark.parametrize(
-    "component, legacy_class",
-    [
-        ("TEXT_COLLECTORS", SolarOrdinanceTextCollector),
-        ("TEXT_EXTRACTORS", SolarOrdinanceTextExtractor),
-    ],
-)
-def test_solar_one_shot_prompts_match_legacy_solar(component, legacy_class):
-    """Keep authored one-shot prompts aligned with legacy solar wording"""
-    components = getattr(COMPASSSolarOneShotExtractor, component)
-    assert len(components) == 1
-    actual = components[0].PROMPTS
-    expected = legacy_class.PROMPTS
+def test_solar_one_shot_collection_prompts_match_legacy_solar():
+    """Keep the one-shot collection filter aligned with legacy solar"""
+    actual = COMPASSSolarOneShotExtractor.TEXT_COLLECTORS[0].PROMPTS
+    expected = SolarOrdinanceTextCollector.PROMPTS
     assert len(actual) == len(expected)
     for actual_prompt, expected_prompt in zip(actual, expected, strict=True):
         assert actual_prompt.keys() == expected_prompt.keys()
@@ -139,6 +130,20 @@ def test_solar_one_shot_prompts_match_legacy_solar(component, legacy_class):
             )
 
 
+def test_solar_one_shot_text_prompt_preserves_extraction_contract():
+    """Render the solar-specific prompt with the shared verbatim rules"""
+    (extractor,) = COMPASSSolarOneShotExtractor.TEXT_EXTRACTORS
+    (prompt,) = extractor.PROMPTS
+    (legacy,) = SolarOrdinanceTextExtractor.PROMPTS
+    (parser,) = COMPASSSolarOneShotExtractor.PARSERS
+    ((key, extract),) = extractor(None).parsers
+    assert key == legacy["key"] == parser.IN_LABEL
+    assert prompt["out_fn"] == legacy["out_fn"]
+    instructions = extract.keywords["instructions"]
+    assert extractor.FORMATTING_PROMPT in instructions
+    assert extractor.OUTPUT_PROMPT in instructions
+
+
 def test_solar_one_shot_retains_legacy_features_and_evidenced_examples():
     """Cover all solar features without introducing placeholder examples"""
     schema = COMPASSSolarOneShotExtractor.SCHEMA
@@ -146,6 +151,7 @@ def test_solar_one_shot_retains_legacy_features_and_evidenced_examples():
     features = items["properties"]["feature"]["enum"]
     expected = set(EXTRA_NUMERICAL_RESTRICTIONS)
     expected.update(EXTRA_QUALITATIVE_RESTRICTIONS)
+    expected.update({"agrivoltaics", "site management"})
     expected.update(
         entry["feature_id"]
         for entry in StructuredSolarPermittedUseDistrictsParser._USE_TYPES
@@ -160,7 +166,9 @@ def test_solar_one_shot_retains_legacy_features_and_evidenced_examples():
         else:
             expected.add(feature)
 
-    assert len(features) == len(set(features)) == 31
+    (parser,) = COMPASSSolarOneShotExtractor.PARSERS
+    assert {"agrivoltaics", "site management"} <= parser.QUALITATIVE_FEATURES
+    assert len(features) == len(set(features)) == 33
     assert set(features) == expected
     definitions = {
         feature: definition
