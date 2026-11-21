@@ -1,0 +1,38 @@
+compass.pipeline.runtime.PipelineRuntime
+========================================
+
+.. currentmodule:: compass.pipeline.runtime
+
+.. autoclass:: PipelineRuntime
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PipelineRuntime.browser_semaphore
+      ~PipelineRuntime.crawl_semaphore
+      ~PipelineRuntime.dirs
+      ~PipelineRuntime.extractor_class
+      ~PipelineRuntime.file_loader_kwargs
+      ~PipelineRuntime.file_loader_kwargs_no_ocr
+      ~PipelineRuntime.jurisdiction_semaphore
+      ~PipelineRuntime.local_file_loader_kwargs
+      ~PipelineRuntime.search_engine_semaphore
+      ~PipelineRuntime.tpe_kwargs
+   
+   

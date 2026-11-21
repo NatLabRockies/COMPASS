@@ -1,0 +1,6 @@
+compass.pipeline.search.persistence.write\_search\_manifest\_shard
+==================================================================
+
+.. currentmodule:: compass.pipeline.search.persistence
+
+.. autofunction:: write_search_manifest_shard

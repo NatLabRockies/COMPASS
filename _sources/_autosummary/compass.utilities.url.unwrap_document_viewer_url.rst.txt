@@ -1,0 +1,6 @@
+compass.utilities.url.unwrap\_document\_viewer\_url
+===================================================
+
+.. currentmodule:: compass.utilities.url
+
+.. autofunction:: unwrap_document_viewer_url

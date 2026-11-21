@@ -1,0 +1,35 @@
+compass.llm.calling
+===================
+
+.. automodule:: compass.llm.calling
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      BaseLLMCaller
+      ChatLLMCaller
+      JSONFromTextLLMCaller
+      LLMCaller
+      SchemaOutputLLMCaller
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+compass.pipeline.search.persistence.load\_search\_shards
+========================================================
+
+.. currentmodule:: compass.pipeline.search.persistence
+
+.. autofunction:: load_search_shards

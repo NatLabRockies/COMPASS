@@ -1,0 +1,31 @@
+compass.pipeline.data\_classes.BaseRequest
+==========================================
+
+.. currentmodule:: compass.pipeline.data_classes
+
+.. autoclass:: BaseRequest
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseRequest.MODE
+      ~BaseRequest.models
+      ~BaseRequest.rate_tracker
+   
+   

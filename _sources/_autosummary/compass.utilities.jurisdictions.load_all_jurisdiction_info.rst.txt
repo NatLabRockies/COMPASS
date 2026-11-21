@@ -1,0 +1,6 @@
+compass.utilities.jurisdictions.load\_all\_jurisdiction\_info
+=============================================================
+
+.. currentmodule:: compass.utilities.jurisdictions
+
+.. autofunction:: load_all_jurisdiction_info

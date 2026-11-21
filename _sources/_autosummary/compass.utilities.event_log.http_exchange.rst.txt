@@ -1,0 +1,6 @@
+compass.utilities.event\_log.http\_exchange
+===========================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: http_exchange

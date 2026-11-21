@@ -1,0 +1,6 @@
+compass.utilities.workflow.NODE\_KINDS
+======================================
+
+.. currentmodule:: compass.utilities.workflow
+
+.. autodata:: NODE_KINDS

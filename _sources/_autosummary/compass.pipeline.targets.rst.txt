@@ -1,0 +1,33 @@
+compass.pipeline.targets
+========================
+
+.. automodule:: compass.pipeline.targets
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      evaluate_targets
+      normalize_targets
+      parse_target_options
+      shard_failures
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

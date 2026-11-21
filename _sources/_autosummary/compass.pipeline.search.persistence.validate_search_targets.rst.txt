@@ -1,0 +1,6 @@
+compass.pipeline.search.persistence.validate\_search\_targets
+=============================================================
+
+.. currentmodule:: compass.pipeline.search.persistence
+
+.. autofunction:: validate_search_targets

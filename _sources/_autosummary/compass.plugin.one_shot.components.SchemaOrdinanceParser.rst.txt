@@ -1,0 +1,38 @@
+compass.plugin.one\_shot.components.SchemaOrdinanceParser
+=========================================================
+
+.. currentmodule:: compass.plugin.one_shot.components
+
+.. autoclass:: SchemaOrdinanceParser
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SchemaOrdinanceParser.call
+      ~SchemaOrdinanceParser.parse
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SchemaOrdinanceParser.DATA_TYPE_SHORT_DESC
+      ~SchemaOrdinanceParser.IN_LABEL
+      ~SchemaOrdinanceParser.OUT_LABEL
+      ~SchemaOrdinanceParser.POSSIBLE_OUT_COLS
+      ~SchemaOrdinanceParser.QUALITATIVE_FEATURES
+      ~SchemaOrdinanceParser.SCHEMA
+      ~SchemaOrdinanceParser.SYSTEM_PROMPT
+      ~SchemaOrdinanceParser.TASK_ID
+   
+   

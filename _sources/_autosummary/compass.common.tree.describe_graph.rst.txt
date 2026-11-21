@@ -1,0 +1,6 @@
+compass.common.tree.describe\_graph
+===================================
+
+.. currentmodule:: compass.common.tree
+
+.. autofunction:: describe_graph

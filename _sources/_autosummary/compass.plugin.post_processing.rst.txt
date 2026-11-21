@@ -1,0 +1,37 @@
+compass.plugin.post\_processing
+===============================
+
+.. automodule:: compass.plugin.post_processing
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      POST_PROCESSING_REGISTRY
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      add_document_name
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

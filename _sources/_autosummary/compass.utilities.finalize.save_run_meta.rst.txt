@@ -1,0 +1,6 @@
+compass.utilities.finalize.save\_run\_meta
+==========================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autofunction:: save_run_meta

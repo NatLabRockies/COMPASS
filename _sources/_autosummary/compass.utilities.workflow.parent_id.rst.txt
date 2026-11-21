@@ -1,0 +1,6 @@
+compass.utilities.workflow.parent\_id
+=====================================
+
+.. currentmodule:: compass.utilities.workflow
+
+.. autofunction:: parent_id

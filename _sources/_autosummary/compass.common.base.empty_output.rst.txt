@@ -1,0 +1,6 @@
+compass.common.base.empty\_output
+=================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: empty_output

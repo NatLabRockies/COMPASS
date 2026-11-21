@@ -1,0 +1,36 @@
+compass.services.threaded.ParsedFileWriter
+==========================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autoclass:: ParsedFileWriter
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ParsedFileWriter.acquire_resources
+      ~ParsedFileWriter.call
+      ~ParsedFileWriter.process
+      ~ParsedFileWriter.process_using_futures
+      ~ParsedFileWriter.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ParsedFileWriter.MAX_CONCURRENT_JOBS
+      ~ParsedFileWriter.can_process
+      ~ParsedFileWriter.name
+   
+   

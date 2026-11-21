@@ -1,0 +1,24 @@
+compass.validation.location.JurisdictionValidator
+=================================================
+
+.. currentmodule:: compass.validation.location
+
+.. autoclass:: JurisdictionValidator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~JurisdictionValidator.check
+   
+   
+
+   
+   
+   

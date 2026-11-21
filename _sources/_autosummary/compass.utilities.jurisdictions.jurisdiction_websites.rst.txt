@@ -1,0 +1,6 @@
+compass.utilities.jurisdictions.jurisdiction\_websites
+======================================================
+
+.. currentmodule:: compass.utilities.jurisdictions
+
+.. autofunction:: jurisdiction_websites

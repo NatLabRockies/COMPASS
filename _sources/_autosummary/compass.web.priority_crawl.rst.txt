@@ -1,0 +1,31 @@
+compass.web.priority\_crawl
+===========================
+
+.. automodule:: compass.web.priority_crawl
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      PriorityCrawler
+   
+   
+
+   
+   
+   
+
+
+

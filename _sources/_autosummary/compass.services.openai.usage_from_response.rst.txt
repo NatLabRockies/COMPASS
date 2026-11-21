@@ -1,0 +1,6 @@
+compass.services.openai.usage\_from\_response
+=============================================
+
+.. currentmodule:: compass.services.openai
+
+.. autofunction:: usage_from_response

@@ -1,0 +1,38 @@
+compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor
+==============================================================
+
+.. currentmodule:: compass.extraction.solar.ordinance
+
+.. autoclass:: SolarOrdinanceTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SolarOrdinanceTextExtractor.call
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SolarOrdinanceTextExtractor.FORMATTING_PROMPT
+      ~SolarOrdinanceTextExtractor.IN_LABEL
+      ~SolarOrdinanceTextExtractor.OUTPUT_PROMPT
+      ~SolarOrdinanceTextExtractor.OUT_LABEL
+      ~SolarOrdinanceTextExtractor.PROMPTS
+      ~SolarOrdinanceTextExtractor.SYSTEM_MESSAGE
+      ~SolarOrdinanceTextExtractor.TASK_DESCRIPTION
+      ~SolarOrdinanceTextExtractor.TASK_ID
+      ~SolarOrdinanceTextExtractor.parsers
+   
+   

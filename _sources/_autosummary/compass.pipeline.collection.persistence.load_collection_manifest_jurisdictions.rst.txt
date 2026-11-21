@@ -1,0 +1,6 @@
+compass.pipeline.collection.persistence.load\_collection\_manifest\_jurisdictions
+=================================================================================
+
+.. currentmodule:: compass.pipeline.collection.persistence
+
+.. autofunction:: load_collection_manifest_jurisdictions

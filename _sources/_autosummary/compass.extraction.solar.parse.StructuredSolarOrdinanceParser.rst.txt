@@ -1,0 +1,32 @@
+compass.extraction.solar.parse.StructuredSolarOrdinanceParser
+=============================================================
+
+.. currentmodule:: compass.extraction.solar.parse
+
+.. autoclass:: StructuredSolarOrdinanceParser
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StructuredSolarOrdinanceParser.parse
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StructuredSolarOrdinanceParser.IN_LABEL
+      ~StructuredSolarOrdinanceParser.OUT_LABEL
+      ~StructuredSolarOrdinanceParser.TASK_ID
+   
+   

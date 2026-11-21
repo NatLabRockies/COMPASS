@@ -1,0 +1,34 @@
+compass.utilities.event\_log.EventLog
+=====================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autoclass:: EventLog
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~EventLog.emit
+      ~EventLog.graph_id
+      ~EventLog.next_call_id
+      ~EventLog.next_id
+      ~EventLog.schema_id
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~EventLog.is_new
+   
+   

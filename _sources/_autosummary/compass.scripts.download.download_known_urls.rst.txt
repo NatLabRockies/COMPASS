@@ -1,0 +1,6 @@
+compass.scripts.download.download\_known\_urls
+==============================================
+
+.. currentmodule:: compass.scripts.download
+
+.. autofunction:: download_known_urls

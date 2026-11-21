@@ -1,0 +1,23 @@
+compass.pipeline.data\_classes.JurisdictionResult
+=================================================
+
+.. currentmodule:: compass.pipeline.data_classes
+
+.. autoclass:: JurisdictionResult
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   

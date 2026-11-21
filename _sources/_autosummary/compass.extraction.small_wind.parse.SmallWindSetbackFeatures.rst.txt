@@ -1,0 +1,31 @@
+compass.extraction.small\_wind.parse.SmallWindSetbackFeatures
+=============================================================
+
+.. currentmodule:: compass.extraction.small_wind.parse
+
+.. autoclass:: SmallWindSetbackFeatures
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SmallWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS
+      ~SmallWindSetbackFeatures.FEATURES_AS_IGNORE
+      ~SmallWindSetbackFeatures.FEATURE_CLARIFICATIONS
+   
+   

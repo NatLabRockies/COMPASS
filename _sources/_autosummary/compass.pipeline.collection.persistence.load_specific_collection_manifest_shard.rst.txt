@@ -1,0 +1,6 @@
+compass.pipeline.collection.persistence.load\_specific\_collection\_manifest\_shard
+===================================================================================
+
+.. currentmodule:: compass.pipeline.collection.persistence
+
+.. autofunction:: load_specific_collection_manifest_shard

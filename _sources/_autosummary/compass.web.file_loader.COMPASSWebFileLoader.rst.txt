@@ -1,0 +1,25 @@
+compass.web.file\_loader.COMPASSWebFileLoader
+=============================================
+
+.. currentmodule:: compass.web.file_loader
+
+.. autoclass:: COMPASSWebFileLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSWebFileLoader.fetch
+      ~COMPASSWebFileLoader.fetch_all
+   
+   
+
+   
+   
+   

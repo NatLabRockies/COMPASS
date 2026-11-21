@@ -1,0 +1,30 @@
+compass.pipeline.collection.steps.CompassWebsiteCrawlStep
+=========================================================
+
+.. currentmodule:: compass.pipeline.collection.steps
+
+.. autoclass:: CompassWebsiteCrawlStep
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CompassWebsiteCrawlStep.collect
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CompassWebsiteCrawlStep.STEP_NAME
+   
+   

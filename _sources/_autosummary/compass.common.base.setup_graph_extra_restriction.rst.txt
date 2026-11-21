@@ -1,0 +1,6 @@
+compass.common.base.setup\_graph\_extra\_restriction
+====================================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: setup_graph_extra_restriction

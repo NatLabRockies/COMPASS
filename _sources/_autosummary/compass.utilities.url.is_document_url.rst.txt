@@ -1,0 +1,6 @@
+compass.utilities.url.is\_document\_url
+=======================================
+
+.. currentmodule:: compass.utilities.url
+
+.. autofunction:: is_document_url

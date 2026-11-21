@@ -1,0 +1,31 @@
+compass.pipeline.data\_classes.CollectionRequest
+================================================
+
+.. currentmodule:: compass.pipeline.data_classes
+
+.. autoclass:: CollectionRequest
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~CollectionRequest.MODE
+      ~CollectionRequest.models
+      ~CollectionRequest.rate_tracker
+   
+   

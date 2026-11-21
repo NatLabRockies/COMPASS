@@ -1,0 +1,25 @@
+compass.web.file\_loader.AsyncDoclingWebFileLoader
+==================================================
+
+.. currentmodule:: compass.web.file_loader
+
+.. autoclass:: AsyncDoclingWebFileLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AsyncDoclingWebFileLoader.fetch
+      ~AsyncDoclingWebFileLoader.fetch_all
+   
+   
+
+   
+   
+   

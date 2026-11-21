@@ -1,0 +1,53 @@
+compass.utilities.event\_log
+============================
+
+.. automodule:: compass.utilities.event_log
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      body_preview
+      current_event_log
+      document_summary
+      emit_branch
+      emit_event
+      error_details
+      event_step
+      event_tags
+      http_exchange
+      loggable_headers
+      record_document_fetch
+      record_http_error
+      record_http_response
+      response_metadata
+      use_event_log
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      EventLog
+      ResponseRecorder
+   
+   
+
+   
+   
+   
+
+
+

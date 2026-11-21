@@ -1,0 +1,6 @@
+compass.utilities.event\_log.error\_details
+===========================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: error_details

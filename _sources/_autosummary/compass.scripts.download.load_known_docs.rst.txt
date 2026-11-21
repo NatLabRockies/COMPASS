@@ -1,0 +1,6 @@
+compass.scripts.download.load\_known\_docs
+==========================================
+
+.. currentmodule:: compass.scripts.download
+
+.. autofunction:: load_known_docs

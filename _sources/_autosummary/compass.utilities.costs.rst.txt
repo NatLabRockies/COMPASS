@@ -1,0 +1,41 @@
+compass.utilities.costs
+=======================
+
+.. automodule:: compass.utilities.costs
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      LLM_COST_REGISTRY
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      compute_cost_from_totals
+      compute_total_cost_and_token_from_totals
+      compute_total_cost_from_usage
+      compute_total_tokens_from_totals
+      cost_for_model
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

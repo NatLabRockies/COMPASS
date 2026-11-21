@@ -1,0 +1,38 @@
+compass.plugin.ordinance.PromptBasedTextExtractor
+=================================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: PromptBasedTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PromptBasedTextExtractor.call
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PromptBasedTextExtractor.FORMATTING_PROMPT
+      ~PromptBasedTextExtractor.IN_LABEL
+      ~PromptBasedTextExtractor.OUTPUT_PROMPT
+      ~PromptBasedTextExtractor.OUT_LABEL
+      ~PromptBasedTextExtractor.PROMPTS
+      ~PromptBasedTextExtractor.SYSTEM_MESSAGE
+      ~PromptBasedTextExtractor.TASK_DESCRIPTION
+      ~PromptBasedTextExtractor.TASK_ID
+      ~PromptBasedTextExtractor.parsers
+   
+   
