@@ -52,6 +52,8 @@
               "signage",
               "screening",
               "soil",
+              "site management",
+              "agrivoltaics",
               "primary use districts",
               "special use districts",
               "accessory use districts",
@@ -112,7 +114,9 @@
       "Apply requirements for the selected class and any general provisions explicitly covering it. Preserve class thresholds and applicability in summaries where needed; do not mix smaller-class limits into selected-class rows. An enacted ban on the in-scope class remains extractable even if no installations are allowed."
     ],
     "2_feature_evidence_gate": [
-      "For each feature independently, find an explicit enacted requirement. Headings, definitions, intent statements, references, and nearby requirements alone are insufficient.",
+      "For 'agrivoltaics' only, any explicit mention of a term listed in its feature definition in enacted, in-scope ordinance text is sufficient. No obligation is needed. Report what the text says without inferring a requirement.",
+      "For other features independently, find an explicit enacted requirement. A provision in a definitions section counts if it imposes the requirement; a label or descriptive class boundary such as a heading, intent statement, reference, nearby requirement, etc. alone does not.",
+      "Extract only setbacks that apply to solar collectors (panels). Treat a general solar facility setback as applying to the panels when no component is specified; never infer a panel setback from a rule limited to power inverters or other non-panel equipment.",
       "A clause naming several receptors with a shared setback supports each explicitly named receptor, but never cross-apply an unmentioned receptor. Distinguish buildings from parcel boundaries and wetlands from conservation lands.",
       "For roads, verify that the provision actually concerns a road or road right-of-way and is not merely a property-line setback. Keep centerline versus right-of-way measurement origins in summary.",
       "If no requirement is found, check whether the text directly states that this particular feature is not regulated. Only an explicit, verified nonregulation statement for an extra restriction may produce value='ENR', units=null, with nonempty summary, ordinance_text, and explanation. Silence is never ENR. Otherwise omit the feature."
@@ -239,7 +243,13 @@
           "description": "Required solar vegetative buffers or other visual screening. VALUE: null; retain buffer widths, planting specifications, maintenance, and exceptions in summary. UNITS: null. IGNORE: generic setbacks, fencing with no screening purpose, and glare rules not requiring screening."
         },
         "soil": {
-          "description": "Explicit solar soil protection, erosion, sediment control, or associated stabilization obligations. VALUE: null; retain applicable plans, standards, and restoration details in summary. UNITS: null. IGNORE: unrelated environmental rules and water setbacks without a soil/erosion/sediment obligation."
+          "description": "Explicit soil protection, erosion, sediment control, or associated stabilization obligations during solar panel installation or operation. VALUE: null; retain applicable plans and standards in summary. UNITS: null. IGNORE: obligations that apply only during decommissioning or post-removal restoration, unrelated environmental rules, and water setbacks without a soil/erosion/sediment obligation."
+        },
+        "site management": {
+          "description": "Requirements for managing the land at a solar facility during construction or operation. Include required vegetation management plans and their contents, vegetation preservation, establishing or maintaining groundcover, limits on impervious surfaces, grading and use of existing contours, and other practices required to manage the site or minimize disturbance. VALUE: null; summarize the required actions, application materials, thresholds, conditions, and exceptions in one row. UNITS: null, even when a standard includes a number. IGNORE: headings, goals, or generic site-plan approvals without a specific land management requirement. Visual screening, erosion control, or a solar lot-coverage cap alone does not establish this feature; retain those features separately when their own criteria are met."
+        },
+        "agrivoltaics": {
+          "description": "Any explicit mention of agrivoltaics, ecovoltaics, or conservation solar, including singular and adjectival forms such as 'Agrivoltaic System' and 'ecovoltaic systems'. Definitions, classifications, and passing references count. VALUE: null; in one summary, name the terms actually used and quote what the ordinance says about them, preserving any conditions or exclusions. UNITS: null. IGNORE: agriculture, grazing, pollinator habitat, apiaries, soil protection, or conservation lands alone when none of the target terms is used."
         }
       }
     },
@@ -316,7 +326,36 @@
       "outputs": [
         {"feature": "primary use districts", "value": ["Solar Overlay District"], "units": null, "section": "Section 12", "summary": "\"Utility-scale solar farms are allowed in the Solar Overlay District subject to site-plan approval.\"", "ordinance_text": "Utility-scale solar farms are allowed in the Solar Overlay District subject to site-plan approval.", "explanation": "The Solar Overlay District expressly allows utility-scale solar farms, supporting classification as a primary use district while retaining the explicit site-plan approval condition."}
       ]
-    }
+    },
+    {
+      "source_text": "Section 13. Commercial solar farms are allowed as a principal use in Rural Production only by special permit. Within the Heritage District a design certificate is required before applying for that permit.",
+      "outputs": [
+        {"feature": "special use districts", "value": ["Rural Production"], "units": null, "section": "Section 13", "summary": "\"Commercial solar farms are allowed as a principal use in Rural Production only by special permit.\"", "ordinance_text": "Commercial solar farms are allowed as a principal use in Rural Production only by special permit. Within the Heritage District a design certificate is required before applying for that permit.", "explanation": "Principal describes the land use, but it is not allowed by right. The design certificate does not grant solar use in a second district."}
+      ]
+    },
+    {
+      "source_text": "Section 15. A tract hosting a utility-scale array must exceed 8 hectares but may not exceed 32 hectares.",
+      "outputs": [
+        {"feature": "minimum lot size", "value": 8, "units": "hectares", "section": "Section 15", "summary": "For a utility-scale array the tract must be strictly greater than 8 hectares.", "ordinance_text": "A tract hosting a utility-scale array must exceed 8 hectares but may not exceed 32 hectares.", "explanation": "The lower endpoint is exclusive; a tract of exactly 8 hectares does not qualify."},
+        {"feature": "maximum lot size", "value": 32, "units": "hectares", "section": "Section 15", "summary": "For a utility-scale array the tract may be at most 32 hectares, inclusive.", "ordinance_text": "A tract hosting a utility-scale array must exceed 8 hectares but may not exceed 32 hectares.", "explanation": "The same clause sets an independent upper bound on the tract, not on array capacity or land coverage."}
+      ]
+    },
+    {
+      "source_text": "Section 16. Applications for commercial solar facilities on parcels over 12 acres require additional review.",
+      "outputs": []
+    },
+    {
+      "source_text": "Section 17. Commercial ground-mounted solar collectors include agrivoltaic systems. An agrivoltaic system combines solar generation and agriculture within the array.",
+      "outputs": [
+        {"feature": "agrivoltaics", "value": null, "units": null, "section": "Section 17", "summary": "Agrivoltaic systems are classified as commercial ground-mounted collectors and combine \"solar generation and agriculture within the array.\"", "ordinance_text": "Commercial ground-mounted solar collectors include agrivoltaic systems. An agrivoltaic system combines solar generation and agriculture within the array.", "explanation": "The collector classification and definition explicitly name agrivoltaic systems; neither requires a project to use them."}
+      ]
+    },
+    {
+      "source_text": "Section 3.2.5. Utility-scale solar applications shall include a vegetation management plan for maintaining groundcover beneath the panels. The layout shall follow existing contours to the extent practical, but grading is permitted for transformer pads, access roads, and grid connections.",
+      "outputs": [
+        {"feature": "site management", "value": null, "units": null, "section": "Section 3.2.5", "summary": "Applications must include a plan for \"maintaining groundcover beneath the panels.\" The layout must follow existing contours \"to the extent practical,\" with grading permitted for transformer pads, access roads, and grid connections.", "ordinance_text": "Utility-scale solar applications shall include a vegetation management plan for maintaining groundcover beneath the panels. The layout shall follow existing contours to the extent practical, but grading is permitted for transformer pads, access roads, and grid connections.", "explanation": "The plan and grading provisions govern how the land is managed; the listed exceptions qualify the grading restriction."}
+      ]
+    },
   ],
   "$instructions": {
     "general": [
@@ -382,6 +421,8 @@
     "fencing",
     "signage",
     "screening",
-    "soil"
+    "soil",
+    "site management",
+    "agrivoltaics"
   ]
 }
