@@ -288,7 +288,7 @@
       "Every row must include an ordinance_text holding the complete relevant excerpt for the ordinance being extracted, copy-pasted verbatim from the source document. Its first sentence must be the start of the ordinance text for this extraction, reproduced in full; after that first sentence an ellipsis ('...') may be used to drop irrelevant passages. ordinance_text is never paraphrased or normalized — every character outside the ellipses appears exactly as written in the source.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
-      "For features where no requirement exists, set value, units, and summary to null (omit the feature from the array entirely, or include it with null values).",
+      "If the ordinance states no explicit requirement for a feature, omit that feature from the outputs array.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
       "Tables, table footnotes, and labeled graphics count as valid ordinance evidence when they state the controlling requirement; preserve the relevant table cell or footnote context in summary.",
       "If ordinance text shows an amended or superseding requirement, extract the current operative requirement as written rather than a superseded historical value unless the ordinance text clearly keeps both rules active.",
