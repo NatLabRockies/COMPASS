@@ -258,16 +258,16 @@
       "description": "Apply step 6. Use arrays of exact district names/codes, not inferred district types. Omit unsupported use types instead of returning null or empty district lists.",
       "properties": {
         "primary use districts": {
-          "description": "Districts expressly allowing the selected solar class as a primary use by right, plus solar overlays that expressly authorize it under step 6. VALUE: array of supported district names/codes. UNITS: null. IGNORE: the word 'principal' alone, accessory-only or conditional-only base districts, and overlays that only impose extra review."
+          "description": "Districts expressly allowing the selected solar class as a primary use or similar (e.g., permitted by right, without special conditions or approval beyond standard permitting), plus solar overlays that expressly authorize it under step 6. VALUE: array of supported district names/codes. UNITS: null. IGNORE: the word 'principal' alone, accessory-only or conditional-only base districts, and overlays that only impose extra review."
         },
         "special use districts": {
-          "description": "Districts expressly allowing the selected solar class through a special, conditional, or comparable discretionary land-use approval. VALUE: array of supported district names/codes; retain the permit type in summary. UNITS: null. IGNORE: ancillary reviews that do not grant land-use permission, solar overlays classified as primary, by-right permissions, and permits for small systems only."
+          "description": "Districts expressly allowing the selected solar class as special use or similar (e.g., requires approval by zoning appeals board, planning commission, special use permit, conditional use permit, or meeting certain conditions like completing a specific permitting process). VALUE: array of supported district names/codes; retain the permit type in summary. UNITS: null. IGNORE: ancillary reviews that do not grant land-use permission, solar overlays classified as primary, by-right permissions, and permits for small systems only."
         },
         "accessory use districts": {
-          "description": "Districts expressly allowing the selected utility-scale solar class as secondary/accessory to another land use. VALUE: array of supported district names/codes. UNITS: null. IGNORE: residential/rooftop-only accessory systems, primary use permissions, and solar overlays classified as primary."
+          "description": "Districts expressly allowing the selected utility-scale solar class as secondary/accessory use or similar (e.g., when integrated with an existing structure, secondary to another primary use, or as an accessory to a principal use). VALUE: array of supported district names/codes. UNITS: null. IGNORE: residential/rooftop-only accessory systems, primary use permissions, and solar overlays classified as primary."
         },
         "prohibited use districts": {
-          "description": "Districts expressly and unconditionally prohibiting the selected solar class. VALUE: array of supported district names/codes. UNITS: null. IGNORE: districts with any applicable special/conditional approval route, proposals/expired bans, and mere absence from permitted-use tables."
+          "description": "Districts **expressly and unconditionally** prohibiting the selected solar class. VALUE: array of supported district names/codes. UNITS: null. IGNORE: districts with any applicable special/conditional approval route, proposals/expired bans, and mere absence from permitted-use tables unless that absence is explicitly stated as a prohibition."
         }
       }
     }
