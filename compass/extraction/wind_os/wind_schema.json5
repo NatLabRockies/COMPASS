@@ -135,7 +135,7 @@
           "description": "Setback requirements from lakes, reservoirs, streams, rivers, or wetlands. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, roads, railroads, transmission lines, or public conservation lands. CLARIFICATION: Public conservation lands (or similar) **are not equivalent** to wetlands (or similar) unless the text **explicitly** makes that connection. Only focus on large-scale systems."
         },
         "public conservation lands": {
-          "description": "Setback requirements from public conservation lands, natural resource protection areas, or preservation areas. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, roads, railroads, transmission lines, or wetlands. CLARIFICATION: Wetlands **are not equivalent** to public conservation lands unless the text **explicitly** makes that connection. Only focus on large-scale systems."
+          "description": "Setback requirements from public conservation lands, natural resource protection areas, or preservation areas. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, roads, railroads, transmission lines, or wetlands. CLARIFICATION: Wetlands, public parks, public places, other public land **are not equivalent** to public conservation lands unless the text **explicitly** makes that connection. Only focus on large-scale systems."
         }
       }
     },
