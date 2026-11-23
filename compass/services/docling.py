@@ -137,7 +137,10 @@ def _read_docling_catch_error(
             pdf_pipeline_options=pdf_pipeline_options,
             **kwargs,
         )
-    except Exception:  # ruff:ignore[blind-except]
+    except Exception:
+        logger.exception(
+            "Error reading document with Docling for source: %s", file_source
+        )
         return MDDocument(pages=[], attrs={"doc_type": "unknown"})
 
 
