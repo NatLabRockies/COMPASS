@@ -1,0 +1,6 @@
+compass.pipeline.search.persistence.load\_search\_result\_jurisdictions
+=======================================================================
+
+.. currentmodule:: compass.pipeline.search.persistence
+
+.. autofunction:: load_search_result_jurisdictions

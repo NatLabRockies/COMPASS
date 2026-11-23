@@ -1,0 +1,24 @@
+compass.utilities.event\_log.ResponseRecorder
+=============================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autoclass:: ResponseRecorder
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ResponseRecorder.update_from_model
+   
+   
+
+   
+   
+   

@@ -1,0 +1,30 @@
+compass.pipeline.collection.steps.SearchEngineDocumentsStep
+===========================================================
+
+.. currentmodule:: compass.pipeline.collection.steps
+
+.. autoclass:: SearchEngineDocumentsStep
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SearchEngineDocumentsStep.collect
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SearchEngineDocumentsStep.STEP_NAME
+   
+   

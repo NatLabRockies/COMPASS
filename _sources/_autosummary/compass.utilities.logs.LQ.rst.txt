@@ -1,0 +1,29 @@
+compass.utilities.logs.LQ
+=========================
+
+.. currentmodule:: compass.utilities.logs
+
+.. autoclass:: LQ
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LQ.QUEUE
+   
+   

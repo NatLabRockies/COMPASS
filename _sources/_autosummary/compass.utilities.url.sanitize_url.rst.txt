@@ -1,0 +1,6 @@
+compass.utilities.url.sanitize\_url
+===================================
+
+.. currentmodule:: compass.utilities.url
+
+.. autofunction:: sanitize_url

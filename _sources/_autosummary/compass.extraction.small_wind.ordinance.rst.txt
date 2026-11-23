@@ -1,0 +1,35 @@
+compass.extraction.small\_wind.ordinance
+========================================
+
+.. automodule:: compass.extraction.small_wind.ordinance
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      SmallWindHeuristic
+      SmallWindOrdinanceTextCollector
+      SmallWindOrdinanceTextExtractor
+      SmallWindPermittedUseDistrictsTextCollector
+      SmallWindPermittedUseDistrictsTextExtractor
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+compass.utilities.parsing.is\_pdf\_doc
+======================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: is_pdf_doc

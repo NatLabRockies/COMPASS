@@ -1,0 +1,6 @@
+compass.utilities.jurisdictions.jurisdictions\_from\_df
+=======================================================
+
+.. currentmodule:: compass.utilities.jurisdictions
+
+.. autofunction:: jurisdictions_from_df

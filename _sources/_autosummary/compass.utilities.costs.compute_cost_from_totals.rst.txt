@@ -1,0 +1,6 @@
+compass.utilities.costs.compute\_cost\_from\_totals
+===================================================
+
+.. currentmodule:: compass.utilities.costs
+
+.. autofunction:: compute_cost_from_totals

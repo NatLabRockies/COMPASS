@@ -1,0 +1,34 @@
+compass.plugin.interface
+========================
+
+.. automodule:: compass.plugin.interface
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      BaseHeuristic
+      BaseTextCollector
+      FilteredExtractionPlugin
+      OutputColumn
+   
+   
+
+   
+   
+   
+
+
+

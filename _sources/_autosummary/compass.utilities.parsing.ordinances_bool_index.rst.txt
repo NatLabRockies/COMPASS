@@ -1,0 +1,6 @@
+compass.utilities.parsing.ordinances\_bool\_index
+=================================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: ordinances_bool_index

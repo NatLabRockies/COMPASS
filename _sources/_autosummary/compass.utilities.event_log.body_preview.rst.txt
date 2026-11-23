@@ -1,0 +1,6 @@
+compass.utilities.event\_log.body\_preview
+==========================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: body_preview

@@ -1,0 +1,33 @@
+compass.extraction.solar.ordinance.SolarOrdinanceTextCollector
+==============================================================
+
+.. currentmodule:: compass.extraction.solar.ordinance
+
+.. autoclass:: SolarOrdinanceTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SolarOrdinanceTextCollector.call
+      ~SolarOrdinanceTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SolarOrdinanceTextCollector.OUT_LABEL
+      ~SolarOrdinanceTextCollector.PROMPTS
+      ~SolarOrdinanceTextCollector.relevant_text
+   
+   

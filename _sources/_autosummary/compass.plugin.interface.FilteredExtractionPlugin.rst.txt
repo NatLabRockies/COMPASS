@@ -1,0 +1,46 @@
+compass.plugin.interface.FilteredExtractionPlugin
+=================================================
+
+.. currentmodule:: compass.plugin.interface
+
+.. autoclass:: FilteredExtractionPlugin
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FilteredExtractionPlugin.extract_relevant_text
+      ~FilteredExtractionPlugin.filter_docs
+      ~FilteredExtractionPlugin.get_heuristic
+      ~FilteredExtractionPlugin.get_query_templates
+      ~FilteredExtractionPlugin.get_website_keywords
+      ~FilteredExtractionPlugin.parse_docs_for_structured_data
+      ~FilteredExtractionPlugin.post_filter_docs_hook
+      ~FilteredExtractionPlugin.pre_filter_docs_hook
+      ~FilteredExtractionPlugin.record_usage
+      ~FilteredExtractionPlugin.save_structured_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FilteredExtractionPlugin.HEURISTIC
+      ~FilteredExtractionPlugin.IDENTIFIER
+      ~FilteredExtractionPlugin.JURISDICTION_DATA_FP
+      ~FilteredExtractionPlugin.OUTPUT_COLUMNS
+      ~FilteredExtractionPlugin.POST_PROCESSING_STEPS
+      ~FilteredExtractionPlugin.QUERY_TEMPLATES
+      ~FilteredExtractionPlugin.TEXT_COLLECTORS
+      ~FilteredExtractionPlugin.WEBSITE_KEYWORDS
+   
+   

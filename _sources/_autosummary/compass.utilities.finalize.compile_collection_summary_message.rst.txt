@@ -1,0 +1,6 @@
+compass.utilities.finalize.compile\_collection\_summary\_message
+================================================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autofunction:: compile_collection_summary_message

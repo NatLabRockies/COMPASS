@@ -1,0 +1,36 @@
+compass.services.threaded.OrdFileMover
+======================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autoclass:: OrdFileMover
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OrdFileMover.acquire_resources
+      ~OrdFileMover.call
+      ~OrdFileMover.process
+      ~OrdFileMover.process_using_futures
+      ~OrdFileMover.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OrdFileMover.MAX_CONCURRENT_JOBS
+      ~OrdFileMover.can_process
+      ~OrdFileMover.name
+   
+   

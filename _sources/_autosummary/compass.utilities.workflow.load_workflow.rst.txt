@@ -1,0 +1,6 @@
+compass.utilities.workflow.load\_workflow
+=========================================
+
+.. currentmodule:: compass.utilities.workflow
+
+.. autofunction:: load_workflow

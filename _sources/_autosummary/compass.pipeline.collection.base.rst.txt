@@ -1,0 +1,31 @@
+compass.pipeline.collection.base
+================================
+
+.. automodule:: compass.pipeline.collection.base
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      DocumentCollection
+   
+   
+
+   
+   
+   
+
+
+

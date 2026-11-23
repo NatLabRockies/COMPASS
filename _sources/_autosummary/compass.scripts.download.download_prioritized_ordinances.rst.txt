@@ -1,0 +1,6 @@
+compass.scripts.download.download\_prioritized\_ordinances
+==========================================================
+
+.. currentmodule:: compass.scripts.download
+
+.. autofunction:: download_prioritized_ordinances

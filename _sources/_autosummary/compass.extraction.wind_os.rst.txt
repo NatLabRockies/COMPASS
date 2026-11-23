@@ -1,0 +1,23 @@
+compass.extraction.wind\_os
+===========================
+
+.. automodule:: compass.extraction.wind_os
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

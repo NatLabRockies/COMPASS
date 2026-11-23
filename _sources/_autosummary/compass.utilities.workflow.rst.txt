@@ -1,0 +1,43 @@
+compass.utilities.workflow
+==========================
+
+.. automodule:: compass.utilities.workflow
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      WORKFLOW_FP
+      NODE_KINDS
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      load_workflow
+      node_edges
+      node_outcomes
+      parent_id
+      workflow_nodes
+      workflow_problems
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

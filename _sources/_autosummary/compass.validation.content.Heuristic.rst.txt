@@ -1,0 +1,33 @@
+compass.validation.content.Heuristic
+====================================
+
+.. currentmodule:: compass.validation.content
+
+.. autoclass:: Heuristic
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Heuristic.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Heuristic.GOOD_TECH_ACRONYMS
+      ~Heuristic.GOOD_TECH_KEYWORDS
+      ~Heuristic.GOOD_TECH_PHRASES
+      ~Heuristic.NOT_TECH_WORDS
+   
+   

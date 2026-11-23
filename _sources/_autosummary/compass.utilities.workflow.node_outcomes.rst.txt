@@ -1,0 +1,6 @@
+compass.utilities.workflow.node\_outcomes
+=========================================
+
+.. currentmodule:: compass.utilities.workflow
+
+.. autofunction:: node_outcomes

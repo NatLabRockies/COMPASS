@@ -1,0 +1,6 @@
+compass.exceptions.COMPASSNotInitializedError
+=============================================
+
+.. currentmodule:: compass.exceptions
+
+.. autoexception:: COMPASSNotInitializedError

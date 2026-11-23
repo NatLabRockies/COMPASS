@@ -1,0 +1,6 @@
+compass.pipeline.search.persistence.reset\_search\_manifest\_shards
+===================================================================
+
+.. currentmodule:: compass.pipeline.search.persistence
+
+.. autofunction:: reset_search_manifest_shards

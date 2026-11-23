@@ -1,0 +1,6 @@
+compass.web.search.record\_search\_attempt
+==========================================
+
+.. currentmodule:: compass.web.search
+
+.. autofunction:: record_search_attempt

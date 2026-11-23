@@ -1,0 +1,80 @@
+compass.plugin.ordinance.DocSelectionMethod
+===========================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: DocSelectionMethod
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DocSelectionMethod.encode
+      ~DocSelectionMethod.replace
+      ~DocSelectionMethod.split
+      ~DocSelectionMethod.rsplit
+      ~DocSelectionMethod.join
+      ~DocSelectionMethod.capitalize
+      ~DocSelectionMethod.casefold
+      ~DocSelectionMethod.title
+      ~DocSelectionMethod.center
+      ~DocSelectionMethod.count
+      ~DocSelectionMethod.expandtabs
+      ~DocSelectionMethod.find
+      ~DocSelectionMethod.partition
+      ~DocSelectionMethod.index
+      ~DocSelectionMethod.ljust
+      ~DocSelectionMethod.lower
+      ~DocSelectionMethod.lstrip
+      ~DocSelectionMethod.rfind
+      ~DocSelectionMethod.rindex
+      ~DocSelectionMethod.rjust
+      ~DocSelectionMethod.rstrip
+      ~DocSelectionMethod.rpartition
+      ~DocSelectionMethod.splitlines
+      ~DocSelectionMethod.strip
+      ~DocSelectionMethod.swapcase
+      ~DocSelectionMethod.translate
+      ~DocSelectionMethod.upper
+      ~DocSelectionMethod.startswith
+      ~DocSelectionMethod.endswith
+      ~DocSelectionMethod.removeprefix
+      ~DocSelectionMethod.removesuffix
+      ~DocSelectionMethod.isascii
+      ~DocSelectionMethod.islower
+      ~DocSelectionMethod.isupper
+      ~DocSelectionMethod.istitle
+      ~DocSelectionMethod.isspace
+      ~DocSelectionMethod.isdecimal
+      ~DocSelectionMethod.isdigit
+      ~DocSelectionMethod.isnumeric
+      ~DocSelectionMethod.isalpha
+      ~DocSelectionMethod.isalnum
+      ~DocSelectionMethod.isidentifier
+      ~DocSelectionMethod.isprintable
+      ~DocSelectionMethod.zfill
+      ~DocSelectionMethod.format
+      ~DocSelectionMethod.format_map
+      ~DocSelectionMethod.maketrans
+      ~DocSelectionMethod.normalize
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DocSelectionMethod.SINGLE_DOC
+      ~DocSelectionMethod.MULTI_DOC_CONTEXT
+      ~DocSelectionMethod.MULTI_DOC_ALL
+      ~DocSelectionMethod.MULTI_DOC_MIXED
+   
+   

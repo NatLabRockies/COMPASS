@@ -1,0 +1,6 @@
+compass.utilities.io.resolve\_all\_paths
+========================================
+
+.. currentmodule:: compass.utilities.io
+
+.. autofunction:: resolve_all_paths

@@ -1,0 +1,30 @@
+compass.pipeline.extraction
+===========================
+
+.. automodule:: compass.pipeline.extraction
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   base
+

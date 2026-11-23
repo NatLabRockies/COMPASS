@@ -1,0 +1,30 @@
+compass.pipeline.collection.base.DocumentCollection
+===================================================
+
+.. currentmodule:: compass.pipeline.collection.base
+
+.. autoclass:: DocumentCollection
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DocumentCollection.execute
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DocumentCollection.steps
+   
+   

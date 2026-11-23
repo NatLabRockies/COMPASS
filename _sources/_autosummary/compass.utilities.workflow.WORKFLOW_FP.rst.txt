@@ -1,0 +1,6 @@
+compass.utilities.workflow.WORKFLOW\_FP
+=======================================
+
+.. currentmodule:: compass.utilities.workflow
+
+.. autodata:: WORKFLOW_FP

@@ -1,0 +1,6 @@
+compass.plugin.one\_shot.generators.generate\_website\_keywords
+===============================================================
+
+.. currentmodule:: compass.plugin.one_shot.generators
+
+.. autofunction:: generate_website_keywords

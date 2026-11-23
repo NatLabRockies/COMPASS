@@ -1,0 +1,6 @@
+compass.utilities.event\_log.event\_step
+========================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: event_step

@@ -1,0 +1,6 @@
+compass.common.base.setup\_graph\_no\_nodes
+===========================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: setup_graph_no_nodes

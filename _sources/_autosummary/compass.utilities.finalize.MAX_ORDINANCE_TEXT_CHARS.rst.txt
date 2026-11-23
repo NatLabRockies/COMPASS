@@ -1,0 +1,6 @@
+compass.utilities.finalize.MAX\_ORDINANCE\_TEXT\_CHARS
+======================================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autodata:: MAX_ORDINANCE_TEXT_CHARS

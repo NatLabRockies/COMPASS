@@ -1,0 +1,6 @@
+compass.utilities.event\_log.emit\_event
+========================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: emit_event

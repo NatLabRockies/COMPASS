@@ -1,0 +1,36 @@
+compass.services.cpu.OCRPDFLoader
+=================================
+
+.. currentmodule:: compass.services.cpu
+
+.. autoclass:: OCRPDFLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OCRPDFLoader.acquire_resources
+      ~OCRPDFLoader.call
+      ~OCRPDFLoader.process
+      ~OCRPDFLoader.process_using_futures
+      ~OCRPDFLoader.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OCRPDFLoader.MAX_CONCURRENT_JOBS
+      ~OCRPDFLoader.can_process
+      ~OCRPDFLoader.name
+   
+   

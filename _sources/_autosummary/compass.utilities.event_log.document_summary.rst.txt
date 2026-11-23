@@ -1,0 +1,6 @@
+compass.utilities.event\_log.document\_summary
+==============================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: document_summary

@@ -1,0 +1,6 @@
+compass.utilities.event\_log.use\_event\_log
+============================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: use_event_log

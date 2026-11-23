@@ -1,0 +1,6 @@
+compass.utilities.event\_log.record\_http\_response
+===================================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: record_http_response

@@ -1,0 +1,6 @@
+compass.utilities.workflow.node\_edges
+======================================
+
+.. currentmodule:: compass.utilities.workflow
+
+.. autofunction:: node_edges

@@ -1,0 +1,23 @@
+compass.extraction.natural\_gas
+===============================
+
+.. automodule:: compass.extraction.natural_gas
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

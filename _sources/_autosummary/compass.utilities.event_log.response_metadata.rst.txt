@@ -1,0 +1,6 @@
+compass.utilities.event\_log.response\_metadata
+===============================================
+
+.. currentmodule:: compass.utilities.event_log
+
+.. autofunction:: response_metadata

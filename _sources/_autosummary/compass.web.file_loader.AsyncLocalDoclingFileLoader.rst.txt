@@ -1,0 +1,25 @@
+compass.web.file\_loader.AsyncLocalDoclingFileLoader
+====================================================
+
+.. currentmodule:: compass.web.file_loader
+
+.. autoclass:: AsyncLocalDoclingFileLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AsyncLocalDoclingFileLoader.fetch
+      ~AsyncLocalDoclingFileLoader.fetch_all
+   
+   
+
+   
+   
+   

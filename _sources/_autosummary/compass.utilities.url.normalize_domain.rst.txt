@@ -1,0 +1,6 @@
+compass.utilities.url.normalize\_domain
+=======================================
+
+.. currentmodule:: compass.utilities.url
+
+.. autofunction:: normalize_domain
