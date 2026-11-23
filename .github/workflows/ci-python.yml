@@ -47,7 +47,7 @@ jobs:
           args: "format --check"
           src: "./compass"
       - name: Check Python Code Complexity (Complexipy)
-        uses: rohaquinlop/complexipy-action@e2b05bcc06d899a24e2b6bb8b1354ac42800a95e # v7.0.1
+        uses: rohaquinlop/complexipy-action@da72864ca17b65629490daaaffd40d56ae103a57 # v9.0.0
         with:
           paths: "./compass"
           max_complexity_allowed: 10
