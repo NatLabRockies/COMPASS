@@ -25,7 +25,7 @@ class DateExtractor:
         "ordinance was enacted or amended or became effective. If no such "
         "date is available return null."
         "Return your answer in JSON format like this: "
-        '{"explanation": TEXT, "year": YY, "month": MM, "day": DD}'
+        '{"explanation": TEXT, "year": YYYY, "month": MM, "day": DD}'
         "Where explanation contains a short summary/explanation of "
         "the date information you found, including the exact text the "
         "date is based on."
