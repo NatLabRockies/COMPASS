@@ -16,6 +16,10 @@ from compass.utilities.enums import LLMUsageCategory
 
 logger = logging.getLogger(__name__)
 _JSON_INSTRUCTIONS = "Return your answer as a dictionary in JSON format"
+PLAIN_TEXT_INSTRUCTIONS = (
+    "Respond in plain text only. Do not use Markdown or any other "
+    "formatting: no bold, italics, headings, or lists."
+)
 
 
 class BaseLLMCaller:
@@ -234,8 +238,16 @@ class ChatLLMCaller(BaseLLMCaller):
                 - messages
 
             These arguments are provided by this caller object.
+
+        Notes
+        -----
+        :obj:`PLAIN_TEXT_INSTRUCTIONS` is appended to the system
+        message. Chat answers are read with checks such as
+        ``response.lower().startswith("yes")``, which a Markdown answer
+        like ``**Yes.**`` would fail.
         """
         super().__init__(llm_service, usage_tracker, **kwargs)
+        system_message = f"{system_message}\n\n{PLAIN_TEXT_INSTRUCTIONS}"
         self.messages = [{"role": "system", "content": system_message}]
         self._conversation_log = None
         self._conversation_id = None

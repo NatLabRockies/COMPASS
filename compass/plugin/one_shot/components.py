@@ -17,6 +17,20 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 logger = logging.getLogger(__name__)
 
+_JSON_SCHEMA_KEYWORDS = frozenset(
+    {
+        "$schema",
+        "$id",
+        "$ref",
+        "$defs",
+        "$anchor",
+        "$dynamicRef",
+        "$dynamicAnchor",
+        "$vocabulary",
+        "$comment",
+    }
+)
+"""All ``$`` keywords in JSON Schema 2020-12"""
 _DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT = """\
 You are a structured extraction scope validator. Given a text chunk, \
 determine whether the chunk is within the given extraction scope. \
@@ -136,6 +150,9 @@ _DATA_PARSER_ADDITIONAL_CONTEXT = """\
 - Today's date is {todays_date}. If you are extracting a moratorium or \
 temporary restriction that includes an explicit end date that has already \
 passed as of today, treat it as expired and omit that prohibition feature.\
+"""
+_DATA_PARSER_SCHEMA_CONTEXT = """\
+Here is the full schema with extra instructions and information: {schema}\
 """
 
 
@@ -463,6 +480,8 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         sys_prompt = (
             f"{self.SYSTEM_PROMPT}\n\n{_DATA_PARSER_ADDITIONAL_CONTEXT}"
         )
+        if "{schema}" not in sys_prompt:
+            sys_prompt = f"{sys_prompt}\n\n{_DATA_PARSER_SCHEMA_CONTEXT}"
         sys_prompt = sys_prompt.format(
             desc=desc,
             schema=self.SCHEMA,
@@ -503,7 +522,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
                 "json_schema": {
                     "name": "structured_data_extraction",
                     "strict": True,
-                    "schema": self.SCHEMA,
+                    "schema": _without_dollar_keys(self.SCHEMA),
                 },
             },
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
@@ -552,3 +571,19 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             if col.name in full_df.columns and col.name not in ignore_cols
         ]
         return full_df[["feature", *out_cols, "quantitative"]]
+
+
+def _without_dollar_keys(schema):
+    """Copy of `schema` without its top-level COMPASS ``$`` keys
+
+    Keys such as ``$instructions`` and ``$definitions`` are prose for
+    the model, not JSON Schema. Some providers drop them from
+    ``response_format`` (Gemini never sees them), so they reach the
+    model through the system prompt instead. Standard JSON Schema
+    keywords such as ``$defs`` are kept so ``$ref`` targets resolve.
+    """
+    return {
+        k: v
+        for k, v in schema.items()
+        if not k.startswith("$") or k in _JSON_SCHEMA_KEYWORDS
+    }

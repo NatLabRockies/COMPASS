@@ -9,6 +9,7 @@ import httpx
 import pytest
 
 from compass.llm.calling import (
+    PLAIN_TEXT_INSTRUCTIONS,
     ChatLLMCaller,
     LLMCaller,
     SchemaOutputLLMCaller,
@@ -286,7 +287,10 @@ async def test_chat_logs_only_the_newest_turn(tmp_path):
     assert requests[1]["history_messages"] == 3
     # the first turn is logged whole, so the system message is on record
     assert requests[0]["messages"] == [
-        {"role": "system", "content": "system"},
+        {
+            "role": "system",
+            "content": f"system\n\n{PLAIN_TEXT_INSTRUCTIONS}",
+        },
         {"role": "user", "content": "first question"},
     ]
     assert requests[0]["history_messages"] == 0

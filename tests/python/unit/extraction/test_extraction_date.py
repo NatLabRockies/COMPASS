@@ -188,5 +188,11 @@ async def test_parse_abstains_on_empty_response(monkeypatch):
     assert await extractor.parse(_doc()) == (None, None, None)
 
 
+def test_system_message_asks_for_four_digit_year():
+    """A two-digit example year makes models answer "16", which is dropped"""
+    assert '"year": YYYY' in DateExtractor.SYSTEM_MESSAGE
+    assert _parse_date({"year": 16}) == (None, None, None)
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])

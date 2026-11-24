@@ -163,6 +163,13 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                 - ``{jur_website_url}``: Official website URL, if
                     available.
 
+              The prompt may also include a ``{schema}`` placeholder
+              for the full schema. If it does not, the full schema is
+              appended to the end of the system prompt. Top-level
+              ``$``-prefixed schema keys (e.g. ``$instructions``) reach
+              the model only through the system prompt; they are
+              removed from the schema sent as ``response_format``.
+
             - `doc_selection_method`: String defining the multi-doc
               selection option. Specifically, if multiple documents pass
               the filter, this method determines how the documents are
