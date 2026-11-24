@@ -559,12 +559,33 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         return full_df[["feature", *out_cols, "quantitative"]]
 
 
+_JSON_SCHEMA_KEYWORDS = frozenset(
+    {
+        "$schema",
+        "$id",
+        "$ref",
+        "$defs",
+        "$anchor",
+        "$dynamicRef",
+        "$dynamicAnchor",
+        "$vocabulary",
+        "$comment",
+    }
+)
+"""Standard JSON Schema keywords that start with ``$``"""
+
+
 def _without_dollar_keys(schema):
-    """Copy of `schema` without its top-level ``$``-prefixed keys
+    """Copy of `schema` without its top-level COMPASS ``$`` keys
 
     Keys such as ``$instructions`` and ``$definitions`` are prose for
     the model, not JSON Schema. Some providers drop them from
     ``response_format`` (Gemini never sees them), so they reach the
-    model through the system prompt instead.
+    model through the system prompt instead. Standard JSON Schema
+    keywords such as ``$defs`` are kept so ``$ref`` targets resolve.
     """
-    return {k: v for k, v in schema.items() if not k.startswith("$")}
+    return {
+        k: v
+        for k, v in schema.items()
+        if not k.startswith("$") or k in _JSON_SCHEMA_KEYWORDS
+    }

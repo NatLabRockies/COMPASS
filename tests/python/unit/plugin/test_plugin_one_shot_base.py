@@ -35,7 +35,10 @@ from compass.plugin.one_shot.base import (
     create_schema_based_one_shot_extraction_plugin,
 )
 from compass.warn import COMPASSPluginConfigurationWarning
-from compass.plugin.one_shot.components import SchemaOrdinanceParser
+from compass.plugin.one_shot.components import (
+    SchemaOrdinanceParser,
+    _without_dollar_keys,
+)
 from compass.utilities.finalize import doc_infos_to_db, save_db
 from compass.utilities.jurisdictions import Jurisdiction
 
@@ -589,6 +592,24 @@ async def test_schema_parser_drops_dollar_keys_from_response_format():
         "properties": {"outputs": {"type": "array", "items": {}}},
     }
     assert "$instructions" in _DOLLAR_KEY_SCHEMA
+
+
+def test_dollar_key_filter_keeps_json_schema_keywords():
+    """$defs stays so a nested $ref still resolves; COMPASS notes go"""
+    schema = {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "$instructions": "Use the most restrictive value.",
+        "$defs": {"nullable_text": {"type": ["string", "null"]}},
+        "type": "object",
+        "properties": {"summary": {"$ref": "#/$defs/nullable_text"}},
+    }
+
+    sent = _without_dollar_keys(schema)
+
+    assert "$instructions" not in sent
+    assert sent["$schema"] == schema["$schema"]
+    target = sent["properties"]["summary"]["$ref"].removeprefix("#/$defs/")
+    assert target in sent["$defs"]
 
 
 if __name__ == "__main__":
