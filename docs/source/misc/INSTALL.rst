@@ -178,14 +178,14 @@ used to run COMPASS:
 
 .. code-block:: shell
 
-    python -m pip install "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3"
+    python -m pip install "docling-rs>=2.86.14,<3" "docling-core>=2.108.0,<3"
 
 
 For a Pixi development environment, use this command instead:
 
 .. code-block:: shell
 
-    pixi run -e pdev --locked uv pip install --python python "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3"
+    pixi run -e pdev --locked uv pip install --python python "docling-rs>=2.86.14,<3" "docling-core>=2.108.0,<3"
 
 Replace ``pdev`` with the environment you use to run COMPASS, and use that
 same environment when downloading models.
