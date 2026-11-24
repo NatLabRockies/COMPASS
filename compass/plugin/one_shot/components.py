@@ -17,6 +17,20 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 logger = logging.getLogger(__name__)
 
+_JSON_SCHEMA_KEYWORDS = frozenset(
+    {
+        "$schema",
+        "$id",
+        "$ref",
+        "$defs",
+        "$anchor",
+        "$dynamicRef",
+        "$dynamicAnchor",
+        "$vocabulary",
+        "$comment",
+    }
+)
+"""All ``$`` keywords in JSON Schema 2020-12"""
 _DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT = """\
 You are a structured extraction scope validator. Given a text chunk, \
 determine whether the chunk is within the given extraction scope. \
@@ -557,22 +571,6 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             if col.name in full_df.columns and col.name not in ignore_cols
         ]
         return full_df[["feature", *out_cols, "quantitative"]]
-
-
-_JSON_SCHEMA_KEYWORDS = frozenset(
-    {
-        "$schema",
-        "$id",
-        "$ref",
-        "$defs",
-        "$anchor",
-        "$dynamicRef",
-        "$dynamicAnchor",
-        "$vocabulary",
-        "$comment",
-    }
-)
-"""Standard JSON Schema keywords that start with ``$``"""
 
 
 def _without_dollar_keys(schema):
