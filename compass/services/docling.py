@@ -48,7 +48,7 @@ except ModuleNotFoundError as exc:
         "These dependencies are installed by default except on macOS. "
         "Use COMPASS_FILE_LOAD_BACKEND=elm when they are unavailable, "
         "or install them explicitly with "
-        'pip install "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3".'
+        'pip install "docling-rs>=2.86.14,<3" "docling-core>=2.108.0,<3".'
     )
     raise COMPASSImportError(msg) from exc
 
