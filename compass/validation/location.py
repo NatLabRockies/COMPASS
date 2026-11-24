@@ -7,7 +7,12 @@ particular location.
 import asyncio
 import logging
 
-from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
+from compass.llm.calling import (
+    PLAIN_TEXT_INSTRUCTIONS,
+    BaseLLMCaller,
+    ChatLLMCaller,
+    LLMCaller,
+)
 from compass.utilities.jurisdictions import jurisdiction_websites
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.validation.graphs import (
@@ -384,7 +389,7 @@ class JurisdictionWebsiteValidator:
         "the main jurisdiction website (i.e. such as school district "
         "websites, courthouse or court system websites, library websites, "
         "or other department and agency websites are **not** the main "
-        "website)."
+        f"website). {PLAIN_TEXT_INSTRUCTIONS}"
     )
     """System message for main jurisdiction website validation calls"""
 

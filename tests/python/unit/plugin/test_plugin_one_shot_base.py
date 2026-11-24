@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pytest
 import pandas as pd
@@ -530,6 +531,64 @@ def test_heuristic_match_threshold_must_be_a_positive_integer(value):
         one_shot_base._normalize_heuristic_keywords(
             {**_KEYWORD_LISTS, "min_matches": value}
         )
+
+
+_DOLLAR_KEY_SCHEMA = {
+    "$scope": "data centers",
+    "$instructions": {"size_tiering": "Use the most restrictive tier."},
+    "type": "object",
+    "properties": {"outputs": {"type": "array", "items": {}}},
+}
+
+
+async def _parse_and_capture_call(system_prompt):
+    """Run SchemaOrdinanceParser.parse with a fake LLM call"""
+    parser = SimpleNamespace(
+        SCHEMA=_DOLLAR_KEY_SCHEMA,
+        SYSTEM_PROMPT=system_prompt,
+        DATA_TYPE_SHORT_DESC=None,
+        _MP=SchemaOrdinanceParser._MP,
+        llm_service=SimpleNamespace(model_name="test-model"),
+        call=AsyncMock(return_value={"outputs": []}),
+    )
+    jurisdiction = Jurisdiction("county", "Colorado", "Adams")
+    out = await SchemaOrdinanceParser.parse(parser, "text", jurisdiction)
+    assert out is None
+    return parser.call.await_args.kwargs
+
+
+@pytest.mark.asyncio
+async def test_schema_parser_puts_full_schema_at_end_of_system_prompt():
+    """The full schema, with its $ keys, ends the system prompt"""
+    kwargs = await _parse_and_capture_call(SchemaOrdinanceParser.SYSTEM_PROMPT)
+
+    assert kwargs["sys_msg"].endswith(
+        "Here is the full schema with extra instructions and information: "
+        f"{_DOLLAR_KEY_SCHEMA}"
+    )
+    assert "size_tiering" in kwargs["sys_msg"]
+
+
+@pytest.mark.asyncio
+async def test_schema_parser_keeps_a_custom_schema_placeholder():
+    """A prompt that already places {schema} gets it only once"""
+    kwargs = await _parse_and_capture_call("Extract data.\n\n{schema}")
+
+    assert kwargs["sys_msg"].count("size_tiering") == 1
+    assert "Here is the full schema" not in kwargs["sys_msg"]
+
+
+@pytest.mark.asyncio
+async def test_schema_parser_drops_dollar_keys_from_response_format():
+    """The structured-output schema has no $ keys; SCHEMA keeps them"""
+    kwargs = await _parse_and_capture_call(SchemaOrdinanceParser.SYSTEM_PROMPT)
+
+    sent = kwargs["response_format"]["json_schema"]["schema"]
+    assert sent == {
+        "type": "object",
+        "properties": {"outputs": {"type": "array", "items": {}}},
+    }
+    assert "$instructions" in _DOLLAR_KEY_SCHEMA
 
 
 if __name__ == "__main__":
