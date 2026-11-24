@@ -618,15 +618,13 @@ def test_validate_collection_targets_rejects_invalid_counts(targets, error):
         persistence_module.validate_collection_targets(targets)
 
 
-@pytest.mark.parametrize("saved_count", [None, 2])
-def test_collection_targets_read_document_and_step_counts(saved_count):
+def test_collection_targets_read_document_and_step_counts_with_none():
     """Read saved counts and derive document counts for older shards"""
     record = {
         "results": [{"id": 1}, {"id": 2}],
         "completed_step_document_counts": {"known_local_docs": 2},
     }
-    if saved_count is not None:
-        record["num_docs"] = saved_count
+
     targets = {
         "num_docs": 2,
         "completed_step_document_counts.known_local_docs": 2,
@@ -634,7 +632,48 @@ def test_collection_targets_read_document_and_step_counts(saved_count):
     }
     metrics = persistence_module.validate_collection_targets(targets)
 
-    assert not shard_failures(record, targets, metrics)
+    assert shard_failures(record, targets, metrics)
+    targets["completed_step_document_counts.search_engine"] = 1
+    assert shard_failures(record, targets, metrics) == [
+        {
+            "metric": "num_docs",
+            "actual": -1,
+            "minimum": 2,
+        },
+        {
+            "metric": "completed_step_document_counts.search_engine",
+            "actual": -1,
+            "minimum": 1,
+        },
+    ]
+
+
+def test_collection_targets_read_document_and_step_counts():
+    """Read saved counts and derive document counts for older shards"""
+    record = {
+        "results": [{"id": 1}, {"id": 2}],
+        "num_docs": 2,
+        "completed_step_document_counts": {"known_local_docs": 2},
+    }
+
+    targets = {
+        "num_docs": 2,
+        "completed_step_document_counts.known_local_docs": 2,
+        "completed_step_document_counts.search_engine": 0,
+    }
+    metrics = persistence_module.validate_collection_targets(targets)
+
+    assert shard_failures(record, targets, metrics) == [
+        {
+            "metric": "completed_step_document_counts.search_engine",
+            "actual": -1,
+            "minimum": 0,
+        }
+    ]
+    record["completed_step_document_counts"] = {
+        "known_local_docs": 2,
+        "search_engine": 0,
+    }
     targets["completed_step_document_counts.search_engine"] = 1
     assert shard_failures(record, targets, metrics) == [
         {
@@ -645,9 +684,19 @@ def test_collection_targets_read_document_and_step_counts(saved_count):
     ]
 
 
-@pytest.mark.parametrize("record", [None, {"results": [], "num_docs": 0}])
-def test_collection_targets_require_nonempty_documents(record):
+def test_collection_targets_with_no_results():
     """Zero explicit minima do not allow empty or missing shards"""
+    targets = {"num_docs": 0}
+    metrics = persistence_module.validate_collection_targets(targets)
+    assert shard_failures(None, targets, metrics) == [
+        {"metric": "results", "actual": 0, "minimum": 1},
+        {"actual": -1, "metric": "num_docs", "minimum": 0},
+    ]
+
+
+def test_collection_targets_require_nonempty_documents():
+    """Zero explicit minima do not allow empty or missing shards"""
+    record = {"results": [], "num_docs": 0}
     targets = {"num_docs": 0}
     metrics = persistence_module.validate_collection_targets(targets)
     assert shard_failures(record, targets, metrics) == [

@@ -10,6 +10,7 @@ from .apply import (
 
 # Temporarily import to register plugins
 # Can drop once plugins register themselves
+from .data_centers import COMPASSDataCentersExtractor
 from .ghp import COMPASSGeoHeatPumpExtractor
 from .geothermal_electricity import COMPASSGeoElectricityExtractor
 from .natural_gas import COMPASSNaturalGasExtractor
@@ -18,6 +19,8 @@ from .oil_gas_wells import COMPASSOilGasWellsExtractor
 from .rmp import COMPASSGeoRMPExtractor
 from .small_wind import COMPASSSmallWindExtractor
 from .solar import COMPASSSolarExtractor
+from .solar_os import COMPASSSolarOneShotExtractor
 from .transmission import COMPASSTransmissionExtractor
 from .water import TexasWaterRightsExtractor
 from .wind import COMPASSWindExtractor
+from .wind_os import COMPASSWindOneShotExtractor

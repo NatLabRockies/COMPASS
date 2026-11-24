@@ -17,6 +17,7 @@ from compass.pipeline.data_classes import OutputSettings
 from compass.pipeline.runtime import _setup_folders
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import GenericFuncRunner
+from compass.utilities.event_log import EventLog, emit_event, use_event_log
 from compass.utilities.enums import LLMTasks
 
 
@@ -164,7 +165,9 @@ async def test_docs_from_se_search_adds_search_engine_attrs(monkeypatch):
         search_semaphore=None,
         browser_semaphore=None,
         url_ignore_substrings=None,
-        jurisdiction=SimpleNamespace(full_name="Example County, Test"),
+        jurisdiction=SimpleNamespace(
+            full_name="Example County, Test", website_url=None
+        ),
         simple_se_result_sort=False,
         se_shard_out_dir=None,
     )
@@ -225,7 +228,7 @@ async def test_search_candidate_budget_and_failed_downloads(monkeypatch):
         None,
         None,
         None,
-        SimpleNamespace(full_name="Example"),
+        SimpleNamespace(full_name="Example", website_url=None),
         True,
         None,
     )
@@ -326,6 +329,199 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     assert [doc.text for doc in docs] == ["keep"]
     assert crawler_kwargs["url_ignore_substrings"] is url_ignore_substrings
     assert crawler_kwargs["url_keep_substrings"] is url_keep_substrings
+
+
+def test_search_results_become_priority_seeds():
+    """Search results become one seed per kept URL, with its sources"""
+    saved = {
+        "queries": ["Example County data center ordinance"],
+        "results": [
+            {
+                "url": "https://example.gov/law.pdf?utm_source=x",
+                "query": "q1",
+                "search_engine": "A",
+                "query_rank": 1,
+                "filtered_reason": None,
+            },
+            {
+                "url": "https://example.gov/law.pdf",
+                "query": "q2",
+                "search_engine": "B",
+                "query_rank": 3,
+                "filtered_reason": None,
+            },
+            {
+                "url": "https://example.gov/law.pdf",
+                "query": "q3",
+                "search_engine": "C",
+                "query_rank": 2,
+                "filtered_reason": "duplicate",
+            },
+            {"url": "https://x.com/post", "filtered_reason": "blacklist:x"},
+            {
+                "url": "https://example.gov/far.pdf",
+                "filtered_reason": "beyond_top_n",
+            },
+            {
+                "url": "https://example.gov/far.pdf",
+                "filtered_reason": "duplicate",
+            },
+            {"url": None, "filtered_reason": None},
+        ],
+    }
+    seeds = download_module._search_seeds(saved["results"])
+
+    assert [seed["url"] for seed in seeds] == ["https://example.gov/law.pdf"]
+    # a duplicate of a kept result still shows who else found the page
+    assert [x["search_engine"] for x in seeds[0]["sources"]] == ["A", "B", "C"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("saved", [False, True])
+async def test_priority_search_uses_the_standard_search(monkeypatch, saved):
+    """Priority search reuses the standard search or its saved results"""
+    found = {
+        "queries": ["q"],
+        "results": [{"url": "https://a.gov/law.pdf", "filtered_reason": None}],
+    }
+    calls = []
+
+    async def fake_search(*args, **kwargs):  # ruff:ignore[unused-async]
+        calls.append((args, kwargs))
+        return found
+
+    monkeypatch.setattr(
+        download_module, "search_single_jurisdiction", fake_search
+    )
+    workflow = SimpleNamespace(
+        jurisdiction="Example County",
+        known_se_results=found if saved else None,
+        runtime=SimpleNamespace(
+            search_engine_semaphore=None,
+            search_params=SimpleNamespace(
+                url_ignore_substrings=["x.com"],
+                url_keep_substrings=None,
+                se_kwargs={"search_engines": ["E"]},
+            ),
+        ),
+    )
+
+    out = await download_module._priority_search(workflow, ["t"], 25)
+
+    assert out is found
+    if saved:
+        assert calls == []
+        return
+    ((args, kwargs),) = calls
+    assert args[:3] == (["t"], "Example County", 25)
+    assert kwargs == {"simple": False, "search_engines": ["E"]}
+
+
+@pytest.mark.asyncio
+async def test_standard_search_records_search_and_download_steps(
+    monkeypatch, tmp_path
+):
+    """Every result and the selected URLs are logged, by phase"""
+    url = "https://example.com/ordinance.pdf"
+
+    async def fake_search(*_args, **_kwargs):  # ruff:ignore[unused-async]
+        return {
+            "queries": ["Example County ordinance"],
+            "results": [
+                {"url": url, "overall_rank": 1, "filtered_reason": None},
+                {"url": "https://x.com/a", "filtered_reason": "blacklist:x"},
+            ],
+        }
+
+    async def fake_docs_from_urls(urls, *_args, **_kwargs):  # ruff:ignore[unused-async]
+        emit_event("download_marker", urls=urls)
+        return [SimpleNamespace(attrs={"source": url})]
+
+    monkeypatch.setattr(
+        download_module, "search_single_jurisdiction", fake_search
+    )
+    monkeypatch.setattr(
+        download_module, "_docs_from_urls", fake_docs_from_urls
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await download_module._docs_from_se_search(
+            query_templates=["{jurisdiction} ordinance"],
+            num_urls=5,
+            search_semaphore=None,
+            browser_semaphore=None,
+            url_ignore_substrings=None,
+            jurisdiction=SimpleNamespace(
+                full_name="Example County, Test", website_url=None
+            ),
+            simple_se_result_sort=False,
+            se_shard_out_dir=None,
+        )
+    events = [json.loads(line) for line in log.path.read_text().splitlines()]
+    by_type = {e["type"]: e for e in events}
+    assert len(by_type["search_results"]["results"]) == 2
+    assert by_type["search_selected"]["urls"] == [url]
+    assert by_type["search_selected"]["tags"]["step"] == (
+        "collect.search_engine.select"
+    )
+    assert by_type["download_marker"]["tags"]["step"] == (
+        "collect.search_engine.download"
+    )
+
+
+@pytest.mark.asyncio
+async def test_filter_stages_are_separate_steps(monkeypatch, tmp_path):
+    """Each filtering stage's events and results sit in its own phase"""
+    keep = SimpleNamespace(
+        attrs={"source": "https://county.gov/ord.pdf"}, text="ordinance"
+    )
+    drop = SimpleNamespace(
+        attrs={"source": "https://other.gov/x.pdf"}, text="other"
+    )
+
+    async def jurisdiction_stage(docs, **_kwargs):  # ruff:ignore[unused-async]
+        emit_event("jurisdiction_marker")
+        return docs
+
+    async def relevance_stage(docs, **_kwargs):  # ruff:ignore[unused-async]
+        emit_event("relevance_marker")
+        return [keep]
+
+    monkeypatch.setattr(
+        download_module,
+        "_down_select_docs_correct_jurisdiction",
+        jurisdiction_stage,
+    )
+    monkeypatch.setattr(download_module, "filter_documents", relevance_stage)
+    monkeypatch.setattr(
+        download_module.COMPASS_PB,
+        "update_jurisdiction_task",
+        lambda *_args, **_kwargs: None,
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await download_module.filter_ordinance_docs(
+            [keep, drop],
+            SimpleNamespace(full_name="Example County"),
+            {LLMTasks.DEFAULT: SimpleNamespace()},
+            heuristic=None,
+            tech="data_centers",
+            text_collectors=[],
+            usage_tracker=None,
+        )
+    events = [json.loads(line) for line in log.path.read_text().splitlines()]
+    steps = {
+        e["type"] if e["type"] != "filter_stage" else e["stage"]: e["tags"][
+            "step"
+        ]
+        for e in events
+    }
+    assert steps == {
+        "jurisdiction_marker": "filter.jurisdiction",
+        "jurisdiction": "filter.jurisdiction",
+        "relevance_marker": "filter.relevance",
+        "relevance": "filter.relevance",
+    }
 
 
 if __name__ == "__main__":

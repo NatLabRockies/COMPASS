@@ -69,6 +69,7 @@ class PipelineRuntime:
             request.runtime_settings.log_level
         )
         self.keep_async_logs = request.runtime_settings.keep_async_logs
+        self.keep_event_logs = request.runtime_settings.keep_event_logs
         self.log_listener = LogListener(
             ["compass", "elm"], level=self.log_level
         )
@@ -273,7 +274,10 @@ class PipelineRuntime:
     @cached_property
     def _llm_services(self):
         """LLM services for modes that require them"""
-        if self.mode == self.mode.COLLECT:
+        if (
+            self.mode == self.mode.COLLECT
+            and self.search_params.priority_search is None
+        ):
             return []
         return [model.llm_service for model in set(self.models.values())]
 

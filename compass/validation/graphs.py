@@ -104,7 +104,8 @@ def setup_graph_correct_document_type(**kwargs):
             "* If the text explicitly states adoption/approval/enactment "
             "status, rely only on that.\n"
             "* If the text contains proposal-stage indicators (e.g., "
-            '"proposed ordinance," "notice of proposed rulemaking," "for '
+            '"model ordinance," "proposed ordinance," '
+            '"notice of proposed rulemaking," "for '
             'public comment," "draft for review," "public hearing scheduled," '
             '"introduced," "pending adoption," etc.), treat it as **not** in '
             "effect.\n"

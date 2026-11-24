@@ -8,14 +8,19 @@ from .utilities.logs import setup_logging_levels, COMPASS_DEBUG_LEVEL
 # Temporarily import to register plugins
 # Can drop once plugins register themselves
 from .extraction import (
+    COMPASSDataCentersExtractor,
     COMPASSGeoHeatPumpExtractor,
     COMPASSGeoElectricityExtractor,
+    COMPASSNaturalGasExtractor,
     COMPASSNaturalGasPipelinesExtractor,
     COMPASSOilGasWellsExtractor,
     COMPASSGeoRMPExtractor,
     COMPASSSmallWindExtractor,
     COMPASSSolarExtractor,
+    COMPASSSolarOneShotExtractor,
+    COMPASSTransmissionExtractor,
     COMPASSWindExtractor,
+    COMPASSWindOneShotExtractor,
     TexasWaterRightsExtractor,
 )
 

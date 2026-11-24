@@ -14,6 +14,7 @@ from compass.validation.graphs import setup_graph_correct_document_type
 from compass.validation.utilities import step_based_threshold
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.utilities.enums import LLMUsageCategory
+from compass.utilities.event_log import emit_branch, event_step, event_tags
 from compass.utilities.ngrams import convert_text_to_sentence_ngrams
 from compass.warn import COMPASSWarning
 
@@ -481,11 +482,21 @@ async def parse_by_chunks(
         if not callbacks:
             continue
 
-        cb_futures = [
-            asyncio.create_task(cb(chunk_parser, ind), name=outer_task_name)
-            for cb in callbacks
-        ]
-        cb_results = await asyncio.gather(*cb_futures)
+        with (
+            _chunk_tags(chunk_parser, ind),
+            event_step("filter.relevance.chunks.collect"),
+        ):
+            cb_futures = [
+                asyncio.create_task(
+                    cb(chunk_parser, ind), name=outer_task_name
+                )
+                for cb in callbacks
+            ]
+            cb_results = await asyncio.gather(*cb_futures)
+            emit_branch(
+                "filter.relevance.chunks.collect",
+                "yes" if any(cb_results) else "no",
+            )
 
         # mask this chunk if we got a good result - this avoids forcing
         # the following chunk to be checked (it will only be checked if
@@ -503,22 +514,86 @@ async def _chunks_to_check(
     """Yield indices of chunks that should be checked"""
     for ind, text in enumerate(chunk_parser.text_chunks):
         passed_heuristic_mem.append(heuristic.check(text))
-        if ind < min_chunks_to_process:
-            if not await _chunk_is_correct_text_kind(
-                chunk_parser, ind, text_kind_validator
-            ):
-                continue
-
-        elif not _document_is_correct_text_kind(text_kind_validator):
+        with _chunk_tags(chunk_parser, ind):
+            verdict = await _chunk_verdict(
+                chunk_parser,
+                ind,
+                text_kind_validator,
+                min_chunks_to_process,
+                passed_heuristic_mem,
+            )
+        if verdict is None:
             return  # don't bother checking this document
-
-        # hasn't passed heuristic, so don't pass it to callbacks
-        elif not any(passed_heuristic_mem[-chunk_parser.num_to_recall :]):
+        if not verdict:
             continue
 
         logger.debug("Processing text at ind %d", ind)
         logger.debug_to_file("Text:\n%s", text)
         yield ind
+
+
+async def _chunk_verdict(
+    chunk_parser,
+    ind,
+    text_kind_validator,
+    min_chunks_to_process,
+    passed_heuristic_mem,
+):
+    """Whether a chunk goes to the collectors, recording why
+
+    Returns
+    -------
+    bool or None
+        ``True`` to pass the chunk to the collectors, ``False`` to skip
+        it, or ``None`` to stop checking the document.
+    """
+    if ind < min_chunks_to_process:
+        if text_kind_validator is None:
+            emit_branch(
+                "filter.relevance.chunks.head", "yes, legal check skipped"
+            )
+            return True
+
+        emit_branch("filter.relevance.chunks.head", "yes")
+        with event_step("filter.relevance.chunks.legal_tree"):
+            is_correct_kind = await _chunk_is_correct_text_kind(
+                chunk_parser, ind, text_kind_validator
+            )
+        emit_branch(
+            "filter.relevance.chunks.legal_tree",
+            "legal" if is_correct_kind else "not legal",
+        )
+        return is_correct_kind
+
+    emit_branch("filter.relevance.chunks.head", "no")
+    is_correct_kind = _document_is_correct_text_kind(text_kind_validator)
+    emit_branch(
+        "filter.relevance.chunks.doc_legal",
+        "yes" if is_correct_kind else "no: stop scanning",
+        **_text_kind_score(text_kind_validator),
+    )
+    if not is_correct_kind:
+        return None
+
+    # hasn't passed heuristic, so don't pass it to callbacks
+    passed = any(passed_heuristic_mem[-chunk_parser.num_to_recall :])
+    emit_branch("filter.relevance.chunks.heuristic", "yes" if passed else "no")
+    return passed
+
+
+def _chunk_tags(chunk_parser, ind):
+    """Tag events with the chunk being checked (counting from 0)"""
+    return event_tags(chunk=ind, chunks=len(chunk_parser.text_chunks))
+
+
+def _text_kind_score(text_kind_validator):
+    """Document-level legal-text score and threshold, when known"""
+    if not isinstance(text_kind_validator, LegalTextValidator):
+        return {}
+    return {
+        "score": text_kind_validator.doc.attrs.get("legal_text_score"),
+        "threshold": text_kind_validator.score_threshold,
+    }
 
 
 async def _chunk_is_correct_text_kind(chunk_parser, ind, text_kind_validator):

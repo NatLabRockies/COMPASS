@@ -62,10 +62,19 @@ class _RunningProvider:
             return
 
         while self.service.can_process and self._can_fit_jobs:
-            fut, outer_task_name, args, kwargs = await self.queue.get()
+            (
+                fut,
+                outer_task_name,
+                context,
+                args,
+                kwargs,
+            ) = await self.queue.get()
+            # The job runs in its caller's context, so what it records
+            # (such as retries, in an event log) is about that caller
             task = asyncio.create_task(
                 self.service.process_using_futures(fut, *args, **kwargs),
                 name=outer_task_name,
+                context=context,
             )
             self.queue.task_done()
             self.jobs.add(task)
