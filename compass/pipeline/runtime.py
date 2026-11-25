@@ -381,6 +381,6 @@ def _setup_folders(
 def _load_known_source(known_source):
     """Load configured known sources as int-keyed dictionaries"""
     known_source = known_source or {}
-    if isinstance(known_source, str):
+    if isinstance(known_source, (str, PathLike)):
         known_source = load_config(known_source)
     return {fips_to_str(k): v for k, v in known_source.items()}
