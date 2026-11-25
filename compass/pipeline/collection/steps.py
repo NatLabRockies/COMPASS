@@ -243,6 +243,8 @@ class SearchResultsCrawlStep(CollectionStep):
 
         excluded = []
         candidates = _get_search_crawl_candidates(workflow, excluded)
+        logger.debug("Search crawl exclusions: %s", excluded)
+        logger.debug("Search crawl candidates: %s", candidates)
         with event_step("collect.search_results_crawl.seeds"):
             emit_event(
                 "search_crawl_seeds",
