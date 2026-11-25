@@ -481,7 +481,9 @@ def _get_search_crawl_candidates(workflow, excluded=None):
         attrs = info.doc.attrs
         rank = attrs.get("collection_step_rank")
         source = attrs.get("source")
-        reason = _search_crawl_exclusion(info, rank, source, workflow)
+        reason = _search_crawl_exclusion(
+            info, rank, source, workflow, candidates
+        )
         if reason:
             if excluded is not None:
                 excluded.append(
@@ -500,8 +502,10 @@ def _get_search_crawl_candidates(workflow, excluded=None):
     return sorted(candidates, key=itemgetter("overall_rank"))
 
 
-def _search_crawl_exclusion(info, rank, source, workflow):
+def _search_crawl_exclusion(info, rank, source, workflow, candidates):
     """Reason a search-engine document is not used as a crawl seed"""
+    if source in {candidate["url"] for candidate in candidates}:
+        return "duplicated url"
     if _exceeds_rank_cutoff(rank, workflow):
         return "beyond rank cutoff"
     if not _is_html_page(info):
