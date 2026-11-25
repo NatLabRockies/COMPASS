@@ -508,7 +508,7 @@ def _search_crawl_exclusion(info, rank, source, workflow, candidates):
         return "duplicated url"
     if _exceeds_rank_cutoff(rank, workflow):
         return "beyond rank cutoff"
-    if not _is_html_page(info):
+    if not _is_html_page(info.doc):
         return "not an HTML page"
     if _is_local_filepath(source):
         return "local file"
@@ -520,14 +520,14 @@ def _exceeds_rank_cutoff(rank, workflow):
     return rank is None or not 0 < rank <= workflow.num_search_results_to_crawl
 
 
-def _is_html_page(info):
-    """Check if the given document info represents a HTML page"""
-    if is_pdf_doc(info.doc):
+def _is_html_page(doc):
+    """Check if the given document represents an HTML page"""
+    if is_pdf_doc(doc):
         return False
 
     return (
-        isinstance(info.doc, HTMLDocument)
-        or str(info.doc.attrs.get("doc_type", "")).casefold() == "html"
+        isinstance(doc, HTMLDocument)
+        or str(doc.attrs.get("doc_type", "")).casefold() == "html"
     )
 
 
