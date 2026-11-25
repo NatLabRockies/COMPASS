@@ -337,8 +337,8 @@ class WebSearchParams:
             pages. PDF results count toward this limit. Zero disables
             the extra crawl. By default, ``0``.
         search_results_crawl_depth : int, default=3
-            Maximum link depth from each HTML search result. The seed
-            is depth zero. By default, ``3``.
+            Maximum link depth from each HTML search result or known
+            crawl seed. The seed is depth zero. By default, ``3``.
         """
         self.num_urls_to_check_per_jurisdiction = max(
             1, int(num_urls_to_check_per_jurisdiction)
@@ -576,9 +576,9 @@ class BaseRequest:
             limit. PDFs count toward the limit. Zero disables this step.
             By default, ``0``.
         search_results_crawl_depth : int, default=3
-            Maximum link depth from HTML search pages, counting the seed
-            as depth zero. Zero disables outgoing traversal. By default,
-            ``3``.
+            Maximum link depth from HTML search pages or known crawl
+            seeds, counting the seed as depth zero. Zero disables
+            outgoing traversal. By default, ``3``.
         max_num_docs_to_parse_per_jurisdiction : int, optional
             Maximum number of documents to parse for each jurisdiction
             (regardless of the collection method). If ``None``, all
@@ -1149,9 +1149,9 @@ class CollectionRequest(BaseRequest):
             PDFs count toward the limit. Zero disables this step.
             By default, ``0``.
         search_results_crawl_depth : int, default=3
-            Maximum link depth from HTML search pages, counting the seed
-            as depth zero. Zero disables outgoing traversal. By default,
-            ``3``.
+            Maximum link depth from HTML search pages or known crawl
+            seeds, counting the seed as depth zero. Zero disables
+            outgoing traversal. By default, ``3``.
         max_num_concurrent_browsers : int, default=10
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
