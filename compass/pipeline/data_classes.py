@@ -446,6 +446,7 @@ class BaseRequest:
         url_keep_substrings=None,
         known_local_docs=None,
         known_doc_urls=None,
+        known_crawl_seeds=None,
         file_loader_kwargs=None,
         search_engines=None,
         simple_se_result_sort=False,
@@ -654,6 +655,13 @@ class BaseRequest:
             copied onto the loaded document as attributes. This input
             can also be a path to a JSON file containing the same
             mapping. By default, ``None``.
+        known_crawl_seeds : dict or path-like, optional
+            Mapping of jurisdiction codes to lists of HTTP(S) URLs to
+            crawl independently, or a JSON file containing that
+            mapping. Duplicate URLs and non-HTML pages are excluded.
+            Crawls use ``search_results_crawl_depth`` and
+            ``website_crawl_timeout_seconds`` without requiring search
+            or website discovery to be enabled. By default, ``None``.
         file_loader_kwargs : dict, optional
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
@@ -832,6 +840,7 @@ class BaseRequest:
         self.known_sources = KnownSourcesInput(
             known_local_docs=known_local_docs,
             known_doc_urls=known_doc_urls,
+            known_crawl_seeds=known_crawl_seeds,
         )
         self.user_model_input = model
         self.llm_costs = llm_costs
@@ -1038,6 +1047,7 @@ class CollectionRequest(BaseRequest):
         url_keep_substrings=None,
         known_local_docs=None,
         known_doc_urls=None,
+        known_crawl_seeds=None,
         file_loader_kwargs=None,
         search_engines=None,
         simple_se_result_sort=False,
@@ -1223,6 +1233,13 @@ class CollectionRequest(BaseRequest):
             copied onto the loaded document as attributes. This input
             can also be a path to a JSON file containing the same
             mapping. By default, ``None``.
+        known_crawl_seeds : dict or path-like, optional
+            Mapping of jurisdiction codes to lists of HTTP(S) URLs to
+            crawl independently, or a JSON file containing that
+            mapping. Duplicate URLs and non-HTML pages are excluded.
+            Crawls use ``search_results_crawl_depth`` and
+            ``website_crawl_timeout_seconds`` without requiring search
+            or website discovery to be enabled. By default, ``None``.
         file_loader_kwargs : dict, optional
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
@@ -1384,6 +1401,7 @@ class CollectionRequest(BaseRequest):
             url_keep_substrings=url_keep_substrings,
             known_local_docs=known_local_docs,
             known_doc_urls=known_doc_urls,
+            known_crawl_seeds=known_crawl_seeds,
             file_loader_kwargs=file_loader_kwargs,
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
