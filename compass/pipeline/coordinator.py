@@ -165,6 +165,9 @@ class BaseRunMode(ABC):
                 jurisdiction.code
             ),
             known_doc_urls=self.runtime.known_doc_urls.get(jurisdiction.code),
+            known_crawl_seeds=self.runtime.known_crawl_seeds.get(
+                jurisdiction.code
+            ),
             known_se_results=known_se_results,
             perform_se_search=self.runtime.request.perform_se_search,
             perform_website_search=(
