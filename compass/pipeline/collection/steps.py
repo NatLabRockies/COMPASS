@@ -539,9 +539,9 @@ def _is_local_filepath(source):
 
 
 async def _crawl_seed_and_record(
-    workflow, candidate, heuristic, keyword_points
+    workflow, candidate, heuristic, keyword_points, *, seed_kind="search"
 ):
-    """Crawl one search-result seed, recording how it finished
+    """Crawl one seed, recording how it finished
 
     Returns the documents found, or ``None`` if the crawl failed.
     """
@@ -551,17 +551,17 @@ async def _crawl_seed_and_record(
         )
     except Exception as exc:
         logger.exception(
-            "Error crawling search result seed %s", candidate.get("url")
+            "Error crawling %s seed %s", seed_kind, candidate.get("url")
         )
         emit_event(
-            "search_crawl_seed_finished",
+            f"{seed_kind}_crawl_seed_finished",
             url=candidate.get("url"),
             **error_details(exc),
         )
         return None
 
     emit_event(
-        "search_crawl_seed_finished",
+        f"{seed_kind}_crawl_seed_finished",
         url=candidate.get("url"),
         documents=[document_summary(doc) for doc in docs],
     )
