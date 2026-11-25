@@ -95,7 +95,19 @@ def _update_to_best_metadata(doc_info, doc, step_name):
         return
 
     _merge_search_engines(doc_info, doc)
+    _merge_crawl_seeds(doc_info, doc)
     _set_best_collection_rank(doc_info, doc, step_name)
+
+
+def _merge_crawl_seeds(doc_info, doc):
+    """Preserve seed provenance when other steps retain a duplicate"""
+    for key in ("known_crawl_seeds", "search_crawl_seeds"):
+        if key not in doc.attrs:
+            continue
+        seeds = doc_info.doc.attrs.setdefault(key, [])
+        for seed in doc.attrs[key]:
+            if seed not in seeds:
+                seeds.append(seed)
 
 
 def _merge_search_engines(doc_info, doc):
