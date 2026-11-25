@@ -603,7 +603,7 @@ async def _download_docs_using_se_results(workflow):
 async def _crawl_search_candidate(
     workflow, candidate, heuristic, keyword_points
 ):
-    """Crawl one ranked HTML candidate as a PDF-only seed"""
+    """Crawl one HTML candidate as a PDF-only seed"""
     seed_url = candidate.get("url")
     if not seed_url:
         return []
