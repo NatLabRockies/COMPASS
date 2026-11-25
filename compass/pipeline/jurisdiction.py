@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 class SingleJurisdictionRun:
     """Application service that orchestrates one jurisdiction run"""
 
-    def __init__(
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         runtime,
         jurisdiction,
@@ -45,6 +45,7 @@ class SingleJurisdictionRun:
         usage_tracker=None,
         known_local_docs=None,
         known_doc_urls=None,
+        known_crawl_seeds=None,
         known_se_results=None,
         perform_se_search=True,
         perform_website_search=True,
@@ -77,6 +78,10 @@ class SingleJurisdictionRun:
             Optional URL-based document descriptors that should be
             seeded into collection for this jurisdiction before any
             search or crawl steps are run. By default, ``None``.
+        known_crawl_seeds : list of str, optional
+            User-provided URLs to crawl independently for this
+            jurisdiction, regardless of search or website discovery
+            settings. By default, ``None``.
         known_se_results : list of dict, optional
             Optional search engine result descriptors that should be
             seeded into collection for this jurisdiction before any
@@ -98,6 +103,7 @@ class SingleJurisdictionRun:
         self.usage_tracker = usage_tracker
         self.known_local_docs = known_local_docs
         self.known_doc_urls = known_doc_urls
+        self.known_crawl_seeds = known_crawl_seeds
         self.known_se_results = known_se_results
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
