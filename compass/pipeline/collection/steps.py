@@ -504,12 +504,17 @@ def _get_search_crawl_candidates(workflow, excluded=None):
 
 def _search_crawl_exclusion(info, rank, source, workflow, candidates):
     """Reason a search-engine document is not used as a crawl seed"""
-    if source in {candidate["url"] for candidate in candidates}:
-        return "duplicated url"
     if _exceeds_rank_cutoff(rank, workflow):
         return "beyond rank cutoff"
     if not _is_html_page(info.doc):
         return "not an HTML page"
+    return _source_based_crawl_exclusion(source, candidates)
+
+
+def _source_based_crawl_exclusion(source, candidates):
+    """Reason a source URL should be excluded from crawl candidates"""
+    if source in {candidate["url"] for candidate in candidates}:
+        return "duplicated url"
     if _is_local_filepath(source):
         return "local file"
     return None
