@@ -18,6 +18,7 @@ from compass.pipeline.targets import shard_failures
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
     ElmWebsiteCrawlStep,
+    KnownCrawlSeedsStep,
     KnownLocalDocumentsStep,
     KnownUrlDocumentsStep,
     SearchEngineDocumentsStep,
@@ -81,6 +82,14 @@ class DocumentCollection:
         else:
             logger.debug(
                 "%r processing has no known URLs configured",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        if self.workflow.known_crawl_seeds:
+            steps.append(KnownCrawlSeedsStep())
+        else:
+            logger.debug(
+                "%r processing has no known crawl seeds configured",
                 self.workflow.jurisdiction.full_name,
             )
 
