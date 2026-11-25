@@ -96,6 +96,7 @@ async def run_compass(request, re_run_targets=None):
         steps = _enabled_steps(
             known_local_docs=request.known_sources.known_local_docs,
             known_doc_urls=request.known_sources.known_doc_urls,
+            known_crawl_seeds=request.known_sources.known_crawl_seeds,
             perform_se_search=request.perform_se_search,
             num_search_results_to_crawl=(
                 request.search_settings.num_search_results_to_crawl
@@ -587,6 +588,7 @@ def _enabled_steps(
     perform_se_search=True,
     num_search_results_to_crawl=0,
     perform_website_search=True,
+    known_crawl_seeds=None,
 ):
     """Return enabled collection steps or raise when none are enabled"""
     steps = []
@@ -594,6 +596,8 @@ def _enabled_steps(
         steps.append("Check local document")
     if known_doc_urls:
         steps.append("Check known document URL")
+    if known_crawl_seeds:
+        steps.append("Crawl known seed URLs")
     if perform_se_search:
         steps.append("Look for document using search engine")
         if num_search_results_to_crawl > 0:
@@ -606,8 +610,9 @@ def _enabled_steps(
     if not steps:
         msg = (
             "No processing steps enabled! Please provide at least one of "
-            "'known_local_docs', 'known_doc_urls', or set at least one "
-            "of 'perform_se_search' or 'perform_website_search' to True."
+            "'known_local_docs', 'known_doc_urls', 'known_crawl_seeds', "
+            "or set at least one of 'perform_se_search' or "
+            "'perform_website_search' to True."
         )
         raise COMPASSValueError(msg)
 
