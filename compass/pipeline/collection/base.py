@@ -126,10 +126,11 @@ class DocumentCollection:
 
             1. Process any/all known local documents
             2. Process any/all known document URLs
-            3. Search engine-based search for ordinance documents
-            4. Crawl HTML pages among the ranked search results, when
+            3. Crawl user-provided HTML seed URLs
+            4. Search engine-based search for ordinance documents
+            5. Crawl HTML pages among the ranked search results, when
                configured
-            5. Jurisdiction website crawl-based search for ordinance
+            6. Jurisdiction website crawl-based search for ordinance
                documents
 
         Users can disable any of these steps via the workflow
