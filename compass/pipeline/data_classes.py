@@ -169,9 +169,14 @@ class OutputSettings:
 
 
 class KnownSourcesInput:
-    """Value Object for known documents and URL inputs"""
+    """Value Object for known documents, URLs, and crawl seeds"""
 
-    def __init__(self, known_local_docs=None, known_doc_urls=None):
+    def __init__(
+        self,
+        known_local_docs=None,
+        known_doc_urls=None,
+        known_crawl_seeds=None,
+    ):
         """
 
         Parameters
@@ -194,9 +199,15 @@ class KnownSourcesInput:
             copied onto the loaded document as attributes. This input
             can also be a path to a JSON file containing the same
             mapping. By default, ``None``.
+        known_crawl_seeds : dict or path-like, optional
+            Mapping of jurisdiction codes to lists of HTTP(S) URLs to
+            crawl independently. Only HTML pages are eligible seeds.
+            This can also be a path to a JSON file containing the
+            mapping. By default, ``None``.
         """
         self.known_local_docs = known_local_docs
         self.known_doc_urls = known_doc_urls
+        self.known_crawl_seeds = known_crawl_seeds
 
 
 class WebSearchParams:
