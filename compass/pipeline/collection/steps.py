@@ -625,11 +625,14 @@ async def _crawl_search_candidate(
         )
 
 
-def _merge_search_crawl_docs(docs_by_source, docs, candidate):
-    """Merge duplicate crawl docs while retaining each search seed"""
+def _merge_search_crawl_docs(
+    docs_by_source, docs, candidate, *, seed_kind="search"
+):
+    """Merge duplicate crawl docs while retaining each seed"""
     provenance = dict(candidate)
+    seed_key = f"{seed_kind}_crawl_seeds"
     for doc in docs:
-        source_seeds = doc.attrs.setdefault("search_crawl_seeds", [])
+        source_seeds = doc.attrs.setdefault(seed_key, [])
         if provenance not in source_seeds:
             source_seeds.append(provenance)
         source_key = (
@@ -643,7 +646,7 @@ def _merge_search_crawl_docs(docs_by_source, docs, candidate):
         if existing is None:
             docs_by_source[source_key] = doc
             continue
-        existing_seeds = existing.attrs.setdefault("search_crawl_seeds", [])
+        existing_seeds = existing.attrs.setdefault(seed_key, [])
         if provenance not in existing_seeds:
             existing_seeds.append(provenance)
 
