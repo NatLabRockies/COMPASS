@@ -218,6 +218,9 @@ class COMPASSDocumentCollectionStep(CaseInsensitiveEnum):
     KNOWN_DOC_URLS = auto()
     """Collect known document URLs (e.g. from a pre-specified list)"""
 
+    KNOWN_CRAWL_SEEDS = auto()
+    """Crawl user-provided HTML seed URLs"""
+
     SEARCH_ENGINE = auto()
     """Collect documents discovered via search engine queries"""
 
@@ -234,8 +237,10 @@ class COMPASSDocumentCollectionStep(CaseInsensitiveEnum):
     def _new_post_hook(cls, obj, value):
         """Hook for post-processing after __new__; adds methods"""
         if value == "known_local_docs":
-            obj.priority = 6
+            obj.priority = 7
         elif value == "known_doc_urls":
+            obj.priority = 6
+        elif value == "known_crawl_seeds":
             obj.priority = 5
         elif value == "search_engine":
             obj.priority = 4
