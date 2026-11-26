@@ -28,7 +28,7 @@
 // which way it went as a `branch` event whose `outcome` is one of its
 // `when` labels.
 {
-  version: 3,
+  version: 4,
   nodes: [
     {
       id: "start",
@@ -67,9 +67,47 @@
       events: ["document_fetched", "http_response", "http_error"],
     },
     {
+      id: "collect.known_crawl_seeds",
+      kind: "group",
+      label: "3. Crawl from known URLs",
+      about: "Crawls the starting URLs supplied for this jurisdiction, independently of search engine and website discovery.",
+      code: "compass/pipeline/collection/steps.py:KnownCrawlSeedsStep",
+    },
+    {
+      id: "collect.known_crawl_seeds.seeds",
+      kind: "step",
+      label: "Select web seeds",
+      about: "Keeps HTTP(S) URLs in the order supplied, skipping exact duplicates and non-web sources.",
+      events: ["known_crawl_seeds"],
+      next: "collect.known_crawl_seeds.has_seeds",
+    },
+    {
+      id: "collect.known_crawl_seeds.has_seeds",
+      kind: "decision",
+      label: "Any seeds?",
+      next: [
+        {to: "collect.known_crawl_seeds.crawl", when: "yes"},
+        {to: "collect.known_crawl_seeds.none", when: "no"},
+      ],
+    },
+    {
+      id: "collect.known_crawl_seeds.crawl",
+      kind: "step",
+      label: "Crawl each seed in turn",
+      about: "Records the documents found or the error for each seed. A document found from multiple seeds retains each source seed.",
+      uses: "collect.crawler",
+      events: ["known_crawl_seed_finished"],
+    },
+    {
+      id: "collect.known_crawl_seeds.none",
+      kind: "end",
+      tone: "bad",
+      label: "No seeds",
+    },
+    {
       id: "collect.search_engine",
       kind: "group",
-      label: "3. Search engines",
+      label: "4. Search engines",
       about: "Searches for ordinance documents and downloads the top results.",
       code: "compass/pipeline/collection/steps.py:SearchEngineDocumentsStep",
       events: ["search_failed"],
@@ -266,7 +304,7 @@
     {
       id: "collect.search_results_crawl",
       kind: "group",
-      label: "4. Crawl from search results",
+      label: "5. Crawl from search results",
       about: "Crawls outward from the HTML pages among the search results, looking for documents they link to.",
       code: "compass/pipeline/collection/steps.py:SearchResultsCrawlStep",
     },
@@ -304,7 +342,7 @@
     {
       id: "collect.website_search_compass",
       kind: "group",
-      label: "5. Crawl the website (COMPASS)",
+      label: "6. Crawl the website (COMPASS)",
       about: "Finds the jurisdiction's main website and crawls it with the COMPASS crawler.",
       code: "compass/pipeline/collection/steps.py:CompassWebsiteCrawlStep",
     },
@@ -324,7 +362,7 @@
     {
       id: "collect.website_search_elm",
       kind: "group",
-      label: "6. Crawl the website (ELM)",
+      label: "7. Crawl the website (ELM)",
       about: "Finds the jurisdiction's main website and crawls it with ELM's crawler, which records no page-level events.",
       code: "compass/pipeline/collection/steps.py:ElmWebsiteCrawlStep",
     },
