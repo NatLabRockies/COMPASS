@@ -236,7 +236,7 @@ class SearchResultsCrawlStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.SEARCH_RESULTS_CRAWL
     """Identifier for step"""
 
-    async def collect(self, workflow):  # ruff:ignore[no-self-use]
+    async def collect(self, workflow):
         """Crawl the configured prefix of HTML search candidates"""
         if not workflow.perform_search_based_crawl:
             return []
@@ -258,25 +258,45 @@ class SearchResultsCrawlStep(CollectionStep):
             "collect.search_results_crawl.has_seeds",
             "yes" if candidates else "no",
         )
-        if not candidates:
+        return await _collect_crawl_docs(
+            workflow, candidates, step_name=self.STEP_NAME
+        )
+
+
+class KnownCrawlSeedsStep(CollectionStep):
+    """Crawl user-provided HTML seed URLs independently"""
+
+    STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_CRAWL_SEEDS
+    """Identifier for step"""
+
+    async def collect(self, workflow):
+        """Validate and crawl the known seeds for this jurisdiction"""
+        if not workflow.known_crawl_seeds:
             return []
 
-        heuristic = await workflow.extractor.get_heuristic()
-        keyword_points = await workflow.extractor.get_website_keywords()
-        docs_by_source = {}
-        for candidate in candidates:
-            with event_step("collect.search_results_crawl.crawl"):
-                docs = await _crawl_seed_and_record(
-                    workflow, candidate, heuristic, keyword_points
-                )
-            if docs is not None:
-                _merge_search_crawl_docs(docs_by_source, docs, candidate)
+        excluded = []
+        with event_step("collect.known_crawl_seeds.seeds"):
+            candidates = _get_known_crawl_candidates(workflow, excluded)
+            emit_event(
+                "known_crawl_seeds", seeds=candidates, excluded=excluded
+            )
 
-        docs = list(docs_by_source.values())
-        for doc in docs:
-            doc.attrs["compass_crawl"] = False
-            doc.attrs["check_correct_jurisdiction"] = True
-        return docs
+        for exclusion in excluded:
+            logger.warning(
+                "Skipping known crawl seed %r for %s: %s",
+                exclusion["url"],
+                workflow.jurisdiction.full_name,
+                exclusion["reason"],
+            )
+
+        logger.debug("Seeded crawl candidates: %s", candidates)
+        emit_branch(
+            "collect.known_crawl_seeds.has_seeds",
+            "yes" if candidates else "no",
+        )
+        return await _collect_crawl_docs(
+            workflow, candidates, step_name=self.STEP_NAME, seed_kind="known"
+        )
 
 
 class ElmWebsiteCrawlStep(CollectionStep):
