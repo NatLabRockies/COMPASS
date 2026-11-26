@@ -407,7 +407,7 @@ requirement:
 ``num_docs`` counts collected documents. The
 ``completed_step_document_counts.<step>`` metrics count documents attributed
 to a collection step. Supported step names are ``known_local_docs``,
-``known_doc_urls``, ``search_engine``, ``search_results_crawl``,
+``known_doc_urls``, ``known_crawl_seeds``, ``search_engine``, ``search_results_crawl``,
 ``website_search_elm``, and ``website_search_compass``. An absent step count
 is zero. Targets inspect saved counts; they do not enable collection steps.
 Counts must be nonnegative integers, all supplied minimums must pass, and
