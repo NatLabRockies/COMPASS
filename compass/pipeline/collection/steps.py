@@ -502,6 +502,20 @@ def _get_search_crawl_candidates(workflow, excluded=None):
     return sorted(candidates, key=itemgetter("overall_rank"))
 
 
+def _get_known_crawl_candidates(workflow, excluded):
+    """Load unique web seeds and exclude documents that are not HTML"""
+    candidates = []
+    for url in workflow.known_crawl_seeds:
+        reason = _source_based_crawl_exclusion(url, candidates)
+        if reason:
+            if excluded is not None:
+                excluded.append({"url": url, "reason": reason})
+            continue
+
+        candidates.append({"url": url, "doc_type": "html"})
+    return candidates
+
+
 def _search_crawl_exclusion(info, rank, source, workflow, candidates):
     """Reason a search-engine document is not used as a crawl seed"""
     if _exceeds_rank_cutoff(rank, workflow):
