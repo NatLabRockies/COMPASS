@@ -878,7 +878,7 @@ def _sanitized_links(links, base_url, url_filter=None):
         if _is_blacklisted(title, path, href, url_filter):
             continue
 
-        yield _Link(title=title, href=href, base_domain=base_url)
+        yield _Link(title=title, text=title, href=href, base_domain=base_url)
 
 
 def _is_blacklisted(title, path, url, url_filter):
