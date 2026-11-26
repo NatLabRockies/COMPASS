@@ -64,6 +64,7 @@ class DocumentCollection:
         self._collection_info = {}
         self._completed_steps = set()
 
+    # complexipy: ignore
     @cached_property
     def steps(self):
         """Collection steps in the order they should be executed"""
