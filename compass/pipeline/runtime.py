@@ -5,6 +5,7 @@ import logging
 from copy import deepcopy
 from functools import cached_property
 from contextlib import AsyncExitStack
+from os import PathLike
 
 from compass.plugin.registry import resolve_plugin
 from compass.exceptions import COMPASSValueError
