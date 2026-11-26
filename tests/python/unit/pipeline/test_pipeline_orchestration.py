@@ -1,6 +1,7 @@
 """Tests for compass.pipeline orchestration"""
 
 import logging
+import json
 from itertools import product
 from pathlib import Path
 from types import SimpleNamespace
@@ -20,6 +21,7 @@ from compass.pipeline import (
 )
 from compass.pipeline.coordinator import run_compass
 from compass.pipeline.runtime import PipelineRuntime
+from compass.utilities.enums import COMPASSDocumentCollectionStep
 
 from compass.pb import COMPASS_PB
 
@@ -121,6 +123,97 @@ def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
     assert "Configuration file does not exist" in testing_log_file.read_text(
         encoding="utf-8"
     )
+
+
+@pytest.mark.parametrize("request_class", [CollectionRequest, ProcessRequest])
+@pytest.mark.parametrize("input_kind", ["mapping", "path", "string_path"])
+def test_known_crawl_seeds_route_to_matching_jurisdiction(
+    tmp_path, request_class, input_kind
+):
+    """Requests load seed mappings and isolate each jurisdiction's seeds"""
+    seeds = {
+        53073: ["https://example.com/whatcom/zoning"],
+        "53001": ["https://example.com/adams/zoning"],
+    }
+    seed_input = seeds
+    if input_kind != "mapping":
+        seed_input = tmp_path / "seeds.json"
+        seed_input.write_text(json.dumps(seeds), encoding="utf-8")
+        if input_kind == "string_path":
+            seed_input = str(seed_input)
+    request = request_class(
+        tmp_path / "outputs",
+        "solar",
+        "jurisdictions.csv",
+        model=None,
+        known_crawl_seeds=seed_input,
+        perform_se_search=False,
+        perform_website_search=False,
+    )
+    runtime = PipelineRuntime(request)
+    runtime.__dict__["extractor_class"] = lambda **_kwargs: SimpleNamespace()
+    mode = coordinator_module.COMPASSCollection(runtime)
+    jurisdiction = SimpleNamespace(
+        code="53073", full_name="Whatcom County", website_url=None
+    )
+
+    workflow = mode._create(jurisdiction)
+
+    assert workflow.known_crawl_seeds == seeds[53073]
+    assert [step.STEP_NAME for step in workflow.collection.steps] == [
+        COMPASSDocumentCollectionStep.KNOWN_CRAWL_SEEDS
+    ]
+    jurisdiction.code = "99999"
+    assert mode._create(jurisdiction).known_crawl_seeds is None
+
+
+@pytest.mark.parametrize("seeds", [None, {}, {"53073": []}])
+def test_empty_known_crawl_seeds_do_not_enable_collection(tmp_path, seeds):
+    """An absent mapping or an empty jurisdiction list enables no crawl"""
+    request = CollectionRequest(
+        tmp_path / "outputs",
+        "solar",
+        "jurisdictions.csv",
+        known_crawl_seeds=seeds,
+        perform_se_search=False,
+        perform_website_search=False,
+    )
+    runtime = PipelineRuntime(request)
+    runtime.__dict__["extractor_class"] = lambda **_kwargs: SimpleNamespace()
+    jurisdiction = SimpleNamespace(
+        code="53073", full_name="Whatcom County", website_url=None
+    )
+
+    workflow = coordinator_module.COMPASSCollection(runtime)._create(
+        jurisdiction
+    )
+    assert workflow.collection.steps == []
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("request_class", [CollectionRequest, ProcessRequest])
+async def test_known_crawl_seeds_allow_seed_only_runs(
+    tmp_path,
+    request_class,
+    patched_workflow,
+    assert_message_was_logged,
+    caplog,
+):
+    """The coordinator accepts seeds when all discovery is disabled"""
+    request = request_class(
+        tmp_path / "outputs",
+        "solar",
+        "jurisdictions.csv",
+        model=None,
+        log_level="INFO",
+        known_crawl_seeds={"53073": ["https://example.com/zoning"]},
+        perform_se_search=False,
+        perform_website_search=False,
+    )
+
+    with caplog.at_level(logging.INFO, logger=coordinator_module.__name__):
+        assert await run_compass(request) == f"processed {request.MODE}"
+    assert_message_was_logged("Crawl known seed URLs", log_level="INFO")
 
 
 def test_runtime_passes_docling_pipeline_options_to_local_loader(tmp_path):

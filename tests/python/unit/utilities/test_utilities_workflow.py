@@ -3,10 +3,12 @@
 import ast
 import importlib
 from pathlib import Path
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
 import compass
+import compass.pipeline.collection.steps as collection_steps
 from compass.utilities.enums import COMPASSDocumentCollectionStep
 from compass.utilities.workflow import (
     load_workflow,
@@ -162,9 +164,21 @@ def test_every_collection_step_has_a_node():
         assert f"collect.{step}" in nodes
 
 
-def test_listed_events_are_emitted_somewhere():
+async def test_listed_events_are_emitted_somewhere(monkeypatch):
     """Event types a node lists are recorded somewhere in the package"""
     emitted = {"branch", "workflow_graph"}
+    # Seed completion event names are built at runtime, not string literals.
+    record = Mock()
+    monkeypatch.setattr(collection_steps, "emit_event", record)
+    monkeypatch.setattr(
+        collection_steps, "_crawl_search_candidate", AsyncMock(return_value=[])
+    )
+    for kind in ("search", "known"):
+        await collection_steps._crawl_seed_and_record(
+            None, {"url": "https://example.com"}, None, None, seed_kind=kind
+        )
+    emitted.update(call.args[0] for call in record.call_args_list)
+
     for name in ("emit_event", "emit", "_event"):
         for _, call in _source_calls(name):
             args = _literal_args(call, 1)
@@ -173,3 +187,7 @@ def test_listed_events_are_emitted_somewhere():
     for node in load_workflow()["nodes"]:
         for kind in node.get("events", []):
             assert kind in emitted, f"{node['id']}: {kind!r}"
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])

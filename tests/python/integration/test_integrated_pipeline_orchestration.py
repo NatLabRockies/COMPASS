@@ -10,6 +10,7 @@ from elm.web.document import MDDocument
 import compass.pipeline.data_classes as data_classes_module
 import compass.web.search as web_search_module
 import compass.scripts.download as download_module
+import compass.pipeline.collection.steps as steps_module
 from compass.pipeline import (
     CollectionRequest,
     ExtractionRequest,
@@ -25,6 +26,7 @@ from compass.plugin.base import BaseExtractionPlugin
 from compass.plugin.registry import PLUGIN_REGISTRY, register_plugin
 from compass.pb import COMPASS_PB
 from compass.services.base import Service
+from compass.services.threaded import TempFileCache
 from compass.utilities.enums import LLMTasks
 
 
@@ -189,6 +191,81 @@ def roundtrip_local_docs_inputs(tmp_path, test_data_files_dir):
     }
 
     return jurisdiction_fp, known_local_docs
+
+
+@pytest.mark.asyncio
+async def test_known_crawl_seeds_persist_and_resume(
+    tmp_path,
+    monkeypatch,
+    registered_roundtrip_plugin,
+    roundtrip_local_docs_inputs,
+):
+    """User seeds persist jurisdiction-specific provenance and checkpoints"""
+    jurisdiction_fp, _ = roundtrip_local_docs_inputs
+    seeds = {
+        "53073": [
+            "https://example.com/whatcom/planning",
+            "https://example.com/whatcom/zoning",
+        ],
+        "3600312243": ["https://example.com/caneadea/zoning"],
+    }
+    crawl_calls = []
+
+    async def crawl_seed(url, **_kwargs):
+        crawl_calls.append(url)
+        county = "whatcom" if "/whatcom/" in url else "caneadea"
+        doc = MDDocument(
+            pages=[f"{county} ordinance text"],
+            attrs={
+                "checksum": county,
+                "source": f"https://example.com/{county}/ordinance.txt",
+            },
+        )
+        doc.attrs["cache_fn"] = await TempFileCache.call(doc, doc.text)
+        return [doc]
+
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        crawl_seed,
+    )
+    out_dir = tmp_path / "collection"
+    request = CollectionRequest(
+        out_dir,
+        "roundtrip-test",
+        jurisdiction_fp,
+        known_crawl_seeds=seeds,
+        perform_se_search=False,
+        perform_website_search=False,
+        make_paths_relative=False,
+    )
+    message = await run_compass(request)
+    assert "2 documents collected for 2 jurisdictions" in message
+    assert set(crawl_calls) == {url for urls in seeds.values() for url in urls}
+
+    manifest_fp = out_dir / COLLECTION_MANIFEST_FILENAME
+    manifest = json.loads(manifest_fp.read_text(encoding="utf-8"))
+    for shard in manifest["jurisdictions"]:
+        (doc_info,) = shard["results"]
+        assert doc_info["known_crawl_seeds"] == [
+            {"url": url, "doc_type": "html"} for url in seeds[shard["FIPS"]]
+        ]
+        assert doc_info["from_steps"] == ["known_crawl_seeds"]
+        assert Path(doc_info["parsed_fp"]).is_file()
+        assert Path(doc_info["source_fp"]).is_file()
+        assert shard["completed_step_document_counts"] == {
+            "known_crawl_seeds": 1
+        }
+    assert manifest["completed_step_document_totals"] == {
+        "known_crawl_seeds": 2
+    }
+
+    COMPASS_PB.reset()
+    await run_compass(
+        request,
+        re_run_targets={"completed_step_document_counts.known_crawl_seeds": 1},
+    )
+    assert len(crawl_calls) == 3
 
 
 @pytest.mark.asyncio

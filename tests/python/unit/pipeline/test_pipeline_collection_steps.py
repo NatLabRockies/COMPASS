@@ -16,6 +16,7 @@ from compass.utilities.event_log import EventLog, use_event_log
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
     ElmWebsiteCrawlStep,
+    KnownCrawlSeedsStep,
     SearchEngineDocumentsStep,
     SearchResultsCrawlStep,
 )
@@ -117,6 +118,7 @@ def _build_workflow(
         extractor=_DummyExtractor(),
         runtime=runtime,
         known_se_results=None,
+        known_crawl_seeds=None,
         last_scrape_results=[],
         usage_tracker=None,
         num_search_results_to_crawl=num_search_results_to_crawl,
@@ -458,6 +460,176 @@ async def test_search_results_crawl_propagates_cancellation(monkeypatch):
 
     with pytest.raises(asyncio.CancelledError):
         await SearchResultsCrawlStep().collect(workflow)
+
+
+@pytest.mark.asyncio
+async def test_known_crawl_seeds_keep_distinct_paths_and_merge_documents(
+    monkeypatch,
+):
+    """Every unique user seed crawls with search settings and provenance"""
+    workflow = _build_workflow()
+    workflow.perform_se_search = False
+    workflow.perform_website_search = False
+    workflow.known_crawl_seeds = [
+        "https://example.com/planning",
+        "https://example.com/zoning",
+    ]
+    workflow.runtime.search_params.search_results_crawl_depth = 5
+    workflow.runtime.search_params.website_crawl_timeout_seconds = 60
+    downloads = AsyncMock()
+    monkeypatch.setattr(steps_module, "download_known_urls", downloads)
+    docs = [
+        SimpleNamespace(attrs={"checksum": "shared", "source": "result.pdf"})
+        for _ in workflow.known_crawl_seeds
+    ]
+    crawl = AsyncMock(side_effect=[[doc] for doc in docs])
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        crawl,
+    )
+
+    assert await KnownCrawlSeedsStep().collect(workflow) == [docs[0]]
+
+    assert [call.args[0] for call in crawl.await_args_list] == (
+        workflow.known_crawl_seeds
+    )
+    for call in crawl.await_args_list:
+        assert call.kwargs["max_depth"] == 5
+        assert call.kwargs["timeout_seconds"] == 60
+        assert call.kwargs["url_ignore_substrings"] == ("blocked.example",)
+        assert call.kwargs["url_keep_substrings"] == ("trusted.example",)
+        assert call.kwargs["file_loader_kwargs"] == (
+            workflow.runtime.file_loader_kwargs
+        )
+        assert call.kwargs["file_loader_kwargs"] is not (
+            workflow.runtime.file_loader_kwargs
+        )
+        assert call.kwargs["browser_semaphore"] is None
+    downloads.assert_not_awaited()
+    assert docs[0].attrs["known_crawl_seeds"] == [
+        {"url": url, "doc_type": "html"} for url in workflow.known_crawl_seeds
+    ]
+    assert "search_crawl_seeds" not in docs[0].attrs
+    assert docs[0].attrs["check_correct_jurisdiction"] is True
+    assert docs[0].attrs["compass_crawl"] is False
+
+
+@pytest.mark.asyncio
+async def test_known_crawl_seed_exclusions(monkeypatch, caplog, tmp_path):
+    """Skip exact duplicates and non-web sources before crawling"""
+    workflow = _build_workflow()
+    workflow.known_crawl_seeds = [
+        "https://example.com/zoning?utm_source=test",
+        "https://example.com/zoning",
+        "https://example.com/zoning",
+        "/local/ordinance.html",
+        "file:///local/ordinance.html",
+        "ftp://example.com/ordinance",
+        "https:///missing-host",
+        "https://blocked.example/zoning",
+    ]
+    crawl = AsyncMock(return_value=[])
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        crawl,
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        assert await KnownCrawlSeedsStep().collect(workflow) == []
+
+    expected_seeds = [
+        "https://example.com/zoning?utm_source=test",
+        "https://example.com/zoning",
+        "https://blocked.example/zoning",
+    ]
+    assert [call.args[0] for call in crawl.await_args_list] == expected_seeds
+    events = [json.loads(line) for line in log.path.read_text().splitlines()]
+    seeds = next(e for e in events if e["type"] == "known_crawl_seeds")
+    assert seeds["tags"]["step"] == "collect.known_crawl_seeds.seeds"
+    assert seeds["seeds"] == [
+        {"url": url, "doc_type": "html"} for url in expected_seeds
+    ]
+    assert [(e["url"], e["reason"]) for e in seeds["excluded"]] == [
+        ("https://example.com/zoning", "duplicated url"),
+        ("/local/ordinance.html", "local file"),
+        ("file:///local/ordinance.html", "local file"),
+        ("ftp://example.com/ordinance", "local file"),
+        ("https:///missing-host", "local file"),
+    ]
+    assert "duplicated url" in caplog.text
+    assert "local file" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_known_crawl_seeds_continue_after_crawl_failure(
+    monkeypatch, tmp_path, caplog
+):
+    """Seed failures are reported without preventing later crawls"""
+    workflow = _build_workflow()
+    workflow.known_crawl_seeds = [
+        f"https://example.com/{path}"
+        for path in ("crawl-fails", "empty", "success")
+    ]
+    doc = SimpleNamespace(attrs={"source": "found.pdf"})
+    crawl = AsyncMock(side_effect=[RuntimeError("crawl failed"), [], [doc]])
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        crawl,
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        assert await KnownCrawlSeedsStep().collect(workflow) == [doc]
+
+    events = [json.loads(line) for line in log.path.read_text().splitlines()]
+    outcomes = [e for e in events if e["type"] == "known_crawl_seed_finished"]
+    assert [e["url"] for e in outcomes] == workflow.known_crawl_seeds
+    assert outcomes[0]["error"] == "RuntimeError: crawl failed"
+    assert outcomes[1]["documents"] == []
+    assert outcomes[2]["documents"][0]["source"] == "found.pdf"
+    assert {e["tags"]["step"] for e in outcomes} == {
+        "collect.known_crawl_seeds.crawl"
+    }
+    assert "Error crawling known seed" in caplog.text
+
+
+@pytest.mark.asyncio
+async def test_known_crawl_seeds_propagate_cancellation(monkeypatch):
+    """Cancellation during a crawl stops processing remaining seeds"""
+    workflow = _build_workflow()
+    workflow.known_crawl_seeds = [
+        "https://example.com/zoning",
+        "https://example.com/planning",
+    ]
+    crawl = AsyncMock(side_effect=asyncio.CancelledError)
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        crawl,
+    )
+
+    with pytest.raises(asyncio.CancelledError):
+        await KnownCrawlSeedsStep().collect(workflow)
+    crawl.assert_awaited_once()
+    assert crawl.await_args.args[0] == workflow.known_crawl_seeds[0]
+
+
+@pytest.mark.asyncio
+async def test_known_crawl_seeds_skip_empty_input(monkeypatch):
+    """No crawling or extraction setup happens without user seeds"""
+    workflow = _build_workflow()
+    crawl = AsyncMock()
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        crawl,
+    )
+    workflow.extractor = None
+
+    assert await KnownCrawlSeedsStep().collect(workflow) == []
+    crawl.assert_not_awaited()
 
 
 @pytest.mark.asyncio

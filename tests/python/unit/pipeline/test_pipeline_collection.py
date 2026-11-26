@@ -59,6 +59,7 @@ def _workflow(existing_collection_info=None):
         jurisdiction_website=None,
         known_local_docs=None,
         known_doc_urls=None,
+        known_crawl_seeds=None,
         extraction=None,
         perform_se_search=True,
         num_search_results_to_crawl=0,
@@ -338,6 +339,21 @@ def test_search_results_crawl_step_is_not_registered_when_search_disabled():
     workflow.runtime.search_params.num_search_results_to_crawl = 2
 
     assert DocumentCollection(workflow).steps == []
+
+
+@pytest.mark.parametrize("perform_search", [False, True])
+def test_known_crawl_seeds_register_before_discovery(perform_search):
+    """User seeds run independently of search and website discovery"""
+    workflow = _workflow()
+    workflow.known_crawl_seeds = ["https://example.com/zoning"]
+    workflow.perform_se_search = perform_search
+    workflow.perform_search_based_crawl = perform_search
+    workflow.perform_website_search = perform_search
+
+    names = [step.STEP_NAME for step in DocumentCollection(workflow).steps]
+
+    assert names[0] == COMPASSDocumentCollectionStep.KNOWN_CRAWL_SEEDS
+    assert len(names) == (5 if perform_search else 1)
 
 
 async def test_completed_crawl_step_stays_completed_after_budget_change():

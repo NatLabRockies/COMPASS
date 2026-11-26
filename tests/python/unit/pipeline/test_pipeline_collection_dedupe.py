@@ -127,6 +127,45 @@ def test_search_duplicates_keep_best_rank():
     assert attrs["source"] == "https://example.com/4"
 
 
+def test_crawl_duplicates_preserve_all_seed_provenance():
+    """A previously collected PDF retains both kinds of crawl seeds"""
+    deduplicator = DocumentDeDuplicator()
+    retained = SimpleNamespace(
+        attrs={"checksum": "shared", "parsed_fp": "parsed_docs/saved.txt"}
+    )
+    deduplicator.add_docs([retained], step_name="known_doc_urls")
+    for step, seed_key, url in [
+        ("known_crawl_seeds", "known_crawl_seeds", "https://example.com/a"),
+        ("known_crawl_seeds", "known_crawl_seeds", "https://example.com/b"),
+        ("known_crawl_seeds", "known_crawl_seeds", "https://example.com/a"),
+        (
+            "search_results_crawl",
+            "search_crawl_seeds",
+            "https://example.com/c",
+        ),
+    ]:
+        doc = SimpleNamespace(
+            attrs={"checksum": "shared", seed_key: [{"url": url}]}
+        )
+        deduplicator.add_docs([doc], step_name=step)
+
+    info = next(iter(deduplicator.values()))
+    assert info.doc is retained
+    assert retained.attrs["parsed_fp"] == "parsed_docs/saved.txt"
+    assert retained.attrs["known_crawl_seeds"] == [
+        {"url": "https://example.com/a"},
+        {"url": "https://example.com/b"},
+    ]
+    assert retained.attrs["search_crawl_seeds"] == [
+        {"url": "https://example.com/c"}
+    ]
+    assert info.from_steps == [
+        "known_doc_urls",
+        "known_crawl_seeds",
+        "search_results_crawl",
+    ]
+
+
 @pytest.mark.parametrize("incoming_rank", [2, 4, 6, None])
 @pytest.mark.parametrize(
     "incoming_step", ["search_engine", "website_search_compass", None]
