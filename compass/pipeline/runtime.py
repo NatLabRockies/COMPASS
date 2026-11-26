@@ -79,6 +79,9 @@ class PipelineRuntime:
         self.known_doc_urls = _load_known_source(
             request.known_sources.known_doc_urls
         )
+        self.known_crawl_seeds = _load_known_source(
+            request.known_sources.known_crawl_seeds
+        )
         self._pytesseract_was_set_up = False
         LLM_COST_REGISTRY.update(request.llm_costs or {})
 
