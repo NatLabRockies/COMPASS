@@ -543,6 +543,37 @@ def _is_local_filepath(source):
     return scheme_not_web or not parsed_source.netloc
 
 
+async def _collect_crawl_docs(
+    workflow, candidates, *, step_name, seed_kind="search"
+):
+    """Crawl independent seeds and merge results with seed provenance"""
+    if not candidates:
+        return []
+
+    heuristic = await workflow.extractor.get_heuristic()
+    keyword_points = await workflow.extractor.get_website_keywords()
+    docs_by_source = {}
+    for candidate in candidates:
+        with event_step(f"collect.{step_name}.crawl"):
+            docs = await _crawl_seed_and_record(
+                workflow,
+                candidate,
+                heuristic,
+                keyword_points,
+                seed_kind=seed_kind,
+            )
+        if docs is not None:
+            _merge_search_crawl_docs(
+                docs_by_source, docs, candidate, seed_kind=seed_kind
+            )
+
+    docs = list(docs_by_source.values())
+    for doc in docs:
+        doc.attrs["compass_crawl"] = False
+        doc.attrs["check_correct_jurisdiction"] = True
+    return docs
+
+
 async def _crawl_seed_and_record(
     workflow, candidate, heuristic, keyword_points, *, seed_kind="search"
 ):
